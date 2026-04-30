@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Navbar } from '@/components/layout/Navbar';
@@ -7,7 +8,7 @@ import { VendorCard } from '@/components/vendors/VendorCard';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
-import { Search, MapPin, Users, Wallet, Sparkles, SlidersHorizontal, ArrowRight } from 'lucide-react';
+import { Search, MapPin, Wallet, SlidersHorizontal, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -22,6 +23,17 @@ const ALL_VENDORS = [
   { id: '3', name: 'Nearby Bridal', location: 'Cape Town', rating: 4.7, reviews: 45, category: 'Fashion', imageUrl: PlaceHolderImages.find(img => img.id === 'vendor-bridal')?.imageUrl || '', imageHint: 'wedding dress warm' },
   { id: '4', name: 'Rosa Melia', location: 'Cape Town', rating: 5.0, reviews: 32, category: 'Flowers & Decor', imageUrl: PlaceHolderImages.find(img => img.id === 'vendor-floral')?.imageUrl || '', imageHint: 'wedding floral arch' },
   { id: '5', name: 'Sunstone Manor', location: 'Stellenbosch', rating: 5.0, reviews: 210, category: 'Venues', imageUrl: PlaceHolderImages.find(img => img.id === 'vendor-sunstone')?.imageUrl || '', imageHint: 'wedding estate lights' },
+];
+
+const INTERNATIONAL_LOCATIONS = [
+  'Tuscany, Italy', 
+  'Provence, France', 
+  'Santorini, Greece', 
+  'Ubud, Bali', 
+  'London, UK', 
+  'Paris, France', 
+  'New York, USA', 
+  'Sydney, Australia'
 ];
 
 export default function VendorsPage() {
@@ -70,7 +82,7 @@ export default function VendorsPage() {
             </div>
 
             <div className={cn(
-              "bg-white/40 p-8 rounded-[32px] border border-primary/10 lg:block lg:sticky lg:top-32 transition-all",
+              "bg-white/40 p-8 rounded-[32px] border border-primary/10 lg:block lg:sticky lg:top-32 transition-all shadow-sm",
               !isFilterOpen && "hidden"
             )}>
               <h3 className="hidden lg:block font-headline text-[28px] mb-8 border-b border-primary/10 pb-4">Refine Results</h3>
@@ -98,16 +110,32 @@ export default function VendorsPage() {
                   <AccordionTrigger className="text-[13.5px] font-bold uppercase tracking-widest text-primary hover:no-underline flex items-center gap-3">
                     <div className="flex items-center gap-2">
                       <MapPin className="w-4 h-4" />
-                      Service Location
+                      Location
                     </div>
                   </AccordionTrigger>
-                  <AccordionContent className="pt-4 space-y-3.5">
-                    {['Cape Town', 'Stellenbosch', 'Johannesburg', 'Pretoria', 'Garden Route'].map(loc => (
-                      <div key={loc} className="flex items-center space-x-3 group cursor-pointer">
-                        <Checkbox id={`loc-${loc}`} className="rounded-md border-primary/30 w-5 h-5 data-[state=checked]:bg-secondary transition-all" />
-                        <label htmlFor={`loc-${loc}`} className="text-[15px] font-medium leading-none cursor-pointer group-hover:text-primary transition-colors text-foreground/85">{loc}</label>
+                  <AccordionContent className="pt-4 space-y-6">
+                    <div>
+                      <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-3">South Africa</p>
+                      <div className="space-y-2.5">
+                        {['Cape Town', 'Stellenbosch', 'Franschhoek', 'Johannesburg', 'Pretoria'].map(loc => (
+                          <div key={loc} className="flex items-center space-x-3 group cursor-pointer">
+                            <Checkbox id={`loc-sa-${loc}`} className="rounded-md border-primary/30 w-5 h-5 data-[state=checked]:bg-secondary transition-all" />
+                            <label htmlFor={`loc-sa-${loc}`} className="text-[15px] font-medium leading-none cursor-pointer group-hover:text-primary transition-colors text-foreground/85">{loc}</label>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Global</p>
+                      <div className="space-y-2.5">
+                        {INTERNATIONAL_LOCATIONS.map(loc => (
+                          <div key={loc} className="flex items-center space-x-3 group cursor-pointer">
+                            <Checkbox id={`loc-int-${loc}`} className="rounded-md border-primary/30 w-5 h-5 data-[state=checked]:bg-secondary transition-all" />
+                            <label htmlFor={`loc-int-${loc}`} className="text-[15px] font-medium leading-none cursor-pointer group-hover:text-primary transition-colors text-foreground/85">{loc}</label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </AccordionContent>
                 </AccordionItem>
 

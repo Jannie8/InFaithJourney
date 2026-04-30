@@ -1,3 +1,4 @@
+
 "use client";
 
 import { use } from 'react';
@@ -91,8 +92,19 @@ const CATEGORY_MAP: Record<string, { name: string; title: string; imageId: strin
   }
 };
 
-const INTERNATIONAL_LOCATIONS = ['Italy', 'France', 'Bali', 'Santorini', 'New York', 'Paris'];
-const SA_LOCATIONS = ['Cape Town', 'Stellenbosch', 'Johannesburg', 'Pretoria', 'Garden Route'];
+const INTERNATIONAL_LOCATIONS = [
+  'Tuscany, Italy', 
+  'Provence, France', 
+  'Santorini, Greece', 
+  'Ubud, Bali', 
+  'Amalfi Coast, Italy', 
+  'Paris, France', 
+  'London, UK', 
+  'New York, USA', 
+  'Sydney, Australia'
+];
+
+const SA_LOCATIONS = ['Cape Town', 'Stellenbosch', 'Franschhoek', 'Johannesburg', 'Pretoria', 'Garden Route'];
 
 export default function CategoryBrowsePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
@@ -260,7 +272,6 @@ export default function CategoryBrowsePage({ params }: { params: Promise<{ slug:
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 md:gap-10">
-              {/* This would normally be filtered data */}
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <VendorCard 
                   key={i} 
