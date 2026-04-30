@@ -19,7 +19,7 @@ export function Navbar() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      setScrolled(window.scrollY > 50);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
@@ -29,7 +29,7 @@ export function Navbar() {
     <nav className={cn(
       "fixed top-0 z-[100] w-full px-4 md:px-8 py-3 md:py-4 transition-all duration-500 ease-in-out",
       scrolled 
-        ? "bg-background/95 backdrop-blur-2xl border-b border-primary/15 shadow-md" 
+        ? "bg-background/98 backdrop-blur-2xl border-b border-primary/20 shadow-lg" 
         : "bg-transparent"
     )}>
       <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -43,14 +43,20 @@ export function Navbar() {
             <Link
               key={link.name}
               href={link.href}
-              className="text-[13px] font-bold text-foreground/90 hover:text-primary transition-colors uppercase tracking-[0.2em] golden-underline-glow"
+              className={cn(
+                "text-[13px] font-bold uppercase tracking-[0.2em] golden-underline-glow transition-colors",
+                scrolled ? "text-foreground" : "text-white md:text-foreground/90 lg:text-white"
+              )}
             >
               {link.name}
             </Link>
           ))}
           <Link
             href="/vendors"
-            className="text-[13px] font-bold text-foreground/90 hover:text-primary transition-colors uppercase tracking-[0.2em] golden-underline-glow flex items-center gap-1.5"
+            className={cn(
+              "text-[13px] font-bold uppercase tracking-[0.2em] golden-underline-glow flex items-center gap-1.5 transition-colors",
+              scrolled ? "text-foreground" : "text-white"
+            )}
           >
             <Sparkles className="w-4 h-4 text-secondary animate-pulse" />
             AI Planner
@@ -59,8 +65,14 @@ export function Navbar() {
 
         {/* Right Actions (Desktop Only) */}
         <div className="hidden lg:flex items-center gap-8">
-          <Link href="/dashboard" className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-[0.15em] hover:text-primary transition-colors group">
-            <User className="w-5 h-5 group-hover:scale-110 transition-transform text-primary/80" />
+          <Link 
+            href="/dashboard" 
+            className={cn(
+              "flex items-center gap-2 text-[13px] font-bold uppercase tracking-[0.15em] transition-colors group",
+              scrolled ? "text-foreground" : "text-white"
+            )}
+          >
+            <User className="w-5 h-5 group-hover:scale-110 transition-transform text-primary" />
             Dashboard
           </Link>
 
@@ -72,7 +84,10 @@ export function Navbar() {
         {/* Mobile Toggle Button */}
         <button 
           onClick={() => setIsOpen(!isOpen)} 
-          className="lg:hidden p-2.5 text-primary bg-primary/10 rounded-full transition-all z-[110]"
+          className={cn(
+            "lg:hidden p-2.5 rounded-full transition-all z-[110]",
+            scrolled ? "bg-primary/10 text-primary" : "bg-white/10 text-white"
+          )}
           aria-label="Toggle menu"
         >
           {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -100,7 +115,7 @@ export function Navbar() {
             className="text-xl font-bold uppercase tracking-[0.2em] text-foreground/80 flex items-center justify-center gap-3 pt-4" 
             onClick={() => setIsOpen(false)}
           >
-            <User className="w-6 h-6" />
+            <User className="w-6 h-6 text-primary" />
             Dashboard
           </Link>
           <Button asChild className="button-rose w-full h-16 text-lg mt-4 golden-glow-premium">
