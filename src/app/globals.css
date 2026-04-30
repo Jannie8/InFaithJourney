@@ -36,6 +36,7 @@
     font-size: 16.5px;
     line-height: 1.75;
     font-weight: 400;
+    overflow-x: hidden;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-headline text-foreground font-bold;
@@ -49,12 +50,12 @@
 }
 
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(30px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 .animate-fade-up {
-  animation: fade-up 0.6s ease-out forwards;
+  animation: fade-up 0.8s ease-out forwards;
 }
 
 .font-script {
@@ -66,7 +67,7 @@
 }
 
 .button-rose {
-  @apply text-white transition-all duration-500 shadow-md font-semibold tracking-wide uppercase text-[15px] rounded-[24px];
+  @apply text-white transition-all duration-500 shadow-md font-semibold tracking-wide uppercase rounded-full;
   background: linear-gradient(135deg, #C8A37E 0%, #E8C39E 100%);
   border: none;
 }
@@ -97,11 +98,11 @@
 }
 
 .section-padding {
-  @apply py-[120px];
+  @apply py-16 md:py-24 lg:py-32;
 }
 
 .hero-padding {
-  @apply py-[140px];
+  @apply pt-20 pb-16 md:pt-32 md:pb-32 lg:pt-40 lg:pb-40;
 }
 
 /* Premium Golden Glow Effects */
@@ -131,7 +132,7 @@
 }
 
 .icon-tab {
-  @apply flex flex-col items-center gap-3 p-8 rounded-[24px] bg-white border border-primary/10 transition-all duration-500;
+  @apply flex flex-col items-center gap-3 p-6 md:p-8 rounded-[24px] bg-white border border-primary/10 transition-all duration-500;
 }
 
 .icon-tab:hover {
@@ -152,4 +153,15 @@
 
 .glow-on-scroll.visible:hover {
   box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
+}
+
+/* Custom Scrollbar for Chat */
+.chat-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.chat-scrollbar::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+.chat-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-primary/20 rounded-full;
 }
