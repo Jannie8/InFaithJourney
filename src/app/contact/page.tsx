@@ -14,7 +14,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Contact Us | InFaith Journey',
     description: 'Reach out to the InFaith Journey team for assistance with your wedding planning.',
+    url: 'https://infaithjourney.com/contact',
     images: ['https://infaithjourney.com/og-image.jpeg'],
+    type: 'website',
+    siteName: 'InFaith Journey',
   },
   twitter: {
     card: 'summary_large_image',

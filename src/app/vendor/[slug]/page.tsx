@@ -21,8 +21,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     openGraph: {
       title: `${name} | InFaith Journey`,
       description: `Discover the exquisite work of ${name} on InFaith Journey.`,
+      url: `https://infaithjourney.com/vendor/${slug}`,
       images: ['https://infaithjourney.com/og-image.jpeg'],
       type: 'profile',
+      siteName: 'InFaith Journey',
     },
     twitter: {
       card: 'summary_large_image',
