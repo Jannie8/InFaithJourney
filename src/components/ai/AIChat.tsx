@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sparkles, X, Mic, Send, Bot, MessageCircle, Wand2 } from 'lucide-react';
+import { Sparkles, X, Mic, Send, Bot, Wand2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { aiConciergeFlow } from '@/ai/flows/ai-concierge-flow';
 import { VendorCard } from '@/components/vendors/VendorCard';
@@ -33,7 +33,10 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
 
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      const scrollContainer = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      }
     }
   }, [messages, isLoading]);
 
@@ -96,22 +99,24 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
 
   const chatContent = (
     <div className={cn(
-      "relative bg-background border border-primary/20 rounded-[28px] shadow-2xl flex flex-col overflow-hidden watercolor-bg pointer-events-auto",
-      inline ? "w-full h-full border-none shadow-none rounded-none" : "w-full sm:max-w-[420px] h-full max-h-[85vh] aspect-[1/1.5]",
+      "relative bg-background border border-primary/20 rounded-[24px] shadow-2xl flex flex-col overflow-hidden watercolor-bg pointer-events-auto",
+      inline 
+        ? "w-full h-full border-none shadow-none rounded-none" 
+        : "w-[90vw] max-w-[360px] sm:max-w-[420px] h-full max-h-[75vh] sm:max-h-[85vh] aspect-[1/1.5]",
       !inline && "animate-in zoom-in-95 slide-in-from-bottom-10 duration-500"
     )}>
       {/* Header */}
-      {!inline && (
-        <div className="shrink-0 p-5 md:p-6 border-b border-primary/10 flex items-center justify-between bg-white/80 backdrop-blur-md z-10">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-              <Bot className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="font-headline text-[18px] text-foreground leading-tight">AI Concierge</h3>
-              <p className="text-[10px] uppercase tracking-widest text-primary font-bold opacity-70">Golden Hour Planner</p>
-            </div>
+      <div className="shrink-0 p-5 md:p-6 border-b border-primary/10 flex items-center justify-between bg-white/80 backdrop-blur-md z-10">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+            <Bot className="w-6 h-6" />
           </div>
+          <div>
+            <h3 className="font-headline text-[18px] text-foreground leading-tight">AI Concierge</h3>
+            <p className="text-[10px] uppercase tracking-widest text-primary font-bold opacity-70">Golden Hour Planner</p>
+          </div>
+        </div>
+        {!inline && (
           <button 
             onClick={() => setIsOpen(false)} 
             className="p-2 hover:bg-primary/10 rounded-full transition-colors text-primary"
@@ -119,12 +124,12 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
           >
             <X className="w-6 h-6" />
           </button>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 p-5 md:p-6 chat-scrollbar" ref={scrollRef}>
-        <div className="space-y-6 pb-4">
+      <ScrollArea className="flex-1 px-5 md:px-6 pt-6 chat-scrollbar" ref={scrollRef}>
+        <div className="space-y-6 pb-6">
           {messages.map((msg, i) => (
             <div key={i} className={cn("flex flex-col gap-2.5", msg.role === 'user' ? "items-end" : "items-start")}>
               <div className={cn(
@@ -158,7 +163,7 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
         </div>
       </ScrollArea>
 
-      {/* Input */}
+      {/* Input - Fixed at Bottom */}
       <div className="shrink-0 p-5 md:p-6 border-t border-primary/10 bg-white/80 backdrop-blur-md">
         <div className="flex items-center gap-2 relative">
           <button 
@@ -176,7 +181,7 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Ask about venues or styles..."
+              placeholder="Ask about venues..."
               className="h-11 rounded-full border-primary/20 pl-4 pr-10 text-[14px] shadow-inner bg-white/90 focus-visible:ring-primary/30"
             />
             <button 
@@ -208,17 +213,17 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
         <Wand2 className="w-7 h-7 md:w-8 md:h-8 text-white" />
       </button>
 
-      {/* Backdrop */}
+      {/* Backdrop with Dimming */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[190] animate-in fade-in duration-300"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[190] animate-in fade-in duration-300"
           onClick={() => setIsOpen(false)}
         />
       )}
 
-      {/* Chat Window */}
+      {/* Chat Window Container */}
       {isOpen && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 pointer-events-none">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 pointer-events-none">
           {chatContent}
         </div>
       )}
