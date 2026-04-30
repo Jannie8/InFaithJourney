@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
@@ -21,11 +20,19 @@ interface AIChatProps {
   inline?: boolean;
 }
 
+const SUGGESTIONS = [
+  "I want a venue in Stellenbosch under R120000",
+  "Recommend photographers in Cape Town",
+  "Looking for a luxury garden venue for 100 guests",
+  "Best wedding cake makers in Johannesburg",
+  "Stunning beach wedding venues in Western Cape"
+];
+
 export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
   const [isOpen, setIsOpen] = useState(initialOpen);
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'ai', content: "Welcome to InFaith Journey. I'm your AI Concierge. How can I help you plan your magical golden-hour wedding today?" }
+    { role: 'ai', content: "Welcome to InFaith Journey. I'm your AI Concierge. How can I help you plan your magical golden hour wedding today?" }
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -51,10 +58,11 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
     };
   }, [isOpen, inline]);
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+  const handleSend = async (textOverride?: string) => {
+    const textToSend = textOverride || input;
+    if (!textToSend.trim() || isLoading) return;
 
-    const userMsg = input;
+    const userMsg = textToSend;
     setInput('');
     setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
     setIsLoading(true);
@@ -99,21 +107,21 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
 
   const chatContent = (
     <div className={cn(
-      "relative bg-background border border-primary/20 rounded-[24px] shadow-2xl flex flex-col overflow-hidden watercolor-bg pointer-events-auto",
+      "relative bg-background border border-primary/20 rounded-[24px] shadow-2xl flex flex-col overflow-hidden pointer-events-auto",
       inline 
         ? "w-full h-full border-none shadow-none rounded-none" 
-        : "w-[90vw] max-w-[360px] sm:max-w-[420px] h-full max-h-[75vh] sm:max-h-[85vh] aspect-[1/1.5]",
+        : "w-[92vw] max-w-[420px] h-[80vh] aspect-[1/1.55]",
       !inline && "animate-in zoom-in-95 slide-in-from-bottom-10 duration-500"
     )}>
-      {/* Header */}
-      <div className="shrink-0 p-5 md:p-6 border-b border-primary/10 flex items-center justify-between bg-white/80 backdrop-blur-md z-10">
+      {/* Header - Light brown/cream bar */}
+      <div className="shrink-0 p-5 md:p-6 border-b border-primary/10 flex items-center justify-between bg-primary/5 backdrop-blur-md z-10">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-            <Bot className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-secondary shadow-sm">
+            <Sparkles className="w-6 h-6" />
           </div>
           <div>
             <h3 className="font-headline text-[18px] text-foreground leading-tight">AI Concierge</h3>
-            <p className="text-[10px] uppercase tracking-widest text-primary font-bold opacity-70">Golden Hour Planner</p>
+            <p className="text-[10px] uppercase tracking-widest text-primary font-bold opacity-70">InFaith Journey</p>
           </div>
         </div>
         {!inline && (
@@ -128,7 +136,7 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
       </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 px-5 md:px-6 pt-6 chat-scrollbar" ref={scrollRef}>
+      <ScrollArea className="flex-1 px-5 md:px-6 pt-6 chat-scrollbar watercolor-bg" ref={scrollRef}>
         <div className="space-y-6 pb-6">
           {messages.map((msg, i) => (
             <div key={i} className={cn("flex flex-col gap-2.5", msg.role === 'user' ? "items-end" : "items-start")}>
@@ -140,6 +148,25 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
               )}>
                 {msg.content}
               </div>
+              
+              {/* Suggestion Chips - Only show after initial welcome message */}
+              {i === 0 && messages.length === 1 && (
+                <div className="w-full mt-4 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <p className="text-[11px] uppercase tracking-widest font-bold text-primary/60 px-2">Try asking one of these</p>
+                  <div className="flex flex-wrap gap-2 px-2">
+                    {SUGGESTIONS.map((suggestion, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => handleSend(suggestion)}
+                        className="text-[13px] text-primary bg-white border border-primary/20 px-4 py-2 rounded-full hover:bg-primary/5 hover:border-primary/40 transition-all text-left font-medium shadow-sm"
+                      >
+                        {suggestion}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {msg.recommendations && msg.recommendations.length > 0 && (
                 <div className="w-full mt-4 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <p className="text-[11px] uppercase tracking-widest font-bold text-primary px-2">Hand-picked for you</p>
@@ -164,8 +191,8 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
       </ScrollArea>
 
       {/* Input - Fixed at Bottom */}
-      <div className="shrink-0 p-5 md:p-6 border-t border-primary/10 bg-white/80 backdrop-blur-md">
-        <div className="flex items-center gap-2 relative">
+      <div className="shrink-0 p-5 md:p-6 border-t border-primary/10 bg-white/90 backdrop-blur-md">
+        <div className="flex items-center gap-3 relative">
           <button 
             onClick={handleSpeech}
             className={cn(
@@ -181,11 +208,11 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Ask about venues..."
+              placeholder="Your wedding vision..."
               className="h-11 rounded-full border-primary/20 pl-4 pr-10 text-[14px] shadow-inner bg-white/90 focus-visible:ring-primary/30"
             />
             <button 
-              onClick={handleSend}
+              onClick={() => handleSend()}
               disabled={!input.trim() || isLoading}
               className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-primary hover:text-secondary disabled:opacity-30 transition-all"
             >
