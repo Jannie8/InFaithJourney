@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sparkles, X, Mic, Send, Bot, Wand2 } from 'lucide-react';
+import { Sparkles, X, Mic, Send, Bot, Wand2, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { aiConciergeFlow } from '@/ai/flows/ai-concierge-flow';
 import { VendorCard } from '@/components/vendors/VendorCard';
@@ -113,7 +113,7 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
         : "w-[92vw] max-w-[420px] h-[80vh] aspect-[1/1.55]",
       !inline && "animate-in zoom-in-95 slide-in-from-bottom-10 duration-500"
     )}>
-      {/* Header - Light brown/cream bar */}
+      {/* Header */}
       <div className="shrink-0 p-5 md:p-6 border-b border-primary/10 flex items-center justify-between bg-primary/5 backdrop-blur-md z-10">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-secondary shadow-sm">
@@ -149,7 +149,7 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
                 {msg.content}
               </div>
               
-              {/* Suggestion Chips - Only show after initial welcome message */}
+              {/* Suggestion Chips */}
               {i === 0 && messages.length === 1 && (
                 <div className="w-full mt-4 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <p className="text-[11px] uppercase tracking-widest font-bold text-primary/60 px-2">Try asking one of these</p>
@@ -167,13 +167,24 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
                 </div>
               )}
 
+              {/* Recommendation Cards */}
               {msg.recommendations && msg.recommendations.length > 0 && (
-                <div className="w-full mt-4 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <p className="text-[11px] uppercase tracking-widest font-bold text-primary px-2">Hand-picked for you</p>
-                  <div className="grid grid-cols-1 gap-5">
+                <div className="w-full mt-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <p className="text-[11px] uppercase tracking-widest font-bold text-primary px-2 flex items-center gap-2">
+                    <Star className="w-3.5 h-3.5 fill-primary" /> Hand-picked for you
+                  </p>
+                  <div className="flex flex-col gap-8">
                     {msg.recommendations.map((vendor: any) => (
-                      <div key={vendor.id} className="scale-95 hover:scale-100 transition-transform origin-center">
-                        <VendorCard {...vendor} />
+                      <div key={vendor.id} className="space-y-3">
+                        <div className="scale-95 hover:scale-100 transition-transform origin-center">
+                          <VendorCard {...vendor} />
+                        </div>
+                        {vendor.whyItMatches && (
+                          <div className="px-4 py-3 bg-secondary/10 border-l-2 border-secondary rounded-r-xl text-[13.5px] italic text-foreground/80 leading-relaxed font-medium">
+                            <span className="font-bold text-secondary not-italic uppercase tracking-widest text-[10px] block mb-1">Why this fits:</span>
+                            "{vendor.whyItMatches}"
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -190,7 +201,7 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
         </div>
       </ScrollArea>
 
-      {/* Input - Fixed at Bottom */}
+      {/* Input */}
       <div className="shrink-0 p-5 md:p-6 border-t border-primary/10 bg-white/90 backdrop-blur-md">
         <div className="flex items-center gap-3 relative">
           <button 
@@ -240,7 +251,7 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
         <Wand2 className="w-7 h-7 md:w-8 md:h-8 text-white" />
       </button>
 
-      {/* Backdrop with Dimming */}
+      {/* Backdrop */}
       {isOpen && (
         <div 
           className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[190] animate-in fade-in duration-300"
@@ -248,7 +259,7 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
         />
       )}
 
-      {/* Chat Window Container */}
+      {/* Chat Window */}
       {isOpen && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 pointer-events-none">
           {chatContent}
