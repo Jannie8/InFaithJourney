@@ -1,8 +1,9 @@
+
 "use client";
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Star, MapPin } from 'lucide-react';
+import { Star, MapPin, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useEffect, useRef, useState } from 'react';
@@ -17,7 +18,6 @@ interface VendorCardProps {
   category: string;
   imageUrl: string;
   imageHint: string;
-  priceRange?: string;
 }
 
 export function VendorCard({ id, name, location, rating, reviews, category, imageUrl, imageHint }: VendorCardProps) {
@@ -51,7 +51,7 @@ export function VendorCard({ id, name, location, rating, reviews, category, imag
         isVisible && "opacity-100 translate-y-0"
       )}
     >
-      <div className="relative h-[230px] w-full overflow-hidden shrink-0">
+      <div className="relative h-[220px] w-full overflow-hidden shrink-0">
         <Image
           src={imageUrl}
           alt={name}
@@ -66,36 +66,38 @@ export function VendorCard({ id, name, location, rating, reviews, category, imag
         </div>
       </div>
       
-      <div className="p-7 flex flex-col flex-1">
-        <h3 className="font-headline text-[20px] font-semibold text-foreground mb-1.5 line-clamp-2 leading-tight group-hover:text-primary transition-colors">
+      <div className="p-6 flex flex-col flex-1">
+        <h3 className="font-headline text-[18px] font-semibold text-foreground mb-1.5 line-clamp-2 leading-tight group-hover:text-primary transition-colors">
           {name}
         </h3>
 
         <div className="flex items-center gap-2 text-muted-foreground mb-3 opacity-90">
           <MapPin className="w-4 h-4 text-primary/80" />
-          <span className="text-[14.5px] font-medium truncate">{location}</span>
+          <span className="text-[14px] font-medium truncate">{location}</span>
         </div>
 
         <div className="flex items-center gap-1.5 mb-6">
           <div className="flex items-center">
             {[...Array(5)].map((_, i) => (
               <Star key={i} className={cn(
-                "w-4 h-4 transition-all duration-300",
+                "w-3.5 h-3.5 transition-all duration-300",
                 i < Math.floor(rating) ? 'fill-secondary text-secondary drop-shadow-[0_0_5px_rgba(212,175,55,0.4)]' : 'text-muted-foreground/30'
               )} />
             ))}
           </div>
-          <span className="text-[13.5px] font-bold text-foreground/75 ml-1.5 whitespace-nowrap">
+          <span className="text-[13px] font-bold text-foreground/75 ml-1.5 whitespace-nowrap">
             {reviews} Reviews
           </span>
         </div>
 
-        <div className="mt-auto pt-4 flex flex-col gap-3.5">
-          <Button asChild className="w-full h-11 px-5 py-2.5 rounded-[16px] text-[14px] font-bold uppercase tracking-[0.12em] button-rose whitespace-nowrap golden-glow-premium">
-            <Link href={`/vendor/${id}`}>VIEW PROFILE</Link>
+        <div className="mt-auto pt-4 flex items-center justify-between gap-3">
+          <Button asChild className="flex-1 min-w-[120px] h-10 px-4 py-2 rounded-[12px] text-[13px] font-bold uppercase tracking-[0.1em] button-rose whitespace-nowrap golden-glow-premium overflow-hidden text-ellipsis">
+            <Link href={`/vendor/${id}`}>PROFILE</Link>
           </Button>
-          <Button variant="outline" asChild className="w-full h-11 px-5 py-2.5 rounded-[16px] border-primary/25 text-primary hover:bg-primary/5 text-[13.5px] font-bold uppercase tracking-[0.12em] whitespace-nowrap transition-all duration-300 hover:border-primary/50">
-            <Link href={`/vendor/${id}#quote`}>REQUEST QUOTE</Link>
+          <Button variant="outline" asChild className="w-10 h-10 p-0 rounded-[12px] border-primary/25 text-primary hover:bg-primary/5 shrink-0 transition-all duration-300 hover:border-primary/50">
+            <Link href={`/vendor/${id}#quote`} title="Request Quote">
+              <MessageCircle className="w-5 h-5" />
+            </Link>
           </Button>
         </div>
       </div>

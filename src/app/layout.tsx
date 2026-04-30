@@ -1,5 +1,7 @@
+
 import type {Metadata} from 'next';
 import './globals.css';
+import { AIChat } from '@/components/ai/AIChat';
 
 export const metadata: Metadata = {
   title: 'InFaith Journey | Premium Wedding Vendor Marketplace',
@@ -20,6 +22,7 @@ export default function RootLayout({
       </head>
       <body className="font-body selection:bg-primary/20">
         {children}
+        <AIChat />
       </body>
     </html>
   );
