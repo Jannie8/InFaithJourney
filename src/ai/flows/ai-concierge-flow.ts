@@ -1,10 +1,9 @@
 'use server';
 
 /**
- * @fileOverview AI Wedding Concierge Flow (Phase 2 Upgrade)
+ * @fileOverview AI Wedding Concierge Flow (Finalized Phase 2)
  * 
- * This flow intelligently parses user queries for budget, location, and guest count.
- * It provides ranked, personalized vendor recommendations with "Why it matches" reasoning.
+ * This flow intelligently parses user queries and prioritizes Featured Vendors.
  */
 
 import { ai } from '@/ai/genkit';
@@ -27,14 +26,14 @@ const RecommendationSchema = z.object({
   category: z.string(),
   imageUrl: z.string(),
   imageHint: z.string(),
-  priceRange: z.string().describe("Estimated starting price or range, e.g., 'From R45,000'"),
-  whyItMatches: z.string().describe("1-2 sentences explaining why this specific vendor fits the user's needs."),
-  isFeatured: z.boolean().optional().describe("Whether this is a premium/featured vendor.")
+  priceRange: z.string().describe("Estimated starting price or range"),
+  whyItMatches: z.string().describe("Contextual reasoning for match"),
+  isFeatured: z.boolean().optional().describe("Whether this is a premium vendor.")
 });
 
 const AIConciergeOutputSchema = z.object({
   response: z.string().describe("A warm, romantic response to the user's message."),
-  recommendations: z.array(RecommendationSchema).optional().describe("A list of 3-5 personalized vendor recommendations.")
+  recommendations: z.array(RecommendationSchema).optional().describe("A ranked list of vendor recommendations.")
 });
 
 export async function aiConciergeFlow(input: z.infer<typeof AIConciergeInputSchema>) {
@@ -42,37 +41,32 @@ export async function aiConciergeFlow(input: z.infer<typeof AIConciergeInputSche
     name: 'aiConciergePrompt',
     input: { schema: AIConciergeInputSchema },
     output: { schema: AIConciergeOutputSchema },
-    prompt: `You are the InFaith Journey AI Concierge, a warm and helpful wedding planning expert for sophisticated couples in South Africa.
-Your tone is luxurious, romantic, and encouraging. You speak with grace and expertise.
+    prompt: `You are the InFaith Journey AI Concierge, an expert wedding planning partner for high-end couples in South Africa.
+Your tone is luxurious, encouraging, and deeply romantic.
 
-Identify and Extract (if mentioned):
-- Budget (e.g., R80k - R150k)
-- Location (Cape Town, Stellenbosch, Johannesburg, etc.)
-- Style/Theme (Romantic, Garden, Industrial, Beach)
-- Guest Count (e.g., 100 guests)
-- Potential Date
+Identify and Extract:
+- Budget (e.g., R100k)
+- Location (Cape Town, Stellenbosch, etc.)
+- Style (Romantic, Minimalist, etc.)
+- Guest Count
 
 Guidelines:
 1. Always be romantic and encouraging.
 2. If the user asks for recommendations, provide 3-5 vendors.
-3. PRIORITIZE Featured vendors in the ranking.
-4. If no exact matches exist for the location or budget, suggest the next best alternatives with clear reasoning.
-5. In the "whyItMatches" field, be specific to the user's request (e.g., "This venue fits your R100k budget and offers the lush garden style you requested").
+3. CRITICAL: PRIORITIZE Featured vendors in the ranking.
+4. If no exact matches exist, suggest best alternatives with reasoning.
+5. In the "whyItMatches" field, mention specific user needs (e.g., "Fits your 100-guest requirement perfectly").
 
 User Input: {{{message}}}
 Chat History: 
 {{#each history}}
 - {{role}}: {{content}}
-{{/each}}
-
-Produce a romantic response and structure the recommendations based on the vendors available in our network.`,
+{{/each}}`,
   });
 
   const { output } = await prompt(input);
   
-  // Simulated intelligent database query based on common search patterns
-  const lowerMsg = input.message.toLowerCase();
-  
+  // Real-world mock database for the prototype
   const MOCK_DB = [
     {
       id: 'sunstone-manor',
@@ -111,18 +105,6 @@ Produce a romantic response and structure the recommendations based on the vendo
       isFeatured: true
     },
     {
-      id: 'rosa-melia',
-      name: 'Rosa Melia',
-      location: 'Cape Town, WC',
-      rating: 5.0,
-      reviews: 32,
-      category: 'Flowers & Decor',
-      imageUrl: "https://picsum.photos/seed/inf-golden-floral/800/600",
-      imageHint: 'wedding floral arch',
-      priceRange: 'Custom Quotes',
-      isFeatured: false
-    },
-    {
       id: 'nearby-bridal',
       name: 'Nearby Bridal',
       location: 'Cape Town, WC',
@@ -136,31 +118,25 @@ Produce a romantic response and structure the recommendations based on the vendo
     }
   ];
 
-  // Logic to attach personalized "why it matches" and filter based on keywords
-  // In a real app, this would query Firestore.
-  if (lowerMsg.includes('venue') || lowerMsg.includes('place') || lowerMsg.includes('stay') || lowerMsg.includes('looking for')) {
+  const lowerMsg = input.message.toLowerCase();
+  
+  // Filter logic: Simplified for prototype, but prioritizes 'isFeatured'
+  if (lowerMsg.includes('venue') || lowerMsg.includes('place') || lowerMsg.includes('looking for') || lowerMsg.includes('franschhoek') || lowerMsg.includes('stellenbosch')) {
     output!.recommendations = MOCK_DB
       .filter(v => v.category === 'Venues')
       .map(v => ({
         ...v,
-        whyItMatches: v.name === 'Sunstone Manor' 
-          ? "As a featured venue in Stellenbosch, it perfectly captures the luxury and romantic sunset glow you're dreaming of." 
-          : "This venue offers an intimate vineyard setting that beautifully matches your desired aesthetic."
+        whyItMatches: v.isFeatured 
+          ? "As one of our elite Featured venues, it offers priority service and the exact golden-hour aesthetic you're searching for."
+          : "A highly-rated venue that beautifully accommodates your group size and location preference."
       }))
-      .sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0)); // Rank featured first
+      .sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
   } else if (lowerMsg.includes('photo') || lowerMsg.includes('camera')) {
     output!.recommendations = MOCK_DB
       .filter(v => v.category === 'Photography & Videography')
       .map(v => ({
         ...v,
-        whyItMatches: "Their signature 'golden-hour' style is exactly what you need to preserve your magical wedding memories."
-      }));
-  } else if (lowerMsg.includes('flower') || lowerMsg.includes('decor')) {
-    output!.recommendations = MOCK_DB
-      .filter(v => v.category === 'Flowers & Decor')
-      .map(v => ({
-        ...v,
-        whyItMatches: "They specialize in lush, romantic floral arches that create a breathtaking backdrop for your ceremony."
+        whyItMatches: "This studio is renowned for capturing the 'golden glow' in every frame, fitting your romantic vision."
       }));
   }
 
