@@ -76,7 +76,7 @@ export default function Home() {
     <div className="flex flex-col min-h-screen watercolor-bg overflow-x-hidden">
       <Navbar />
       
-      {/* Hero Section - Fully Responsive */}
+      {/* Hero Section */}
       <section className="relative min-h-[85vh] md:min-h-[90vh] w-full overflow-hidden flex items-center justify-center hero-padding px-4">
         <Image
           src={heroImage?.imageUrl || ''}
@@ -96,7 +96,6 @@ export default function Home() {
             Browse curated & trusted vendors for your magical golden-hour South African wedding.
           </p>
           
-          {/* Search Bar - Responsive Grid */}
           <div className="bg-white/95 backdrop-blur-2xl p-3 md:p-5 rounded-[28px] md:rounded-[40px] shadow-2xl flex flex-col md:flex-row items-stretch md:items-center gap-3 md:gap-4 max-w-4xl mx-auto border border-primary/20 animate-in fade-in zoom-in duration-1000 delay-500 golden-glow-premium">
             <div className="flex-1 w-full px-4 border-b md:border-b-0 md:border-r border-primary/10">
               <Select>
@@ -131,53 +130,82 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Visual Category Cards - Responsive Scrollable Row */}
+      {/* Visual Category Section - Updated Grid/Scroll */}
       <section className="max-w-7xl mx-auto px-6 section-padding w-full overflow-hidden">
-        <div className="text-center mb-12 md:mb-16">
-          <h2 className="font-headline text-[36px] md:text-[48px] mb-4">Browse by Category</h2>
-          <div className="w-20 h-1.5 bg-gradient-to-r from-secondary to-secondary/50 mx-auto rounded-full shadow-[0_0_10px_rgba(212,175,55,0.4)]"></div>
+        <div className="text-center mb-16 md:mb-20">
+          <h2 className="font-headline text-[36px] md:text-[52px] mb-4">Browse by Category</h2>
+          <div className="w-24 h-1.5 bg-gradient-to-r from-secondary to-secondary/50 mx-auto rounded-full shadow-[0_0_12px_rgba(212,175,55,0.4)]"></div>
         </div>
         
-        <ScrollArea className="w-full whitespace-nowrap">
-          <div className="flex w-max space-x-6 p-4">
-            {CORE_VENDORS.map((v) => {
-              const categoryImg = PlaceHolderImages.find(img => img.id === v.imageId);
-              return (
-                <Link 
-                  key={v.name} 
-                  href={v.href} 
-                  className="relative group w-[220px] sm:w-[280px] h-[360px] sm:h-[420px] rounded-[24px] overflow-hidden shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl golden-glow-premium flex-shrink-0"
-                >
+        {/* Desktop Grid (3 columns) */}
+        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-12 md:gap-16">
+          {CORE_VENDORS.map((v) => {
+            const categoryImg = PlaceHolderImages.find(img => img.id === v.imageId);
+            return (
+              <Link 
+                key={v.name} 
+                href={v.href} 
+                className="group flex flex-col items-center"
+              >
+                <div className="relative w-full aspect-[4/5] rounded-[32px] overflow-hidden shadow-xl transition-all duration-700 group-hover:-translate-y-3 group-hover:shadow-[0_20px_40px_rgba(212,175,55,0.3)] golden-glow-premium">
                   <Image
                     src={categoryImg?.imageUrl || `https://picsum.photos/seed/cat-${v.name}/800/1200`}
                     alt={v.name}
                     fill
-                    className="object-cover sepia-overlay transition-transform duration-700 group-hover:scale-110"
+                    className="object-cover sepia-overlay transition-transform duration-1000 group-hover:scale-110"
                     data-ai-hint={categoryImg?.imageHint || 'wedding golden glow'}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                  <div className="absolute inset-0 flex items-end justify-center pb-8 px-4 text-center">
-                    <div className="space-y-3">
-                      <v.icon className="w-8 h-8 mx-auto text-secondary/80 group-hover:text-secondary transition-colors duration-500" />
-                      <h3 className="font-headline text-xl sm:text-2xl text-white drop-shadow-lg leading-tight group-hover:text-secondary/90 transition-colors">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                </div>
+                <div className="mt-8 text-center space-y-2">
+                  <h3 className="font-headline text-2xl md:text-3xl text-foreground group-hover:text-primary transition-colors duration-500 tracking-tight">
+                    {v.name}
+                  </h3>
+                  <div className="w-0 h-[2.5px] bg-secondary mx-auto group-hover:w-16 transition-all duration-500 shadow-[0_0_8px_rgba(212,175,55,0.8)] rounded-full"></div>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Mobile Scroll */}
+        <div className="md:hidden">
+          <ScrollArea className="w-full whitespace-nowrap">
+            <div className="flex space-x-8 p-4">
+              {CORE_VENDORS.map((v) => {
+                const categoryImg = PlaceHolderImages.find(img => img.id === v.imageId);
+                return (
+                  <Link 
+                    key={v.name} 
+                    href={v.href} 
+                    className="group inline-flex flex-col items-center w-[280px] flex-shrink-0"
+                  >
+                    <div className="relative w-full aspect-[4/5] rounded-[28px] overflow-hidden shadow-lg transition-all duration-500 golden-glow-premium">
+                      <Image
+                        src={categoryImg?.imageUrl || `https://picsum.photos/seed/cat-${v.name}/800/1200`}
+                        alt={v.name}
+                        fill
+                        className="object-cover sepia-overlay"
+                      />
+                    </div>
+                    <div className="mt-6 text-center">
+                      <h3 className="font-headline text-2xl text-foreground group-hover:text-primary transition-colors duration-300">
                         {v.name}
                       </h3>
-                      <div className="w-0 h-[2px] bg-secondary mx-auto group-hover:w-full transition-all duration-500 shadow-[0_0_8px_rgba(212,175,55,0.8)]"></div>
                     </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-          <ScrollBar orientation="horizontal" className="h-2" />
-        </ScrollArea>
+                  </Link>
+                );
+              })}
+            </div>
+            <ScrollBar orientation="horizontal" className="h-2" />
+          </ScrollArea>
+        </div>
       </section>
 
       {/* Main Showcase Grid */}
       <main className="max-w-7xl mx-auto px-6 pb-20 md:pb-32 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 md:gap-12">
           
-          {/* Sidebar Filter - Desktop & Mobile Adaptive */}
           <aside className="lg:col-span-1">
             <div className="lg:hidden mb-8">
               <Button 
@@ -234,7 +262,6 @@ export default function Home() {
             </div>
           </aside>
 
-          {/* Grid Content */}
           <div className="lg:col-span-3">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
               <div className="space-y-2">
