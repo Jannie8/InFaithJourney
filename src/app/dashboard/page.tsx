@@ -12,7 +12,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { 
   User, Briefcase, Mail, Star, Settings, LogOut, 
   BarChart3, CreditCard, Edit3, MessageSquare, Sparkles, TrendingUp,
-  Clock, CheckCircle2, ArrowRight, Eye, EyeOff
+  Clock, CheckCircle2, ArrowRight, Eye, EyeOff, Plus
 } from 'lucide-react';
 import Link from 'next/link';
 import { useUser, useAuth } from '@/firebase';
@@ -34,7 +34,6 @@ export default function DashboardPage() {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
       console.error("Login failed", error);
-      // For the prototype demo, we'll allow simulation if real auth fails or is empty
       if (!email || !password) {
         setIsSimulating(true);
       }
@@ -178,28 +177,40 @@ export default function DashboardPage() {
             {/* Sidebar Stats */}
             <aside className="lg:col-span-1 space-y-8">
               <Card className="bg-white border-primary/10 shadow-sm rounded-[24px] overflow-hidden">
-                <CardHeader className="bg-primary/5 pb-4 border-b border-primary/10">
+                <CardHeader className="bg-primary/5 pb-4 border-b border-primary/10 flex flex-row items-center justify-between">
                   <CardTitle className="text-[12px] uppercase tracking-[0.2em] text-primary font-bold">Plan Details</CardTitle>
+                  <div className="bg-primary text-white text-[10px] px-2 py-0.5 rounded-full font-bold uppercase">Active</div>
                 </CardHeader>
-                <CardContent className="pt-6 space-y-4">
+                <CardContent className="pt-6 space-y-6">
                   <div className="space-y-1">
                     <p className="text-[20px] font-headline font-bold">Featured Plan</p>
                     <p className="text-[13px] text-muted-foreground font-medium">R1,199 / Month</p>
-                    <p className="text-[11px] text-muted-foreground/60 uppercase font-bold">Next Renewal: Dec 15, 2025</p>
-                  </div>
-                  <div className="pt-4 border-t border-primary/10 space-y-3">
-                    <div className="flex items-center gap-2 text-[13px] font-bold text-green-600">
-                      <CheckCircle2 className="w-4 h-4" />
-                      Active & Listed
-                    </div>
-                    <div className="bg-secondary/5 p-3 rounded-xl border border-secondary/10 space-y-2">
-                       <p className="text-[11px] font-bold text-secondary uppercase tracking-wider flex items-center gap-2">
-                        <Sparkles className="w-3 h-3" />
-                        AI Priority Active
-                       </p>
-                       <p className="text-[12px] text-foreground/70 font-medium">Your business is 5x more likely to be recommended by the AI Concierge.</p>
+                    <div className="flex items-center gap-2 text-[11px] text-muted-foreground/60 uppercase font-bold pt-1">
+                      <Clock className="w-3 h-3" /> Renewal: Dec 15, 2025
                     </div>
                   </div>
+                  
+                  <div className="space-y-3">
+                    <p className="text-[11px] uppercase tracking-widest font-bold text-primary">Unlocked Benefits</p>
+                    <ul className="space-y-2">
+                      {[
+                        "Top of Search Priority",
+                        "AI Concierge Priority Match",
+                        "Homepage Feature Listing",
+                        "Unlimited Portfolio Images",
+                        "Direct Inquiry Dashboard"
+                      ].map((benefit, i) => (
+                        <li key={i} className="flex items-center gap-2 text-[13px] font-medium text-foreground/80">
+                          <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+                          {benefit}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <Button asChild className="w-full button-rose h-12 text-[12px] font-bold tracking-widest shadow-md">
+                    <Link href="/plans">MANAGE SUBSCRIPTION</Link>
+                  </Button>
                 </CardContent>
               </Card>
 
@@ -228,7 +239,7 @@ export default function DashboardPage() {
                         <Sparkles className="w-4 h-4" />
                         <span className="text-[14px] font-bold">AI Referrals</span>
                       </div>
-                      <span className="font-headline text-[22px] text-secondary">8</span>
+                      <span className="font-headline text-[22px] text-secondary">24</span>
                     </div>
                   </div>
 
@@ -242,7 +253,7 @@ export default function DashboardPage() {
                         ></div>
                       ))}
                     </div>
-                    <p className="text-[10px] uppercase tracking-widest text-center text-muted-foreground font-bold mt-3">AI Referral Growth (7 Days)</p>
+                    <p className="text-[10px] uppercase tracking-widest text-center text-muted-foreground font-bold mt-3">AI Referral Growth (+12%)</p>
                   </div>
                 </CardContent>
               </Card>
@@ -285,13 +296,22 @@ export default function DashboardPage() {
                     </div>
                     <div>
                       <h2 className="font-headline text-[28px] md:text-[32px]">AI Concierge Referrals</h2>
-                      <p className="text-[14px] text-muted-foreground font-medium italic">Smart matches generated for high-intent couples</p>
+                      <p className="text-[14px] text-muted-foreground font-medium italic">Hand-picked matches for premium South African couples</p>
                     </div>
                   </div>
                   <div className="bg-secondary/5 px-8 py-4 rounded-2xl border border-secondary/10 text-center md:text-left shadow-sm">
-                    <p className="text-[11px] uppercase tracking-widest font-bold text-secondary mb-1">AI Matches This Month</p>
-                    <p className="text-[32px] font-headline font-bold text-foreground leading-none">8 Referrals</p>
+                    <div className="flex items-center gap-2 mb-1 justify-center md:justify-start">
+                      <p className="text-[11px] uppercase tracking-widest font-bold text-secondary">AI Matches This Month</p>
+                      <span className="text-[10px] text-green-600 font-bold bg-green-50 px-1.5 py-0.5 rounded">+12%</span>
+                    </div>
+                    <p className="text-[32px] font-headline font-bold text-foreground leading-none">24 Referrals</p>
                   </div>
+                </div>
+
+                <div className="bg-secondary/5 p-4 rounded-xl border border-secondary/10 flex items-center gap-3">
+                  <Star className="w-4 h-4 text-secondary fill-secondary" />
+                  <p className="text-[12px] font-bold text-secondary uppercase tracking-widest">Featured Vendor Priority Active</p>
+                  <p className="text-[12px] text-muted-foreground italic ml-auto hidden md:block">You are currently receiving maximum AI visibility</p>
                 </div>
                 
                 <div className="overflow-x-auto -mx-4 px-4 pb-2">
@@ -300,17 +320,17 @@ export default function DashboardPage() {
                        <tr className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground font-bold">
                          <th className="px-6 pb-2">Date</th>
                          <th className="px-6 pb-2">Couple's Vision</th>
-                         <th className="px-6 pb-2">Match Reasoning</th>
+                         <th className="px-6 pb-2">Recommended As</th>
                          <th className="px-6 pb-2">Status</th>
-                         <th className="px-6 pb-2 text-right">Action</th>
+                         <th className="px-6 pb-2 text-right">Actions</th>
                        </tr>
                      </thead>
                      <tbody className="space-y-4">
                        {[
-                         { date: '24 May 2026', vision: 'Stellenbosch vineyard under R120k for 120 guests', reason: 'Budget & Location Fit', status: 'Quoted', icon: CheckCircle2, color: 'text-green-500' },
-                         { date: '23 May 2026', vision: 'Romantic garden wedding style near Franschhoek', reason: 'Featured Priority Match', status: 'New', icon: Clock, color: 'text-secondary' },
-                         { date: '22 May 2026', vision: 'Luxury photographer with golden hour aesthetic', reason: 'Style Match', status: 'Contacted', icon: Mail, color: 'text-primary' },
-                         { date: '21 May 2026', vision: 'Elegant forest venue with twinkling lights', reason: 'Atmosphere Preference', status: 'New', icon: Clock, color: 'text-secondary' }
+                         { date: '24 May 2026', vision: 'Luxury photographer with golden hour aesthetic', vendor: 'Evergold Photography', status: 'New', icon: Clock, color: 'text-secondary' },
+                         { date: '23 May 2026', vision: 'Stellenbosch vineyard under R120k for 120 guests', vendor: 'Evergold Photography', status: 'Contacted', icon: Mail, color: 'text-primary' },
+                         { date: '22 May 2026', vision: 'Romantic garden wedding style near Franschhoek', vendor: 'Evergold Photography', status: 'Quoted', icon: CheckCircle2, color: 'text-green-500' },
+                         { date: '21 May 2026', vision: 'Elegant forest venue with twinkling lights', vendor: 'Evergold Photography', status: 'New', icon: Clock, color: 'text-secondary' }
                        ].map((referral, i) => (
                          <tr key={i} className="group bg-primary/5 hover:bg-white transition-all border border-transparent hover:border-primary/10 rounded-2xl shadow-sm">
                            <td className="px-6 py-6 rounded-l-2xl">
@@ -320,7 +340,9 @@ export default function DashboardPage() {
                              <p className="text-[15px] font-medium text-foreground italic leading-relaxed">"{referral.vision}"</p>
                            </td>
                            <td className="px-6 py-6">
-                             <span className="text-[12px] font-bold uppercase tracking-wider text-primary/70">{referral.reason}</span>
+                             <div className="flex items-center gap-2">
+                               <Badge variant="outline" className="text-[10px] uppercase font-bold text-primary border-primary/20">Style Match</Badge>
+                             </div>
                            </td>
                            <td className="px-6 py-6">
                              <div className={`flex items-center gap-2 text-[13px] font-bold ${referral.color}`}>
@@ -329,9 +351,14 @@ export default function DashboardPage() {
                              </div>
                            </td>
                            <td className="px-6 py-6 rounded-r-2xl text-right">
-                             <Button variant="outline" size="sm" className="rounded-full border-primary/20 text-primary hover:bg-primary/10 h-10 px-6 font-bold text-[11px] uppercase tracking-widest group-hover:bg-primary group-hover:text-white transition-all">
-                               Details <ArrowRight className="w-3.5 h-3.5 ml-2" />
-                             </Button>
+                             <div className="flex items-center justify-end gap-2">
+                               <Button variant="ghost" size="sm" className="h-9 px-3 text-[11px] font-bold uppercase tracking-widest text-primary hover:bg-primary/5">
+                                 View Details
+                               </Button>
+                               <Button size="sm" className="h-9 px-4 button-rose text-[11px] font-bold uppercase tracking-widest shadow-sm">
+                                 Reply
+                               </Button>
+                             </div>
                            </td>
                          </tr>
                        ))}
@@ -381,4 +408,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
