@@ -1,12 +1,16 @@
+
 "use client";
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Star, MapPin, MessageCircle } from 'lucide-react';
+import { Star, MapPin, MessageCircle, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
 
 interface VendorCardProps {
   id: string;
@@ -17,11 +21,35 @@ interface VendorCardProps {
   category: string;
   imageUrl: string;
   imageHint: string;
+  showActions?: boolean;
+  onRemove?: () => void;
 }
 
-export function VendorCard({ id, name, location, rating, reviews, category, imageUrl, imageHint }: VendorCardProps) {
+export function VendorCard({ 
+  id, 
+  name, 
+  location, 
+  rating, 
+  reviews, 
+  category, 
+  imageUrl, 
+  imageHint,
+  showActions = false,
+  onRemove
+}: VendorCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const { user } = useUser();
+  const db = useFirestore();
+  const { toast } = useToast();
+
+  const savedRef = useMemoFirebase(() => {
+    if (!user || !db) return null;
+    return doc(db, 'users', user.uid, 'saved_vendors', id);
+  }, [user, db, id]);
+
+  const { data: savedData } = useDoc(savedRef);
+  const isLiked = !!savedData;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -41,15 +69,55 @@ export function VendorCard({ id, name, location, rating, reviews, category, imag
     return () => observer.disconnect();
   }, []);
 
+  const handleLikeToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!user || !db || !savedRef) {
+      toast({
+        title: "Sign in required",
+        description: "Please log in to save your favorite vendors to your wishlist.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (isLiked) {
+      deleteDoc(savedRef);
+    } else {
+      setDoc(savedRef, {
+        id, name, location, rating, reviews, category, imageUrl, imageHint,
+        savedAt: new Date().toISOString()
+      });
+      toast({
+        title: "Saved to Wishlist",
+        description: `${name} has been added to your romantic collection.`
+      });
+    }
+  };
+
   return (
     <div 
       ref={cardRef}
       className={cn(
-        "group luxury-card overflow-hidden flex flex-col bg-white w-full mx-auto max-w-[400px] lg:max-w-none",
+        "group luxury-card overflow-hidden flex flex-col bg-white w-full mx-auto max-w-[400px] lg:max-w-none relative",
         "opacity-0 translate-y-8 transition-all duration-700 ease-out",
         isVisible && "opacity-100 translate-y-0"
       )}
     >
+      {/* Heart Toggle Icon - Top Right */}
+      <button 
+        onClick={handleLikeToggle}
+        className={cn(
+          "absolute top-4 right-4 z-20 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-md backdrop-blur-md",
+          isLiked 
+            ? "bg-primary text-white scale-110" 
+            : "bg-white/80 text-primary hover:bg-white hover:scale-110"
+        )}
+      >
+        <Heart className={cn("w-5 h-5 transition-transform group-hover:scale-110", isLiked && "fill-current")} />
+      </button>
+
       {/* 16:9 Aspect Ratio Container */}
       <div className="relative aspect-video w-full overflow-hidden shrink-0">
         <Image
@@ -91,16 +159,33 @@ export function VendorCard({ id, name, location, rating, reviews, category, imag
           </span>
         </div>
 
-        {/* Buttons Row - Optimized for Mobile & Legibility */}
-        <div className="mt-auto pt-4 flex items-center justify-between gap-3">
-          <Button asChild className="flex-1 h-12 px-6 rounded-xl text-[14px] font-bold uppercase tracking-[0.1em] button-rose golden-glow-premium whitespace-nowrap overflow-hidden text-ellipsis min-w-0">
-            <Link href={`/vendor/${id}`}>PROFILE</Link>
-          </Button>
-          <Button variant="outline" asChild className="h-12 w-12 p-0 rounded-xl border-primary/25 text-primary hover:bg-primary/5 shrink-0 transition-all hover:border-primary/50">
-            <Link href={`/vendor/${id}#quote`} title="Request Quote">
-              <MessageCircle className="w-5.5 h-5.5" />
-            </Link>
-          </Button>
+        {/* Buttons Row */}
+        <div className="mt-auto pt-4 flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-3">
+            <Button asChild className="flex-1 h-11 px-4 rounded-xl text-[13px] font-bold uppercase tracking-[0.1em] button-rose golden-glow-premium whitespace-nowrap overflow-hidden text-ellipsis min-w-[110px]">
+              <Link href={`/vendor/${id}`}>PROFILE</Link>
+            </Button>
+            <Button variant="outline" asChild className="h-11 w-11 p-0 rounded-xl border-primary/25 text-primary hover:bg-primary/5 shrink-0 transition-all hover:border-primary/50">
+              <Link href={`/vendor/${id}#quote`} title="Request Quote">
+                <MessageCircle className="w-5 h-5" />
+              </Link>
+            </Button>
+          </div>
+          
+          {showActions && (
+            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-primary/10">
+              <Button 
+                variant="ghost" 
+                onClick={(e) => { e.preventDefault(); onRemove?.(); }}
+                className="text-[11px] font-bold uppercase tracking-widest text-red-500 hover:bg-red-50 h-9"
+              >
+                REMOVE
+              </Button>
+              <Button asChild variant="ghost" className="text-[11px] font-bold uppercase tracking-widest text-primary hover:bg-primary/5 h-9">
+                <Link href={`/vendor/${id}`}>VIEW</Link>
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>

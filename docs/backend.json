@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "UserProfile": {
@@ -158,6 +159,24 @@
         "createdAt",
         "updatedAt"
       ]
+    },
+    "SavedVendor": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SavedVendor",
+      "type": "object",
+      "description": "A denormalized reference to a vendor saved by a user in their wishlist.",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "location": { "type": "string" },
+        "rating": { "type": "number" },
+        "reviews": { "type": "number" },
+        "category": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "imageHint": { "type": "string" },
+        "savedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "savedAt"]
     },
     "Subscription": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -402,12 +421,26 @@
           "schema": {
             "$ref": "#/backend/entities/UserProfile"
           },
-          "description": "Stores individual user profiles (couples). Access is restricted to the owner matching `request.auth.uid`. This path forms the root for user-owned subcollections, ensuring authorization independence for nested data.",
+          "description": "Stores individual user profiles (couples).",
           "params": [
             {
               "name": "userId",
-              "description": "The unique ID of the user, corresponding to `request.auth.uid`."
+              "description": "The unique ID of the user."
             }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/saved_vendors/{vendorId}",
+        "definition": {
+          "entityName": "SavedVendor",
+          "schema": {
+            "$ref": "#/backend/entities/SavedVendor"
+          },
+          "description": "Stores vendors saved/liked by a user.",
+          "params": [
+            { "name": "userId" },
+            { "name": "vendorId" }
           ]
         }
       },
@@ -418,11 +451,11 @@
           "schema": {
             "$ref": "#/backend/entities/VendorProfile"
           },
-          "description": "Publicly accessible vendor listings. Read access is generally open (for approved vendors), and write access is restricted to the owning vendor (`request.auth.uid == vendorId`). The AI queries this collection for recommendations.",
+          "description": "Publicly accessible vendor listings.",
           "params": [
             {
               "name": "vendorId",
-              "description": "The unique ID of the vendor, corresponding to `request.auth.uid` for vendor-specific operations."
+              "description": "The unique ID of the vendor."
             }
           ]
         }
@@ -434,7 +467,7 @@
           "schema": {
             "$ref": "#/backend/entities/AIChatSession"
           },
-          "description": "Stores individual AI chat sessions for a specific user. This subcollection is path-owned by the user (`userId` in path), ensuring authorization independence without `get()` calls in security rules for session access.",
+          "description": "Stores individual AI chat sessions for a specific user.",
           "params": [
             {
               "name": "userId",
@@ -454,7 +487,7 @@
           "schema": {
             "$ref": "#/backend/entities/AIChatMessage"
           },
-          "description": "Stores individual messages within an AI chat session. This subcollection inherits `userId` and `sessionId` from its parent path, guaranteeing full authorization independence for message access (only the owning user can read/write their messages).",
+          "description": "Stores individual messages within an AI chat session.",
           "params": [
             {
               "name": "userId",
@@ -478,7 +511,7 @@
           "schema": {
             "$ref": "#/backend/entities/Subscription"
           },
-          "description": "Stores a vendor's membership subscription details. This subcollection is path-owned by the vendor (`vendorId` in path), ensuring direct authorization for subscription management by the owning vendor.",
+          "description": "Stores a vendor's membership subscription details.",
           "params": [
             {
               "name": "vendorId",
@@ -498,7 +531,7 @@
           "schema": {
             "$ref": "#/backend/entities/Inquiry"
           },
-          "description": "Stores inquiries from users to vendors. Includes `userId` and `vendorId` fields for direct access control. Read/write access is granted if `request.auth.uid` matches either the `userId` (sender) or `vendorId` (recipient). The `source` field will track AI referrals for dashboard insights. List operations require explicit `where` clauses matching `request.auth.uid` for QAP compliance.",
+          "description": "Stores inquiries from users to vendors.",
           "params": [
             {
               "name": "inquiryId",
@@ -507,7 +540,6 @@
           ]
         }
       }
-    ],
-    "reasoning": "The Firestore structure is designed to be secure, scalable, and debuggable, adhering strictly to the core design principles and mandates provided. The primary strategy employed is **Authorization Independence via Denormalization** and **Structural Segregation** to simplify security rules and enhance performance.\n\n**Authorization Independence (CRITICAL):**\nFor user-specific data like `UserProfile`, `AIChatSession`, and `AIChatMessage`, a hierarchical, path-based ownership model (`/users/{userId}/...`) is utilized. This ensures that the `userId` is an explicit segment in the Firestore path. Consequently, security rules can directly compare `request.auth.uid` with the `{userId}` wildcard from the path (e.g., `match /users/{userId}/ai_chat_sessions/{sessionId} { allow read, write: if request.auth.uid == userId; }`). This eliminates the need for `get()` calls in rules to fetch parent documents for authorization, thereby preventing broken atomic operations, making rules robust, and significantly improving debuggability.\n\nFor `VendorProfile` and `Subscription` data, a similar path-based ownership (`/vendor_profiles/{vendorId}/...`) is used. The `vendorId` in the path directly corresponds to the authenticated vendor's UID, allowing for direct authorization checks without `get()`.\n\nThe `Inquiry` collection is designed as a top-level collection `/inquiries/{inquiryId}`. Authorization relies on checking the `userId` or `vendorId` fields within the `resource.data` of the inquiry document itself. While not strictly path-based for the primary document, the `userId` and `vendorId` fields are denormalized *within* the inquiry document, allowing direct attribute checks (`resource.data.userId == request.auth.uid`) without `get()` calls to other collections.\n\n**QAPs (Rules are not Filters):**\n1.  **User-Owned Data (`UserProfile`, `AIChatSession`, `AIChatMessage`):** The path-based design (`/users/{userId}/...`) inherently enforces Query-Allowing Policies (QAPs). Any client attempting to `list` or `get` a document must specify their own `userId` in the path. Firestore rules will then verify that this `userId` matches `request.auth.uid`. This prevents clients from requesting broad datasets and relying on server-side rules to filter, ensuring that all queries are inherently scoped to the authenticated user's data.\n2.  **Vendor-Owned Data (`VendorProfile`, `Subscription`):** Similar to user-owned data, `Subscription` documents are nested under `/vendor_profiles/{vendorId}/subscriptions/{subscriptionId}`, ensuring `list` operations are implicitly filtered by `vendorId`. For `VendorProfile`, public `list` operations (e.g., for browsing or AI queries) are allowed for approved vendors. Vendor-specific operations like updating their profile are restricted to `request.auth.uid == vendorId`, ensuring that `list` for specific vendor data is properly scoped.\n3.  **Collaborative/Shared Data (`Inquiry`):** For the `/inquiries/{inquiryId}` collection, `list` operations will require explicit `where` clauses on `userId` or `vendorId` that match `request.auth.uid`. Firestore security rules will be configured to only permit `list` requests that include these specific filters, ensuring that `list` operations are always properly scoped and do not violate QAP by attempting to read unauthorized data that is then filtered out by the rules. For example, a rule might require `request.query.where.field('userId') == request.auth.uid` for a successful `list` operation by a user, or `request.query.where.field('vendorId') == request.auth.uid` for a vendor.\n\n**Structural Segregation:**\nEach collection and subcollection (e.g., `/users/{userId}/ai_chat_sessions`, `/vendor_profiles/{vendorId}/subscriptions`) is designed to contain documents that share a homogeneous security posture. This dramatically simplifies security rules by dedicating specific authorization logic to distinct data segments. For example, all `AIChatSession` documents under a given user's path have identical access requirements, simplifying rules to a single `request.auth.uid == userId` check."
+    ]
   }
 }

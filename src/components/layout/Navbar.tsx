@@ -4,9 +4,11 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Logo } from './Logo';
-import { User, Menu, X, Sparkles } from 'lucide-react';
+import { User, Menu, X, Sparkles, Heart } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
 
 const NAV_LINKS = [
   { name: 'Vendors', href: '/vendors' },
@@ -18,6 +20,16 @@ const NAV_LINKS = [
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { user } = useUser();
+  const db = useFirestore();
+
+  const savedVendorsQuery = useMemoFirebase(() => {
+    if (!user || !db) return null;
+    return collection(db, 'users', user.uid, 'saved_vendors');
+  }, [user, db]);
+
+  const { data: savedVendors } = useCollection(savedVendorsQuery);
+  const likeCount = savedVendors?.length || 0;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -68,6 +80,24 @@ export function Navbar() {
         {/* Right Actions (Desktop Only) */}
         <div className="hidden lg:flex items-center gap-8">
           <Link 
+            href="/my-likes" 
+            className={cn(
+              "flex items-center gap-2 text-[13px] font-bold uppercase tracking-[0.15em] transition-colors group relative",
+              scrolled ? "text-foreground" : "text-white"
+            )}
+          >
+            <div className="relative">
+              <Heart className={cn("w-5 h-5 group-hover:scale-110 transition-transform text-primary", likeCount > 0 && "fill-current")} />
+              {likeCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-secondary text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold shadow-md animate-in zoom-in">
+                  {likeCount}
+                </span>
+              )}
+            </div>
+            My Likes
+          </Link>
+
+          <Link 
             href="/dashboard" 
             className={cn(
               "flex items-center gap-2 text-[13px] font-bold uppercase tracking-[0.15em] transition-colors group",
@@ -78,22 +108,38 @@ export function Navbar() {
             Dashboard
           </Link>
 
-          <Button asChild className="h-12 px-8 button-rose text-[13px] golden-glow-premium">
+          <Button asChild className="h-12 px-8 button-rose text-[13px] shadow-lg golden-glow-premium">
             <Link href="/apply">JOIN AS VENDOR</Link>
           </Button>
         </div>
 
         {/* Mobile Toggle Button */}
-        <button 
-          onClick={() => setIsOpen(!isOpen)} 
-          className={cn(
-            "lg:hidden p-2.5 rounded-full transition-all z-[110]",
-            scrolled ? "bg-primary/10 text-primary" : "bg-white/10 text-white"
-          )}
-          aria-label="Toggle menu"
-        >
-          {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+        <div className="flex items-center gap-3 lg:hidden">
+          <Link 
+            href="/my-likes" 
+            className={cn(
+              "p-2.5 rounded-full relative",
+              scrolled ? "bg-primary/10 text-primary" : "bg-white/10 text-white"
+            )}
+          >
+            <Heart className={cn("w-6 h-6", likeCount > 0 && "fill-current")} />
+            {likeCount > 0 && (
+              <span className="absolute top-1 right-1 bg-secondary text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                {likeCount}
+              </span>
+            )}
+          </Link>
+          <button 
+            onClick={() => setIsOpen(!isOpen)} 
+            className={cn(
+              "p-2.5 rounded-full transition-all z-[110]",
+              scrolled ? "bg-primary/10 text-primary" : "bg-white/10 text-white"
+            )}
+            aria-label="Toggle menu"
+          >
+            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu Overlay */}
@@ -121,14 +167,22 @@ export function Navbar() {
             AI Assistant
           </Link>
           <Link 
-            href="/dashboard" 
+            href="/my-likes" 
             className="text-xl font-bold uppercase tracking-[0.2em] text-foreground/80 flex items-center justify-center gap-3 pt-4" 
+            onClick={() => setIsOpen(false)}
+          >
+            <Heart className={cn("w-6 h-6 text-primary", likeCount > 0 && "fill-current")} />
+            My Likes {likeCount > 0 && `(${likeCount})`}
+          </Link>
+          <Link 
+            href="/dashboard" 
+            className="text-xl font-bold uppercase tracking-[0.2em] text-foreground/80 flex items-center justify-center gap-3" 
             onClick={() => setIsOpen(false)}
           >
             <User className="w-6 h-6 text-primary" />
             Dashboard
           </Link>
-          <Button asChild className="button-rose w-full h-16 text-lg mt-4 golden-glow-premium">
+          <Button asChild className="button-rose w-full h-16 text-lg mt-4 shadow-xl golden-glow-premium">
             <Link href="/apply" onClick={() => setIsOpen(false)}>JOIN AS VENDOR</Link>
           </Button>
         </div>
