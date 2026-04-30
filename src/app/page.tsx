@@ -18,19 +18,19 @@ import { useState } from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
 
-const CORE_VENDORS = [
-  { name: 'Venues', icon: HomeIcon, href: '/vendors?category=venues' },
-  { name: 'Photography & Videography', icon: Camera, href: '/vendors?category=photo' },
-  { name: 'Beauty', icon: Palette, href: '/vendors?category=beauty' },
-  { name: 'Flowers & Decor', icon: Flower2, href: '/vendors?category=floral' },
-  { name: 'Catering', icon: Utensils, href: '/vendors?category=catering' },
-  { name: 'Honeymoon Destinations', icon: Plane, href: '/vendors?category=honeymoon' },
-  { name: 'Music & Entertainment', icon: Music, href: '/vendors?category=music' },
-  { name: 'Planning & Coordination', icon: CalendarCheck, href: '/vendors?category=planning' },
-  { name: 'Fashion', icon: Shirt, href: '/vendors?category=fashion' },
-  { name: 'Stationery', icon: PenTool, href: '/vendors?category=stationery' },
-  { name: 'Wedding Cakes', icon: Cake, href: '/vendors?category=cakes' },
-  { name: 'Jewelry', icon: Gem, href: '/vendors?category=jewelry' },
+export const CORE_VENDORS = [
+  { name: 'Venues', icon: HomeIcon, href: '/category/venues' },
+  { name: 'Photography & Videography', icon: Camera, href: '/category/photography-videography' },
+  { name: 'Beauty', icon: Palette, href: '/category/beauty' },
+  { name: 'Flowers & Decor', icon: Flower2, href: '/category/flowers-decor' },
+  { name: 'Catering', icon: Utensils, href: '/category/catering' },
+  { name: 'Honeymoon Destinations', icon: Plane, href: '/category/honeymoon-destinations' },
+  { name: 'Music & Entertainment', icon: Music, href: '/category/music-entertainment' },
+  { name: 'Planning & Coordination', icon: CalendarCheck, href: '/category/planning-coordination' },
+  { name: 'Fashion', icon: Shirt, href: '/category/fashion' },
+  { name: 'Stationery', icon: PenTool, href: '/category/stationery' },
+  { name: 'Wedding Cakes', icon: Cake, href: '/category/wedding-cakes' },
+  { name: 'Jewelry', icon: Gem, href: '/category/jewelry' },
 ];
 
 const FEATURED_VENDORS = [

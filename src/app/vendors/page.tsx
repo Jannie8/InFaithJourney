@@ -7,18 +7,14 @@ import { VendorCard } from '@/components/vendors/VendorCard';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
-import { Search, MapPin, Users, Wallet, Sparkles, SlidersHorizontal } from 'lucide-react';
+import { Search, MapPin, Users, Wallet, Sparkles, SlidersHorizontal, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-
-const CORE_CATEGORIES = [
-  'Venues', 'Photography & Videography', 'Beauty', 'Flowers & Decor', 
-  'Catering', 'Honeymoon Destinations', 'Music & Entertainment', 
-  'Planning & Coordination', 'Fashion', 'Stationery', 'Wedding Cakes', 'Jewelry'
-];
+import Link from 'next/link';
+import { CORE_VENDORS } from '@/app/page';
 
 const ALL_VENDORS = [
   { id: '1', name: 'Evergold Photography', location: 'Johannesburg', rating: 4.9, reviews: 120, category: 'Photography & Videography', imageUrl: PlaceHolderImages.find(img => img.id === 'vendor-evergold')?.imageUrl || '', imageHint: 'wedding couple glow' },
@@ -80,15 +76,19 @@ export default function VendorsPage() {
               <h3 className="hidden lg:block font-headline text-[28px] mb-8 border-b border-primary/10 pb-4">Refine Results</h3>
               
               <Accordion type="multiple" defaultValue={['categories', 'location']} className="space-y-10">
-                {/* Categories */}
+                {/* Categories Links */}
                 <AccordionItem value="categories" className="border-none">
-                   <AccordionTrigger className="text-[13.5px] font-bold uppercase tracking-widest text-primary hover:no-underline">Core Categories</AccordionTrigger>
+                   <AccordionTrigger className="text-[13.5px] font-bold uppercase tracking-widest text-primary hover:no-underline">Browse Categories</AccordionTrigger>
                    <AccordionContent className="pt-4 space-y-3.5">
-                    {CORE_CATEGORIES.map(cat => (
-                      <div key={cat} className="flex items-center space-x-3 group cursor-pointer">
-                        <Checkbox id={`cat-${cat}`} className="rounded-md border-primary/30 w-5 h-5 data-[state=checked]:bg-secondary transition-all" />
-                        <label htmlFor={`cat-${cat}`} className="text-[15px] font-medium leading-tight cursor-pointer group-hover:text-secondary transition-colors text-foreground/85">{cat}</label>
-                      </div>
+                    {CORE_VENDORS.map(cat => (
+                      <Link 
+                        key={cat.name} 
+                        href={cat.href}
+                        className="flex items-center justify-between group py-1 hover:text-primary transition-colors text-[15px] font-medium"
+                      >
+                        {cat.name}
+                        <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
+                      </Link>
                     ))}
                   </AccordionContent>
                 </AccordionItem>
