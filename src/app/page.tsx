@@ -55,17 +55,17 @@ export default function Home() {
           src={heroImage?.imageUrl || ''}
           alt="Romantic wedding couple"
           fill
-          className="object-cover brightness-[0.8] sepia-overlay"
+          className="object-cover brightness-[0.7] sepia-overlay"
           priority
           data-ai-hint="wedding couple cherry blossom"
         />
-        <div className="absolute inset-0 bg-black/20"></div>
+        <div className="absolute inset-0 bg-black/50"></div>
         
         <div className="relative z-10 max-w-6xl mx-auto text-center px-6">
-          <h1 className="text-[55px] md:text-[72px] font-headline text-white mb-6 drop-shadow-lg leading-tight animate-in fade-in slide-in-from-bottom-8 duration-1000">
+          <h1 className="text-[55px] md:text-[72px] font-headline text-white mb-6 drop-shadow-2xl leading-tight animate-in fade-in slide-in-from-bottom-8 duration-1000">
             Find Your Perfect Wedding Vendor
           </h1>
-          <p className="text-[18px] md:text-[22px] text-white/95 mb-12 font-medium italic tracking-wide max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
+          <p className="text-[18px] md:text-[22px] text-white/95 mb-12 font-medium italic tracking-wide max-w-3xl mx-auto drop-shadow-lg animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
             Browse curated & trusted vendors for South Africa's most elite wedding experiences.
           </p>
           

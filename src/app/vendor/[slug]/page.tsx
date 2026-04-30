@@ -29,8 +29,9 @@ export default function VendorProfilePage() {
           src={PlaceHolderImages.find(img => img.id === 'vendor-evergold')?.imageUrl || ''}
           alt="Evergold Photography"
           fill
-          className="object-cover sepia-overlay brightness-[0.7]"
+          className="object-cover sepia-overlay brightness-[0.6]"
         />
+        <div className="absolute inset-0 bg-black/40"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-background via-black/10 to-transparent"></div>
         <div className="absolute bottom-16 left-0 w-full px-6">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-end justify-between gap-10">
@@ -38,22 +39,22 @@ export default function VendorProfilePage() {
               <Badge className="bg-primary text-white border-none px-5 py-2 uppercase tracking-widest font-bold text-[11px] shadow-xl">
                 PHOTOGRAPHY
               </Badge>
-              <h1 className="text-[48px] md:text-[64px] font-headline text-white drop-shadow-lg leading-tight">Evergold Photography</h1>
+              <h1 className="text-[48px] md:text-[64px] font-headline text-white drop-shadow-2xl leading-tight">Evergold Photography</h1>
               <div className="flex flex-wrap items-center gap-8 text-white/90">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 drop-shadow-md">
                   <MapPin className="w-5 h-5 text-primary" />
                   <span className="text-[18px] font-medium tracking-wide">Johannesburg, Gauteng</span>
                 </div>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 drop-shadow-md">
                   <div className="flex">
                     {[...Array(5)].map((_, i) => (
-                      <Star key(i) className="w-4 h-4 fill-secondary text-secondary" />
+                      <Star key={i} className="w-4 h-4 fill-secondary text-secondary" />
                     ))}
                   </div>
                   <span className="font-bold text-[18px] ml-1">4.9</span>
                   <span className="opacity-80 text-[18px] ml-1">(120 Reviews)</span>
                 </div>
-                <div className="flex items-center gap-3 bg-white/20 backdrop-blur-md px-5 py-1.5 rounded-full text-[12px] font-bold uppercase tracking-widest border border-white/30">
+                <div className="flex items-center gap-3 bg-white/20 backdrop-blur-md px-5 py-1.5 rounded-full text-[12px] font-bold uppercase tracking-widest border border-white/30 shadow-lg">
                   <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
                   Listed on InFaith Journey
                 </div>

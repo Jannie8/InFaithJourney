@@ -29,11 +29,11 @@ export default function VendorsPage() {
           src={heroImage?.imageUrl || ''}
           alt="Wedding venue"
           fill
-          className="object-cover sepia-overlay brightness-[0.75]"
+          className="object-cover sepia-overlay brightness-[0.7]"
         />
-        <div className="absolute inset-0 bg-black/20"></div>
+        <div className="absolute inset-0 bg-black/50"></div>
         <div className="relative z-10 max-w-4xl mx-auto text-center px-6">
-          <h1 className="text-[48px] md:text-[60px] font-headline text-white mb-8 drop-shadow-xl">Browse Wedding Venues</h1>
+          <h1 className="text-[48px] md:text-[60px] font-headline text-white mb-8 drop-shadow-2xl">Browse Wedding Venues</h1>
           <div className="relative w-full max-w-2xl mx-auto group">
             <Input className="rounded-full pl-14 h-14 border-none bg-white text-[16.5px] shadow-2xl focus-visible:ring-primary/30" placeholder="Search by name or style..." />
             <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-primary" />

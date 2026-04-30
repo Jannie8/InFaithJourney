@@ -29,12 +29,12 @@ export default function ApplyPage() {
           src={heroImage?.imageUrl || ''}
           alt="Romantic couple under floral arch"
           fill
-          className="object-cover sepia-overlay brightness-[0.8]"
+          className="object-cover sepia-overlay brightness-[0.7]"
         />
-        <div className="absolute inset-0 bg-black/20"></div>
+        <div className="absolute inset-0 bg-black/50"></div>
         <div className="relative z-10 text-center text-white px-6">
-          <h1 className="text-[55px] md:text-[72px] font-headline mb-4 drop-shadow-lg">Apply as a Vendor</h1>
-          <p className="text-[18px] md:text-[22px] italic tracking-widest font-medium opacity-95">Elevate your wedding business</p>
+          <h1 className="text-[55px] md:text-[72px] font-headline mb-4 drop-shadow-2xl">Apply as a Vendor</h1>
+          <p className="text-[18px] md:text-[22px] italic tracking-widest font-medium opacity-95 drop-shadow-lg">Elevate your wedding business</p>
         </div>
       </section>
 
