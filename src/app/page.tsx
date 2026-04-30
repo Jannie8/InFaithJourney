@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Navbar } from '@/components/layout/Navbar';
@@ -17,20 +18,21 @@ import {
 import { useState } from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 export const CORE_VENDORS = [
-  { name: 'Venues', icon: HomeIcon, href: '/category/venues' },
-  { name: 'Photography & Videography', icon: Camera, href: '/category/photography-videography' },
-  { name: 'Beauty', icon: Palette, href: '/category/beauty' },
-  { name: 'Flowers & Decor', icon: Flower2, href: '/category/flowers-decor' },
-  { name: 'Catering', icon: Utensils, href: '/category/catering' },
-  { name: 'Honeymoon Destinations', icon: Plane, href: '/category/honeymoon-destinations' },
-  { name: 'Music & Entertainment', icon: Music, href: '/category/music-entertainment' },
-  { name: 'Planning & Coordination', icon: CalendarCheck, href: '/category/planning-coordination' },
-  { name: 'Fashion', icon: Shirt, href: '/category/fashion' },
-  { name: 'Stationery', icon: PenTool, href: '/category/stationery' },
-  { name: 'Wedding Cakes', icon: Cake, href: '/category/wedding-cakes' },
-  { name: 'Jewelry', icon: Gem, href: '/category/jewelry' },
+  { name: 'Venues', icon: HomeIcon, href: '/category/venues', imageId: 'cat-venues' },
+  { name: 'Photography & Videography', icon: Camera, href: '/category/photography-videography', imageId: 'cat-photo' },
+  { name: 'Beauty', icon: Palette, href: '/category/beauty', imageId: 'cat-beauty' },
+  { name: 'Flowers & Decor', icon: Flower2, href: '/category/flowers-decor', imageId: 'cat-flowers' },
+  { name: 'Catering', icon: Utensils, href: '/category/catering', imageId: 'cat-catering' },
+  { name: 'Honeymoon Destinations', icon: Plane, href: '/category/honeymoon-destinations', imageId: 'cat-honeymoon' },
+  { name: 'Music & Entertainment', icon: Music, href: '/category/music-entertainment', imageId: 'cat-music' },
+  { name: 'Planning & Coordination', icon: CalendarCheck, href: '/category/planning-coordination', imageId: 'cat-planning' },
+  { name: 'Fashion', icon: Shirt, href: '/category/fashion', imageId: 'cat-fashion' },
+  { name: 'Stationery', icon: PenTool, href: '/category/stationery', imageId: 'cat-stationery' },
+  { name: 'Wedding Cakes', icon: Cake, href: '/category/wedding-cakes', imageId: 'cat-cakes' },
+  { name: 'Jewelry', icon: Gem, href: '/category/jewelry', imageId: 'cat-jewelry' },
 ];
 
 const FEATURED_VENDORS = [
@@ -129,21 +131,46 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Category Icon Tabs - Responsive Slider/Grid */}
-      <section className="max-w-7xl mx-auto px-6 section-padding w-full">
+      {/* Visual Category Cards - Responsive Scrollable Row */}
+      <section className="max-w-7xl mx-auto px-6 section-padding w-full overflow-hidden">
         <div className="text-center mb-12 md:mb-16">
           <h2 className="font-headline text-[36px] md:text-[48px] mb-4">Browse by Category</h2>
           <div className="w-20 h-1.5 bg-gradient-to-r from-secondary to-secondary/50 mx-auto rounded-full shadow-[0_0_10px_rgba(212,175,55,0.4)]"></div>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-8">
-          {CORE_VENDORS.map((v) => (
-            <Link key={v.name} href={v.href} className="icon-tab group golden-glow-premium">
-              <v.icon className="w-10 h-10 md:w-12 md:h-12 text-primary group-hover:text-secondary transition-all duration-500 group-hover:scale-110" />
-              <span className="text-[12px] md:text-[13px] font-bold uppercase tracking-[0.2em] text-center opacity-85">{v.name}</span>
-              <div className="mt-2 w-0 h-[2px] bg-secondary group-hover:w-full transition-all duration-500 shadow-[0_0_8px_rgba(212,175,55,0.6)]"></div>
-            </Link>
-          ))}
-        </div>
+        
+        <ScrollArea className="w-full whitespace-nowrap">
+          <div className="flex w-max space-x-6 p-4">
+            {CORE_VENDORS.map((v) => {
+              const categoryImg = PlaceHolderImages.find(img => img.id === v.imageId);
+              return (
+                <Link 
+                  key={v.name} 
+                  href={v.href} 
+                  className="relative group w-[220px] sm:w-[280px] h-[360px] sm:h-[420px] rounded-[24px] overflow-hidden shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl golden-glow-premium flex-shrink-0"
+                >
+                  <Image
+                    src={categoryImg?.imageUrl || `https://picsum.photos/seed/cat-${v.name}/800/1200`}
+                    alt={v.name}
+                    fill
+                    className="object-cover sepia-overlay transition-transform duration-700 group-hover:scale-110"
+                    data-ai-hint={categoryImg?.imageHint || 'wedding golden glow'}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                  <div className="absolute inset-0 flex items-end justify-center pb-8 px-4 text-center">
+                    <div className="space-y-3">
+                      <v.icon className="w-8 h-8 mx-auto text-secondary/80 group-hover:text-secondary transition-colors duration-500" />
+                      <h3 className="font-headline text-xl sm:text-2xl text-white drop-shadow-lg leading-tight group-hover:text-secondary/90 transition-colors">
+                        {v.name}
+                      </h3>
+                      <div className="w-0 h-[2px] bg-secondary mx-auto group-hover:w-full transition-all duration-500 shadow-[0_0_8px_rgba(212,175,55,0.8)]"></div>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+          <ScrollBar orientation="horizontal" className="h-2" />
+        </ScrollArea>
       </section>
 
       {/* Main Showcase Grid */}
