@@ -2,81 +2,81 @@
   "placeholderImages": [
     {
       "id": "hero-home",
-      "description": "Romantic wedding couple kissing under a floral arch at sunset, golden hour lighting",
-      "imageUrl": "https://picsum.photos/seed/inf-hero/1920/1080",
-      "imageHint": "wedding couple"
+      "description": "Romantic wedding couple kissing under a heavy cherry blossom arch, golden hour warm lighting, soft bokeh",
+      "imageUrl": "https://picsum.photos/seed/inf-hero-arch/1920/1080",
+      "imageHint": "wedding couple cherry blossom"
     },
     {
       "id": "hero-apply",
-      "description": "Close up of a romantic couple embracing under cherry blossoms",
-      "imageUrl": "https://picsum.photos/seed/inf-apply/1920/800",
-      "imageHint": "wedding flowers"
+      "description": "Romantic couple embracing under a floral arch at sunset, sepia tones",
+      "imageUrl": "https://picsum.photos/seed/inf-apply-floral/1920/800",
+      "imageHint": "wedding couple floral"
     },
     {
       "id": "hero-venues",
-      "description": "Dreamy vineyard wedding setup with golden hour light",
-      "imageUrl": "https://picsum.photos/seed/inf-venues/1920/800",
-      "imageHint": "vineyard wedding"
+      "description": "Dreamy vineyard wedding ceremony with heavy floral installations, warm sun rays",
+      "imageUrl": "https://picsum.photos/seed/inf-venues-dream/1920/800",
+      "imageHint": "wedding ceremony flowers"
     },
     {
       "id": "vendor-evergold",
-      "description": "Evergold Photography couple shot with soft bokeh",
-      "imageUrl": "https://picsum.photos/seed/inf-ever/800/1000",
-      "imageHint": "wedding photography"
+      "description": "Elegant wedding couple hugging with warm vintage lighting",
+      "imageUrl": "https://picsum.photos/seed/inf-ever-gold/800/1000",
+      "imageHint": "wedding couple embrace"
     },
     {
       "id": "vendor-sunstone",
-      "description": "Luxury manor estate with floral gardens",
-      "imageUrl": "https://picsum.photos/seed/inf-sun/600/450",
-      "imageHint": "luxury venue"
+      "description": "Stunning manor house at sunset with garden flowers",
+      "imageUrl": "https://picsum.photos/seed/inf-sun-manor/800/600",
+      "imageHint": "wedding manor"
     },
     {
       "id": "vendor-bridal",
-      "description": "High-end bridal boutique interior",
-      "imageUrl": "https://picsum.photos/seed/inf-brid/600/450",
-      "imageHint": "bridal shop"
+      "description": "Soft detail of a luxury wedding dress with floral lace",
+      "imageUrl": "https://picsum.photos/seed/inf-brid-dress/800/600",
+      "imageHint": "wedding dress lace"
     },
     {
       "id": "vendor-floral",
-      "description": "Elegant floral arrangement for wedding reception",
-      "imageUrl": "https://picsum.photos/seed/inf-flor/600/450",
-      "imageHint": "wedding flowers"
+      "description": "Bespoke romantic floral centerpieces in a warm lit hall",
+      "imageUrl": "https://picsum.photos/seed/inf-flor-decor/800/600",
+      "imageHint": "wedding flowers decor"
     },
     {
       "id": "gallery-1",
-      "description": "Wedding couple kissing under cherry blossoms",
-      "imageUrl": "https://picsum.photos/seed/inf-g1/800/1000",
-      "imageHint": "wedding kiss"
+      "description": "Couple kissing under pink blossoms",
+      "imageUrl": "https://picsum.photos/seed/inf-g1-kiss/800/1000",
+      "imageHint": "wedding couple kiss"
     },
     {
       "id": "gallery-2",
-      "description": "Detail shot of bridal bouquet and rings",
-      "imageUrl": "https://picsum.photos/seed/inf-g2/800/1000",
-      "imageHint": "wedding detail"
+      "description": "Detail of bridal flowers with rings",
+      "imageUrl": "https://picsum.photos/seed/inf-g2-rings/800/1000",
+      "imageHint": "wedding rings flowers"
     },
     {
       "id": "gallery-3",
-      "description": "Romantic sunset couple shot in a garden",
-      "imageUrl": "https://picsum.photos/seed/inf-g3/800/1000",
-      "imageHint": "wedding garden"
+      "description": "Romantic couple walk in golden field",
+      "imageUrl": "https://picsum.photos/seed/inf-g3-field/800/1000",
+      "imageHint": "wedding couple sunset"
     },
     {
       "id": "gallery-4",
-      "description": "Elegant table setup with floral centerpieces",
-      "imageUrl": "https://picsum.photos/seed/inf-g4/800/1000",
-      "imageHint": "wedding reception"
+      "description": "Elegant table setting with gold accents",
+      "imageUrl": "https://picsum.photos/seed/inf-g4-table/800/1000",
+      "imageHint": "wedding table gold"
     },
     {
       "id": "gallery-5",
-      "description": "Couple embracing under a floral arch",
-      "imageUrl": "https://picsum.photos/seed/inf-g5/800/1000",
-      "imageHint": "wedding couple"
+      "description": "Couple sharing a laugh at sunset",
+      "imageUrl": "https://picsum.photos/seed/inf-g5-laugh/800/1000",
+      "imageHint": "wedding couple happy"
     },
     {
       "id": "gallery-6",
-      "description": "Close up of wedding cake with flowers",
-      "imageUrl": "https://picsum.photos/seed/inf-g6/800/1000",
-      "imageHint": "wedding cake"
+      "description": "Three-tier wedding cake with pink roses",
+      "imageUrl": "https://picsum.photos/seed/inf-g6-cake/800/1000",
+      "imageHint": "wedding cake roses"
     }
   ]
 }
