@@ -41,7 +41,7 @@ export function VendorCard({ id, name, location, rating, reviews, category, imag
 
         <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
           <MapPin className="w-3.5 h-3.5 text-primary/70" />
-          <span className="text-[14.5px] font-medium opacity-90">{location}</span>
+          <span className="text-[14.5px] font-medium opacity-90 truncate">{location}</span>
         </div>
 
         <div className="flex items-center gap-1.5 mb-4">
@@ -50,16 +50,16 @@ export function VendorCard({ id, name, location, rating, reviews, category, imag
               <Star key={i} className={`w-3.5 h-3.5 ${i < Math.floor(rating) ? 'fill-secondary text-secondary' : 'text-muted-foreground/30'}`} />
             ))}
           </div>
-          <span className="text-[13.5px] font-bold text-foreground/80 ml-1">
+          <span className="text-[13.5px] font-bold text-foreground/80 ml-1 whitespace-nowrap">
             {reviews} JJs
           </span>
         </div>
 
-        <div className="mt-auto space-y-3 pt-3">
-          <Button asChild className="w-full button-rose h-11 text-[15px] font-semibold">
+        <div className="mt-auto pt-3 flex flex-col gap-3">
+          <Button asChild className="w-full h-10 px-4 py-2 rounded-lg text-[14px] font-bold uppercase tracking-widest button-rose whitespace-nowrap overflow-hidden transition-transform duration-300 hover:scale-[1.05] hover:brightness-110">
             <Link href={`/vendor/${id}`}>VIEW PROFILE</Link>
           </Button>
-          <Button variant="outline" asChild className="w-full rounded-full border-primary/20 text-primary hover:bg-primary/5 h-11 uppercase text-[11px] font-bold tracking-[0.2em]">
+          <Button variant="outline" asChild className="w-full h-10 px-4 py-2 rounded-lg border-primary/20 text-primary hover:bg-primary/5 text-[14px] font-bold uppercase tracking-widest whitespace-nowrap overflow-hidden transition-transform duration-300 hover:scale-[1.05]">
             <Link href={`/vendor/${id}#quote`}>REQUEST QUOTE</Link>
           </Button>
         </div>
