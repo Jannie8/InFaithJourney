@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 
 const NAV_LINKS = [
   { name: 'Vendors', href: '/vendors' },
+  { name: 'Plans', href: '/plans' },
   { name: 'Join as a Vendor', href: '/apply' },
   { name: 'Contact', href: '/contact' },
 ];
@@ -46,7 +47,7 @@ export function Navbar() {
               href={link.href}
               className={cn(
                 "text-[13px] font-bold uppercase tracking-[0.2em] golden-underline-glow transition-colors",
-                scrolled ? "text-foreground" : "text-white md:text-foreground/90 lg:text-white"
+                scrolled ? "text-foreground" : "text-white"
               )}
             >
               {link.name}
