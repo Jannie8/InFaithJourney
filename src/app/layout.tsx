@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     siteName: 'InFaith Journey',
     images: [
       {
-        url: 'https://picsum.photos/seed/inf-og-main/1200/630',
+        url: 'https://infaithjourney.com/og-image.jpeg',
         width: 1200,
         height: 630,
         alt: 'InFaith Journey - Premium Wedding Marketplace',
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'InFaith Journey',
     description: 'Find your perfect wedding vendor. Browse curated & trusted vendors with couples actively planning their dream weddings now.',
-    images: ['https://picsum.photos/seed/inf-og-main/1200/630'],
+    images: ['https://infaithjourney.com/og-image.jpeg'],
   },
 };
 

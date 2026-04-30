@@ -21,14 +21,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     openGraph: {
       title: `${name} | InFaith Journey`,
       description: `Discover the exquisite work of ${name} on InFaith Journey.`,
-      images: [`https://picsum.photos/seed/inf-vendor-${slug}/1200/630`],
+      images: ['https://infaithjourney.com/og-image.jpeg'],
       type: 'profile',
     },
     twitter: {
       card: 'summary_large_image',
       title: `${name} | InFaith Journey`,
       description: `Discover the exquisite work of ${name} on InFaith Journey.`,
-      images: [`https://picsum.photos/seed/inf-vendor-${slug}/1200/630`],
+      images: ['https://infaithjourney.com/og-image.jpeg'],
     }
   };
 }

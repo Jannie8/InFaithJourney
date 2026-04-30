@@ -17,7 +17,13 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Apply as a Vendor | InFaith Journey',
     description: 'Join South Africa\'s premier wedding vendor network.',
-    images: ['https://picsum.photos/seed/inf-golden-apply/1200/630'],
+    images: ['https://infaithjourney.com/og-image.jpeg'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Apply as a Vendor | InFaith Journey',
+    description: 'Join South Africa\'s premier wedding vendor network.',
+    images: ['https://infaithjourney.com/og-image.jpeg'],
   }
 };
 
