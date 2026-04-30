@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -52,14 +53,14 @@ export function Navbar() {
             </Link>
           ))}
           <Link
-            href="/vendors"
+            href="/ai-planner"
             className={cn(
               "text-[13px] font-bold uppercase tracking-[0.2em] golden-underline-glow flex items-center gap-1.5 transition-colors",
               scrolled ? "text-foreground" : "text-white"
             )}
           >
             <Sparkles className="w-4 h-4 text-secondary animate-pulse" />
-            AI Planner
+            AI Assistant
           </Link>
         </div>
 
@@ -110,6 +111,14 @@ export function Navbar() {
               {link.name}
             </Link>
           ))}
+          <Link 
+            href="/ai-planner" 
+            className="text-2xl font-headline uppercase tracking-[0.15em] hover:text-primary transition-colors py-2 border-b border-primary/5 flex items-center justify-center gap-3" 
+            onClick={() => setIsOpen(false)}
+          >
+            <Sparkles className="w-6 h-6 text-secondary" />
+            AI Assistant
+          </Link>
           <Link 
             href="/dashboard" 
             className="text-xl font-bold uppercase tracking-[0.2em] text-foreground/80 flex items-center justify-center gap-3 pt-4" 
