@@ -4,26 +4,26 @@
 
 @layer base {
   :root {
-    --background: 34 40% 97%; /* #FAF7F2 - Soft Warm Cream */
-    --foreground: 25 15% 25%; /* #4A3C31 - Dark Warm Gray */
-    --card: 34 40% 97%;
-    --card-foreground: 25 15% 25%;
-    --popover: 34 40% 97%;
-    --popover-foreground: 25 15% 25%;
+    --background: 40 29% 96%; /* #F8F5F0 - Soft Warm Cream */
+    --foreground: 0 12% 21%; /* #3C2F2F - Dark Warm Gray for high contrast */
+    --card: 40 29% 96%;
+    --card-foreground: 0 12% 21%;
+    --popover: 40 29% 96%;
+    --popover-foreground: 0 12% 21%;
     --primary: 30 42% 64%; /* #C8A37E - Dusty Rose */
-    --primary-foreground: 34 40% 97%;
+    --primary-foreground: 40 29% 96%;
     --secondary: 46 65% 52%; /* #D4AF37 - Gold */
-    --secondary-foreground: 34 40% 97%;
+    --secondary-foreground: 40 29% 96%;
     --muted: 30 15% 92%;
-    --muted-foreground: 25 10% 45%;
+    --muted-foreground: 25 10% 40%;
     --accent: 30 42% 64%;
-    --accent-foreground: 34 40% 97%;
+    --accent-foreground: 40 29% 96%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 30 15% 88%;
-    --input: 30 15% 88%;
+    --border: 30 15% 85%;
+    --input: 30 15% 85%;
     --ring: 30 42% 64%;
-    --radius: 1.25rem;
+    --radius: 1rem;
   }
 }
 
@@ -32,12 +32,13 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-body leading-relaxed antialiased;
-    font-size: 17px;
-    letter-spacing: -0.01em;
+    @apply bg-background text-foreground font-body antialiased;
+    font-size: 16.5px;
+    line-height: 1.75;
+    font-weight: 400;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-headline text-foreground;
+    @apply font-headline text-foreground font-bold;
   }
 }
 
@@ -46,31 +47,27 @@
 }
 
 .sepia-overlay {
-  filter: sepia(0.15) contrast(1.02) brightness(1.05) saturate(1.1);
+  filter: sepia(0.1) contrast(1.05) brightness(1.02);
 }
 
 .button-rose {
-  @apply bg-primary hover:bg-[#B8926D] text-white transition-all duration-500 hover:scale-[1.05] shadow-lg shadow-primary/20 rounded-full font-bold tracking-[0.2em] uppercase text-[12px];
+  @apply bg-primary hover:bg-[#B8926D] text-white transition-all duration-300 hover:scale-[1.03] shadow-md rounded-full font-semibold tracking-wide uppercase text-[15px];
 }
 
 .luxury-card {
-  @apply bg-white/50 backdrop-blur-md border border-primary/10 rounded-[20px] shadow-[0_8px_30px_rgba(0,0,0,0.06)] transition-all duration-700 hover:shadow-[0_15px_45px_rgba(0,0,0,0.08)] hover:-translate-y-2;
+  @apply bg-white border border-primary/10 rounded-[16px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] transition-all duration-500 hover:shadow-[0_8px_35px_rgba(0,0,0,0.08)];
 }
 
 .watercolor-bg {
-  background-image: radial-gradient(circle at 10% 20%, rgba(200, 163, 126, 0.05) 0%, transparent 40%),
-                    radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.05) 0%, transparent 40%);
+  background-image: radial-gradient(circle at 10% 20%, rgba(200, 163, 126, 0.03) 0%, transparent 40%),
+                    radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.03) 0%, transparent 40%);
 }
 
 .floral-texture {
   background-image: url("https://www.transparenttextures.com/patterns/natural-paper.png");
-  opacity: 0.15;
-}
-
-.hero-gradient {
-  background: linear-gradient(to bottom, rgba(74, 60, 49, 0.2), rgba(250, 247, 242, 0.3));
+  opacity: 0.1;
 }
 
 .section-padding {
-  @apply py-24 md:py-32 lg:py-40;
+  @apply py-[100px];
 }

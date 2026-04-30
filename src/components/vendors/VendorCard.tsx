@@ -16,49 +16,50 @@ interface VendorCardProps {
   priceRange?: string;
 }
 
-export function VendorCard({ id, name, location, rating, reviews, category, imageUrl, imageHint, priceRange }: VendorCardProps) {
+export function VendorCard({ id, name, location, rating, reviews, category, imageUrl, imageHint }: VendorCardProps) {
   return (
-    <div className="group luxury-card overflow-hidden h-full flex flex-col">
-      <div className="relative h-72 w-full overflow-hidden">
+    <div className="group luxury-card overflow-hidden h-full flex flex-col bg-white">
+      <div className="relative h-[220px] w-full overflow-hidden shrink-0">
         <Image
           src={imageUrl}
           alt={name}
           fill
-          className="object-cover sepia-overlay transition-transform duration-[1200ms] group-hover:scale-110"
+          className="object-cover sepia-overlay transition-transform duration-[1200ms] group-hover:scale-105"
           data-ai-hint={imageHint}
         />
-        <div className="absolute top-4 left-4">
-          <Badge className="bg-white/95 text-primary border-none font-bold px-4 py-1.5 shadow-sm uppercase text-[9px] tracking-[0.2em] rounded-full">
+        <div className="absolute top-3 left-3">
+          <Badge className="bg-white/95 text-primary border-none font-bold px-3 py-1 shadow-sm uppercase text-[10px] tracking-[0.1em] rounded-full">
             {category}
           </Badge>
         </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
       </div>
       
-      <div className="p-8 flex flex-col flex-1">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="font-headline text-2xl group-hover:text-primary transition-colors leading-tight">{name}</h3>
+      <div className="p-6 flex flex-col flex-1">
+        <h3 className="font-headline text-[19px] font-semibold text-foreground mb-1 line-clamp-2 leading-tight">
+          {name}
+        </h3>
+
+        <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
+          <MapPin className="w-3.5 h-3.5 text-primary/70" />
+          <span className="text-[14.5px] font-medium opacity-90">{location}</span>
         </div>
 
-        <div className="flex items-center gap-2 text-muted-foreground text-sm mb-4">
-          <MapPin className="w-4 h-4 text-primary/70" />
-          <span className="tracking-widest uppercase text-[10px] font-bold opacity-70">{location}</span>
-        </div>
-
-        <div className="flex items-center gap-1.5 mb-8">
+        <div className="flex items-center gap-1.5 mb-4">
           <div className="flex">
             {[...Array(5)].map((_, i) => (
               <Star key={i} className={`w-3.5 h-3.5 ${i < Math.floor(rating) ? 'fill-secondary text-secondary' : 'text-muted-foreground/30'}`} />
             ))}
           </div>
-          <span className="text-[10px] font-bold text-foreground/60 ml-2 tracking-widest">{reviews} JJs</span>
+          <span className="text-[13.5px] font-bold text-foreground/80 ml-1">
+            {reviews} JJs
+          </span>
         </div>
 
-        <div className="mt-auto space-y-3">
-          <Button asChild className="w-full button-rose h-12">
+        <div className="mt-auto space-y-3 pt-3">
+          <Button asChild className="w-full button-rose h-11 text-[15px] font-semibold">
             <Link href={`/vendor/${id}`}>VIEW PROFILE</Link>
           </Button>
-          <Button variant="outline" asChild className="w-full rounded-full border-primary/20 text-primary hover:bg-primary/5 h-12 uppercase text-[11px] font-bold tracking-[0.2em]">
+          <Button variant="outline" asChild className="w-full rounded-full border-primary/20 text-primary hover:bg-primary/5 h-11 uppercase text-[11px] font-bold tracking-[0.2em]">
             <Link href={`/vendor/${id}#quote`}>REQUEST QUOTE</Link>
           </Button>
         </div>
