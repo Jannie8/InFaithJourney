@@ -6,7 +6,11 @@ import { Toaster } from "@/components/ui/toaster";
 import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
-  title: 'InFaith Journey | Premium Wedding Vendor Marketplace',
+  metadataBase: new URL('https://infaithjourney.com'),
+  title: {
+    default: 'InFaith Journey',
+    template: '%s | InFaith Journey',
+  },
   description: 'Find your perfect wedding vendor. Browse curated & trusted vendors with couples actively planning their dream weddings now.',
   openGraph: {
     title: 'InFaith Journey',

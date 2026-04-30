@@ -16,13 +16,19 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const name = slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
   
   return {
-    title: `${name} | InFaith Journey`,
+    title: name,
     description: `Discover the exquisite work of ${name} on InFaith Journey. Curated premium wedding services in South Africa.`,
     openGraph: {
       title: `${name} | InFaith Journey`,
       description: `Discover the exquisite work of ${name} on InFaith Journey.`,
       url: `https://infaithjourney.com/vendor/${slug}`,
-      images: ['https://infaithjourney.com/og-image.jpeg'],
+      images: [
+        {
+          url: 'https://infaithjourney.com/og-image.jpeg',
+          width: 1200,
+          height: 630,
+        }
+      ],
       type: 'profile',
       siteName: 'InFaith Journey',
     },

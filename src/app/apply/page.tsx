@@ -12,13 +12,19 @@ import { Upload, User, Briefcase, CreditCard, Image as ImageIcon } from 'lucide-
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Apply as a Vendor | InFaith Journey',
+  title: 'Apply as a Vendor',
   description: 'Join South Africa\'s premier wedding vendor network. Showcase your premium services to high-end couples.',
   openGraph: {
     title: 'Apply as a Vendor | InFaith Journey',
-    description: 'Join South Africa\'s premier wedding vendor network.',
+    description: 'Join South Africa\'s premier wedding vendor network. Showcase your premium services to high-end couples.',
     url: 'https://infaithjourney.com/apply',
-    images: ['https://infaithjourney.com/og-image.jpeg'],
+    images: [
+      {
+        url: 'https://infaithjourney.com/og-image.jpeg',
+        width: 1200,
+        height: 630,
+      }
+    ],
     type: 'website',
     siteName: 'InFaith Journey',
   },

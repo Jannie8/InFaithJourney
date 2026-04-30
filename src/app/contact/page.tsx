@@ -9,13 +9,19 @@ import { Mail, Phone, MapPin, Instagram, Facebook, Twitter } from 'lucide-react'
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Contact Us | InFaith Journey',
+  title: 'Contact Us',
   description: 'Have a question or need assistance? Reach out to the InFaith Journey team. We\'re here to help you plan your perfect wedding.',
   openGraph: {
     title: 'Contact Us | InFaith Journey',
     description: 'Reach out to the InFaith Journey team for assistance with your wedding planning.',
     url: 'https://infaithjourney.com/contact',
-    images: ['https://infaithjourney.com/og-image.jpeg'],
+    images: [
+      {
+        url: 'https://infaithjourney.com/og-image.jpeg',
+        width: 1200,
+        height: 630,
+      }
+    ],
     type: 'website',
     siteName: 'InFaith Journey',
   },
