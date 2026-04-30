@@ -23,7 +23,7 @@
     --border: 30 15% 85%;
     --input: 30 15% 85%;
     --ring: 30 42% 64%;
-    --radius: 1rem;
+    --radius: 1.5rem;
   }
 }
 
@@ -42,6 +42,21 @@
   }
 }
 
+@keyframes golden-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); transform: scale(1); }
+  50% { box-shadow: 0 0 0 15px rgba(212, 175, 55, 0); transform: scale(1.02); }
+  100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); transform: scale(1); }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.6s ease-out forwards;
+}
+
 .font-script {
   font-family: 'Great Vibes', cursive;
 }
@@ -51,16 +66,29 @@
 }
 
 .button-rose {
-  @apply bg-primary hover:bg-[#B8926D] text-white transition-all duration-300 hover:scale-[1.03] shadow-md rounded-full font-semibold tracking-wide uppercase text-[15px];
+  @apply text-white transition-all duration-500 shadow-md font-semibold tracking-wide uppercase text-[15px] rounded-[24px];
+  background: linear-gradient(135deg, #C8A37E 0%, #E8C39E 100%);
+  border: none;
+}
+
+.button-rose:hover {
+  @apply scale-[1.05];
+  box-shadow: 0 6px 20px rgba(200, 163, 126, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.2);
+  filter: brightness(1.1);
 }
 
 .luxury-card {
-  @apply bg-white border border-primary/10 rounded-[16px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] transition-all duration-500 hover:shadow-[0_8px_35px_rgba(0,0,0,0.08)];
+  @apply bg-white border border-primary/10 rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] transition-all duration-500;
+}
+
+.luxury-card:hover {
+  @apply translate-y-[-4px];
+  box-shadow: 0 12px 40px rgba(0,0,0,0.08), 0 0 20px rgba(212, 175, 55, 0.2);
 }
 
 .watercolor-bg {
-  background-image: radial-gradient(circle at 10% 20%, rgba(200, 163, 126, 0.03) 0%, transparent 40%),
-                    radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.03) 0%, transparent 40%);
+  background-image: radial-gradient(circle at 10% 20%, rgba(200, 163, 126, 0.04) 0%, transparent 40%),
+                    radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.04) 0%, transparent 40%);
 }
 
 .floral-texture {
@@ -69,39 +97,59 @@
 }
 
 .section-padding {
-  @apply py-[100px];
+  @apply py-[120px];
 }
 
-/* Golden Glow Effects */
-.golden-glow-hover {
-  @apply transition-all duration-300;
+.hero-padding {
+  @apply py-[140px];
 }
 
-.golden-glow-hover:hover {
-  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.6);
-  transform: translateY(-2px);
+/* Premium Golden Glow Effects */
+.golden-glow-premium {
+  @apply transition-all duration-500 ease-in-out;
 }
 
-.golden-underline-hover {
+.golden-glow-premium:hover {
+  box-shadow: 0 6px 25px rgba(212, 175, 55, 0.5);
+  transform: scale(1.03);
+}
+
+.golden-underline-glow {
   @apply relative;
 }
 
-.golden-underline-hover::after {
+.golden-underline-glow::after {
   content: '';
-  @apply absolute -bottom-1 left-1/2 w-0 h-[2px] bg-secondary transition-all duration-300 -translate-x-1/2;
-  box-shadow: 0 0 10px rgba(212, 175, 55, 0.8);
+  @apply absolute -bottom-1 left-1/2 w-0 h-[2.5px] transition-all duration-500 -translate-x-1/2 rounded-full;
+  background: linear-gradient(to right, #D4AF37 0%, #FAD07A 50%, #D4AF37 100%);
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.8);
+  opacity: 0.8;
 }
 
-.golden-underline-hover:hover::after {
+.golden-underline-glow:hover::after {
   @apply w-full;
 }
 
 .icon-tab {
-  @apply flex flex-col items-center gap-3 p-6 rounded-2xl bg-white border border-primary/10 transition-all duration-300;
+  @apply flex flex-col items-center gap-3 p-8 rounded-[24px] bg-white border border-primary/10 transition-all duration-500;
 }
 
 .icon-tab:hover {
-  @apply border-secondary/40;
-  box-shadow: 0 4px 20px rgba(212, 175, 55, 0.2);
-  transform: translateY(-5px);
+  @apply border-secondary/40 scale-[1.05];
+  box-shadow: 0 10px 30px rgba(212, 175, 55, 0.25);
+}
+
+.glow-on-scroll {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.6s ease-out;
+}
+
+.glow-on-scroll.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.glow-on-scroll.visible:hover {
+  box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
 }
