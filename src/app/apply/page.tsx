@@ -1,3 +1,4 @@
+
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { Upload, User, Briefcase, CreditCard, Image as ImageIcon } from 'lucide-react';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Apply as a Vendor | InFaith Journey',
+  description: 'Join South Africa\'s premier wedding vendor network. Showcase your premium services to high-end couples.',
+  openGraph: {
+    title: 'Apply as a Vendor | InFaith Journey',
+    description: 'Join South Africa\'s premier wedding vendor network.',
+    images: ['https://picsum.photos/seed/inf-golden-apply/1200/630'],
+  }
+};
 
 const CATEGORIES = [
   'Venues', 'Photography & Videography', 'Beauty', 'Flowers & Decor', 

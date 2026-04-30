@@ -7,6 +7,12 @@
       "imageHint": "wedding sunset lights"
     },
     {
+      "id": "og-main",
+      "description": "InFaith Journey social sharing image, golden hour wedding aesthetic, luxury floral arrangement, sunset glow",
+      "imageUrl": "https://picsum.photos/seed/inf-og-main/1200/630",
+      "imageHint": "wedding sunset glow"
+    },
+    {
       "id": "hero-apply",
       "description": "Romantic couple under a stone archway with twinkling fairy lights and white flowers, golden hour glow",
       "imageUrl": "https://picsum.photos/seed/inf-golden-apply/1920/800",

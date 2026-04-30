@@ -1,3 +1,4 @@
+
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
@@ -5,6 +6,17 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Mail, Phone, MapPin, Instagram, Facebook, Twitter } from 'lucide-react';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Contact Us | InFaith Journey',
+  description: 'Have a question or need assistance? Reach out to the InFaith Journey team. We\'re here to help you plan your perfect wedding.',
+  openGraph: {
+    title: 'Contact Us | InFaith Journey',
+    description: 'Reach out to the InFaith Journey team for assistance with your wedding planning.',
+    images: ['https://picsum.photos/seed/inf-og-main/1200/630'],
+  }
+};
 
 export default function ContactPage() {
   return (

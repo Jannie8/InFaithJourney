@@ -1,3 +1,4 @@
+
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,29 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { Star, MapPin, Share2, Phone, Mail, Instagram, Facebook, CheckCircle2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import type { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const name = slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  
+  return {
+    title: `${name} | InFaith Journey`,
+    description: `Discover the exquisite work of ${name} on InFaith Journey. Curated premium wedding services in South Africa.`,
+    openGraph: {
+      title: `${name} | InFaith Journey`,
+      description: `Discover the exquisite work of ${name} on InFaith Journey.`,
+      images: [`https://picsum.photos/seed/inf-vendor-${slug}/1200/630`],
+      type: 'profile',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${name} | InFaith Journey`,
+      description: `Discover the exquisite work of ${name} on InFaith Journey.`,
+      images: [`https://picsum.photos/seed/inf-vendor-${slug}/1200/630`],
+    }
+  };
+}
 
 export default function VendorProfilePage() {
   const gallery = [

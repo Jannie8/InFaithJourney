@@ -7,7 +7,29 @@ import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
   title: 'InFaith Journey | Premium Wedding Vendor Marketplace',
-  description: 'Find your perfect wedding vendor in South Africa. Luxurious, romantic, and bespoke wedding services.',
+  description: 'Find your perfect wedding vendor. Browse curated & trusted vendors with couples actively planning their dream weddings now.',
+  openGraph: {
+    title: 'InFaith Journey',
+    description: 'Find your perfect wedding vendor. Browse curated & trusted vendors with couples actively planning their dream weddings now.',
+    url: 'https://infaithjourney.com/',
+    siteName: 'InFaith Journey',
+    images: [
+      {
+        url: 'https://picsum.photos/seed/inf-og-main/1200/630',
+        width: 1200,
+        height: 630,
+        alt: 'InFaith Journey - Premium Wedding Marketplace',
+      },
+    ],
+    locale: 'en_ZA',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'InFaith Journey',
+    description: 'Find your perfect wedding vendor. Browse curated & trusted vendors with couples actively planning their dream weddings now.',
+    images: ['https://picsum.photos/seed/inf-og-main/1200/630'],
+  },
 };
 
 export default function RootLayout({
