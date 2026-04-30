@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -18,19 +17,19 @@ export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-md border-b border-primary/10 px-6 py-4">
+    <nav className="sticky top-0 z-50 w-full bg-background/90 backdrop-blur-lg border-b border-primary/10 px-6 py-5">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <Link href="/">
           <Logo />
         </Link>
 
-        {/* Desktop Links */}
-        <div className="hidden lg:flex items-center gap-8">
+        {/* Center Links */}
+        <div className="hidden lg:flex items-center gap-10">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.name}
               href={link.href}
-              className="text-sm font-medium hover:text-primary transition-colors uppercase tracking-widest"
+              className="text-[13px] font-semibold hover:text-primary transition-colors uppercase tracking-[0.15em]"
             >
               {link.name}
             </Link>
@@ -38,20 +37,18 @@ export function Navbar() {
         </div>
 
         {/* Right Actions */}
-        <div className="hidden lg:flex items-center gap-6">
-          <div className="flex items-center gap-2 text-sm font-semibold">
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-              <Phone className="w-4 h-4 text-primary" />
-            </div>
+        <div className="hidden lg:flex items-center gap-8">
+          <div className="flex items-center gap-2 text-[14px] font-bold text-foreground/80">
+            <span className="text-primary">☎</span>
             <span>084 135 0000</span>
           </div>
           
-          <Link href="/dashboard" className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors">
+          <Link href="/dashboard" className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-widest hover:text-primary transition-colors">
             <User className="w-4 h-4" />
             Dashboard
           </Link>
 
-          <Button asChild className="rounded-full px-8 py-6 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20">
+          <Button asChild className="rounded-full px-8 py-6 button-rose text-[12px] font-bold uppercase tracking-[0.2em]">
             <Link href="/apply">JOIN AS VENDOR</Link>
           </Button>
         </div>
@@ -62,19 +59,18 @@ export function Navbar() {
         </button>
       </div>
 
-      {/* Mobile Menu Placeholder - In production this would be a proper drawer */}
       {isOpen && (
-        <div className="lg:hidden absolute top-full left-0 w-full bg-background border-b p-6 flex flex-col gap-4 animate-in fade-in slide-in-from-top-2">
+        <div className="lg:hidden absolute top-full left-0 w-full bg-background border-b p-8 flex flex-col gap-6 animate-in fade-in slide-in-from-top-2">
           {NAV_LINKS.map((link) => (
-            <Link key={link.name} href={link.href} className="text-lg font-medium">
+            <Link key={link.name} href={link.href} className="text-lg font-headline uppercase tracking-widest" onClick={() => setIsOpen(false)}>
               {link.name}
             </Link>
           ))}
           <hr className="border-primary/10" />
-          <div className="flex items-center justify-between py-2">
-            <span>084 135 0000</span>
-            <Button asChild size="sm" className="bg-primary">
-              <Link href="/apply">JOIN NOW</Link>
+          <div className="flex flex-col gap-4">
+            <div className="font-bold">☎ 084 135 0000</div>
+            <Button asChild className="button-rose w-full py-6">
+              <Link href="/apply" onClick={() => setIsOpen(false)}>JOIN NOW</Link>
             </Button>
           </div>
         </div>

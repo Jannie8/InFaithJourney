@@ -2,86 +2,80 @@
   "placeholderImages": [
     {
       "id": "hero-home",
-      "description": "Romantic wedding couple kissing under a luxury floral arch with golden hour lighting",
-      "imageUrl": "https://picsum.photos/seed/wedding1/1920/1080",
+      "description": "Romantic wedding couple kissing under a floral arch at sunset, golden hour lighting",
+      "imageUrl": "https://picsum.photos/seed/inf-hero/1920/1080",
       "imageHint": "wedding couple"
     },
     {
-      "id": "vendor-sunstone",
-      "description": "Elegant Sunstone Manor venue with rose garden",
-      "imageUrl": "https://picsum.photos/seed/venue1/600/400",
-      "imageHint": "wedding venue"
-    },
-    {
-      "id": "vendor-bridal",
-      "description": "Bridal boutique interior with premium dresses",
-      "imageUrl": "https://picsum.photos/seed/bridal1/600/400",
-      "imageHint": "wedding dress"
-    },
-    {
-      "id": "vendor-photo",
-      "description": "Wedding photography gear and artistic couple shot",
-      "imageUrl": "https://picsum.photos/seed/photo1/600/400",
-      "imageHint": "wedding photography"
-    },
-    {
-      "id": "vendor-floral",
-      "description": "Bespoke floral arrangement for a high-end reception",
-      "imageUrl": "https://picsum.photos/seed/floral1/600/400",
+      "id": "hero-apply",
+      "description": "Close up of a romantic couple embracing under cherry blossoms",
+      "imageUrl": "https://picsum.photos/seed/inf-apply/1920/800",
       "imageHint": "wedding flowers"
     },
     {
-      "id": "venue-rosewood",
-      "description": "Rosewood Manor estate overview",
-      "imageUrl": "https://picsum.photos/seed/venue2/600/400",
-      "imageHint": "luxury estate"
-    },
-    {
-      "id": "venue-vineyard",
-      "description": "Misty Vineyards landscape at sunset",
-      "imageUrl": "https://picsum.photos/seed/venue3/600/400",
+      "id": "hero-venues",
+      "description": "Dreamy vineyard wedding setup with golden hour light",
+      "imageUrl": "https://picsum.photos/seed/inf-venues/1920/800",
       "imageHint": "vineyard wedding"
     },
     {
-      "id": "apply-hero",
-      "description": "Floral arch detail with cherry blossom overlays",
-      "imageUrl": "https://picsum.photos/seed/arch1/1920/600",
-      "imageHint": "floral arch"
+      "id": "vendor-evergold",
+      "description": "Evergold Photography couple shot with soft bokeh",
+      "imageUrl": "https://picsum.photos/seed/inf-ever/800/1000",
+      "imageHint": "wedding photography"
+    },
+    {
+      "id": "vendor-sunstone",
+      "description": "Luxury manor estate with floral gardens",
+      "imageUrl": "https://picsum.photos/seed/inf-sun/600/450",
+      "imageHint": "luxury venue"
+    },
+    {
+      "id": "vendor-bridal",
+      "description": "High-end bridal boutique interior",
+      "imageUrl": "https://picsum.photos/seed/inf-brid/600/450",
+      "imageHint": "bridal shop"
+    },
+    {
+      "id": "vendor-floral",
+      "description": "Elegant floral arrangement for wedding reception",
+      "imageUrl": "https://picsum.photos/seed/inf-flor/600/450",
+      "imageHint": "wedding flowers"
     },
     {
       "id": "gallery-1",
-      "description": "Wedding ring detail",
-      "imageUrl": "https://picsum.photos/seed/gallery1/800/600",
-      "imageHint": "wedding ring"
+      "description": "Wedding couple kissing under cherry blossoms",
+      "imageUrl": "https://picsum.photos/seed/inf-g1/800/1000",
+      "imageHint": "wedding kiss"
     },
     {
       "id": "gallery-2",
-      "description": "Bridal bouquet",
-      "imageUrl": "https://picsum.photos/seed/gallery2/800/600",
-      "imageHint": "wedding bouquet"
+      "description": "Detail shot of bridal bouquet and rings",
+      "imageUrl": "https://picsum.photos/seed/inf-g2/800/1000",
+      "imageHint": "wedding detail"
     },
     {
       "id": "gallery-3",
-      "description": "Couple dancing",
-      "imageUrl": "https://picsum.photos/seed/gallery3/800/600",
-      "imageHint": "wedding dance"
+      "description": "Romantic sunset couple shot in a garden",
+      "imageUrl": "https://picsum.photos/seed/inf-g3/800/1000",
+      "imageHint": "wedding garden"
     },
     {
       "id": "gallery-4",
-      "description": "Table setting",
-      "imageUrl": "https://picsum.photos/seed/gallery4/800/600",
+      "description": "Elegant table setup with floral centerpieces",
+      "imageUrl": "https://picsum.photos/seed/inf-g4/800/1000",
       "imageHint": "wedding reception"
     },
     {
       "id": "gallery-5",
-      "description": "Champagne toast",
-      "imageUrl": "https://picsum.photos/seed/gallery5/800/600",
-      "imageHint": "wedding champagne"
+      "description": "Couple embracing under a floral arch",
+      "imageUrl": "https://picsum.photos/seed/inf-g5/800/1000",
+      "imageHint": "wedding couple"
     },
     {
       "id": "gallery-6",
-      "description": "Wedding cake",
-      "imageUrl": "https://picsum.photos/seed/gallery6/800/600",
+      "description": "Close up of wedding cake with flowers",
+      "imageUrl": "https://picsum.photos/seed/inf-g6/800/1000",
       "imageHint": "wedding cake"
     }
   ]
