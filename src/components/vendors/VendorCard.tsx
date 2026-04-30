@@ -1,3 +1,4 @@
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { Star, MapPin } from 'lucide-react';
@@ -18,7 +19,7 @@ interface VendorCardProps {
 
 export function VendorCard({ id, name, location, rating, reviews, category, imageUrl, imageHint }: VendorCardProps) {
   return (
-    <div className="group luxury-card overflow-hidden h-full flex flex-col bg-white">
+    <div className="group luxury-card overflow-hidden h-full flex flex-col bg-white golden-glow-hover">
       <div className="relative h-[220px] w-full overflow-hidden shrink-0">
         <Image
           src={imageUrl}
@@ -56,7 +57,7 @@ export function VendorCard({ id, name, location, rating, reviews, category, imag
         </div>
 
         <div className="mt-auto pt-3 flex flex-col gap-3">
-          <Button asChild className="w-full h-10 px-4 py-2 rounded-lg text-[14px] font-bold uppercase tracking-widest button-rose whitespace-nowrap overflow-hidden transition-transform duration-300 hover:scale-[1.05] hover:brightness-110">
+          <Button asChild className="w-full h-10 px-4 py-2 rounded-lg text-[14px] font-bold uppercase tracking-widest button-rose whitespace-nowrap overflow-hidden golden-glow-hover">
             <Link href={`/vendor/${id}`}>VIEW PROFILE</Link>
           </Button>
           <Button variant="outline" asChild className="w-full h-10 px-4 py-2 rounded-lg border-primary/20 text-primary hover:bg-primary/5 text-[14px] font-bold uppercase tracking-widest whitespace-nowrap overflow-hidden transition-transform duration-300 hover:scale-[1.05]">

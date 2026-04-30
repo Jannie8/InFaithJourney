@@ -1,3 +1,4 @@
+
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { Upload, User, Briefcase, CreditCard, Image as ImageIcon } from 'lucide-react';
+
+const CATEGORIES = [
+  'Venues', 'Photography & Videography', 'Beauty', 'Flowers & Decor', 
+  'Catering', 'Honeymoon Destinations', 'Music & Entertainment', 
+  'Planning & Coordination', 'Fashion', 'Stationery', 'Wedding Cakes', 'Jewelry'
+];
 
 export default function ApplyPage() {
   const heroImage = PlaceHolderImages.find(img => img.id === 'hero-apply');
@@ -48,7 +55,7 @@ export default function ApplyPage() {
               <div className="absolute left-8 top-0 bottom-0 w-[1px] bg-primary/20"></div>
               {steps.map((step, i) => (
                 <div key={i} className="relative pl-20 group">
-                  <div className="absolute left-0 top-0 w-16 h-16 bg-white rounded-full border border-primary/20 flex items-center justify-center z-10 shadow-md">
+                  <div className="absolute left-0 top-0 w-16 h-16 bg-white rounded-full border border-primary/20 flex items-center justify-center z-10 shadow-md golden-glow-hover">
                     <step.icon className="w-7 h-7 text-primary" />
                   </div>
                   <h3 className="text-[20px] font-headline font-semibold mb-2">{step.title}</h3>
@@ -104,10 +111,9 @@ export default function ApplyPage() {
                         <SelectValue placeholder="Select a Category" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="venue">Wedding Venue</SelectItem>
-                        <SelectItem value="photo">Photographer</SelectItem>
-                        <SelectItem value="floral">Floral Designer</SelectItem>
-                        <SelectItem value="catering">Catering & Cuisine</SelectItem>
+                        {CATEGORIES.map(cat => (
+                          <SelectItem key={cat} value={cat.toLowerCase()}>{cat}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -124,7 +130,7 @@ export default function ApplyPage() {
 
               <div className="space-y-8">
                 <h3 className="text-[15px] font-bold uppercase tracking-[0.2em] text-primary border-b border-primary/10 pb-2">Portfolio Upload</h3>
-                <div className="border-2 border-dashed border-primary/20 rounded-2xl p-12 text-center bg-primary/5 hover:bg-primary/10 transition-all cursor-pointer">
+                <div className="border-2 border-dashed border-primary/20 rounded-2xl p-12 text-center bg-primary/5 hover:bg-primary/10 transition-all cursor-pointer golden-glow-hover">
                   <Upload className="w-10 h-10 text-primary mx-auto mb-4" />
                   <p className="text-[18px] font-headline mb-2">Or click to upload</p>
                   <p className="text-[13px] text-muted-foreground uppercase tracking-widest font-bold">(JPG, PNG max 5MB)</p>

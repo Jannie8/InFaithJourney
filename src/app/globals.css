@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,7 +6,7 @@
 @layer base {
   :root {
     --background: 40 29% 96%; /* #F8F5F0 - Soft Warm Cream */
-    --foreground: 0 12% 21%; /* #3C2F2F - Dark Warm Gray for high contrast */
+    --foreground: 0 12% 21%; /* #3C2F2F - Dark Warm Gray */
     --card: 40 29% 96%;
     --card-foreground: 0 12% 21%;
     --popover: 40 29% 96%;
@@ -70,4 +71,38 @@
 
 .section-padding {
   @apply py-[100px];
+}
+
+/* Golden Glow Effects */
+.golden-glow-hover {
+  @apply transition-all duration-300;
+}
+
+.golden-glow-hover:hover {
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.6);
+  transform: translateY(-2px);
+}
+
+.golden-underline-hover {
+  @apply relative;
+}
+
+.golden-underline-hover::after {
+  content: '';
+  @apply absolute -bottom-1 left-1/2 w-0 h-[2px] bg-secondary transition-all duration-300 -translate-x-1/2;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.8);
+}
+
+.golden-underline-hover:hover::after {
+  @apply w-full;
+}
+
+.icon-tab {
+  @apply flex flex-col items-center gap-3 p-6 rounded-2xl bg-white border border-primary/10 transition-all duration-300;
+}
+
+.icon-tab:hover {
+  @apply border-secondary/40;
+  box-shadow: 0 4px 20px rgba(212, 175, 55, 0.2);
+  transform: translateY(-5px);
 }
