@@ -1,0 +1,513 @@
+{
+  "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a non-vendor user (e.g., a couple) interacting with the InFaith Journey platform.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserProfile entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address, used for communication and login.",
+          "format": "email"
+        },
+        "fullName": {
+          "type": "string",
+          "description": "The full name of the user."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user profile was created.",
+          "format": "date-time"
+        },
+        "lastLoginAt": {
+          "type": "string",
+          "description": "Timestamp indicating the user's last login time.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "fullName",
+        "createdAt",
+        "lastLoginAt"
+      ]
+    },
+    "VendorProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "VendorProfile",
+      "type": "object",
+      "description": "Represents a wedding vendor's listing and detailed profile information on the marketplace.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the VendorProfile entity."
+        },
+        "businessName": {
+          "type": "string",
+          "description": "The registered name of the vendor's business."
+        },
+        "category": {
+          "type": "string",
+          "description": "The primary service category of the vendor (e.g., 'Venue', 'Photographer', 'Caterer')."
+        },
+        "location": {
+          "type": "string",
+          "description": "The primary operational location of the vendor (e.g., 'Cape Town', 'Johannesburg')."
+        },
+        "shortDescription": {
+          "type": "string",
+          "description": "A brief summary of the vendor's services or business."
+        },
+        "aboutDescription": {
+          "type": "string",
+          "description": "A detailed 'About Us' section text for the vendor's profile page."
+        },
+        "minPrice": {
+          "type": "number",
+          "description": "The minimum estimated price for the vendor's services or packages in ZAR."
+        },
+        "maxPrice": {
+          "type": "number",
+          "description": "The maximum estimated price for the vendor's services or packages in ZAR."
+        },
+        "membershipPlan": {
+          "type": "string",
+          "description": "The current membership plan of the vendor (e.g., 'FREE', 'STANDARD', 'FEATURED')."
+        },
+        "profileImageUrl": {
+          "type": "string",
+          "description": "URL to the vendor's main profile image or logo.",
+          "format": "uri"
+        },
+        "galleryImageUrls": {
+          "type": "array",
+          "description": "An array of URLs to images in the vendor's portfolio gallery.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "servicesOffered": {
+          "type": "array",
+          "description": "A list of specific services or packages offered by the vendor.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "contactEmail": {
+          "type": "string",
+          "description": "The primary email address for contacting the vendor.",
+          "format": "email"
+        },
+        "contactPhone": {
+          "type": "string",
+          "description": "The primary phone number for contacting the vendor."
+        },
+        "facebookUrl": {
+          "type": "string",
+          "description": "URL to the vendor's Facebook profile or page.",
+          "format": "uri"
+        },
+        "instagramUrl": {
+          "type": "string",
+          "description": "URL to the vendor's Instagram profile.",
+          "format": "uri"
+        },
+        "websiteUrl": {
+          "type": "string",
+          "description": "URL to the vendor's official website.",
+          "format": "uri"
+        },
+        "averageRating": {
+          "type": "number",
+          "description": "The calculated average rating (0.0 to 5.0) from reviews for this vendor."
+        },
+        "reviewCount": {
+          "type": "number",
+          "description": "The total number of reviews submitted for this vendor."
+        },
+        "isApproved": {
+          "type": "boolean",
+          "description": "Indicates if the vendor's profile has been approved by an administrator and is live on the marketplace."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the vendor profile was initially created/submitted.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating the last time the vendor profile was updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "businessName",
+        "category",
+        "location",
+        "shortDescription",
+        "membershipPlan",
+        "contactEmail",
+        "isApproved",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Subscription": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Subscription",
+      "type": "object",
+      "description": "Manages a vendor's membership subscription details and payment status.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Subscription entity."
+        },
+        "vendorId": {
+          "type": "string",
+          "description": "Reference to VendorProfile. (Relationship: VendorProfile 1:N Subscription)"
+        },
+        "planType": {
+          "type": "string",
+          "description": "The type of membership plan subscribed to (e.g., 'FREE', 'STANDARD', 'FEATURED')."
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the subscription (e.g., 'active', 'cancelled', 'expired', 'pending')."
+        },
+        "startDate": {
+          "type": "string",
+          "description": "The date when the subscription became active.",
+          "format": "date-time"
+        },
+        "endDate": {
+          "type": "string",
+          "description": "The date when the subscription is set to expire or was cancelled. Null for 'FREE' plans.",
+          "format": "date-time"
+        },
+        "paymentGatewaySubscriptionId": {
+          "type": "string",
+          "description": "The unique identifier for this subscription within the payment gateway (e.g., PayFast, Stripe)."
+        },
+        "amount": {
+          "type": "number",
+          "description": "The recurring amount billed for this subscription in ZAR."
+        },
+        "currency": {
+          "type": "string",
+          "description": "The currency of the subscription amount (e.g., 'ZAR')."
+        },
+        "billingCycle": {
+          "type": "string",
+          "description": "The billing frequency for the subscription (e.g., 'monthly', 'annually', 'free')."
+        },
+        "lastPaymentDate": {
+          "type": "string",
+          "description": "The date of the most recent successful payment.",
+          "format": "date-time"
+        },
+        "nextPaymentDate": {
+          "type": "string",
+          "description": "The scheduled date for the next payment.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "vendorId",
+        "planType",
+        "status",
+        "startDate",
+        "amount",
+        "currency",
+        "billingCycle"
+      ]
+    },
+    "Inquiry": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Inquiry",
+      "type": "object",
+      "description": "Stores details of a request for a quote or general inquiry sent from a user to a vendor.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Inquiry entity."
+        },
+        "vendorId": {
+          "type": "string",
+          "description": "Reference to VendorProfile, the recipient of the inquiry. (Relationship: VendorProfile 1:N Inquiry)"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to UserProfile, the sender of the inquiry. (Relationship: UserProfile 1:N Inquiry)"
+        },
+        "message": {
+          "type": "string",
+          "description": "The detailed message or request from the user."
+        },
+        "contactName": {
+          "type": "string",
+          "description": "The name of the user making the inquiry."
+        },
+        "contactEmail": {
+          "type": "string",
+          "description": "The email address of the user for replies.",
+          "format": "email"
+        },
+        "contactPhone": {
+          "type": "string",
+          "description": "The phone number of the user for direct contact."
+        },
+        "eventDate": {
+          "type": "string",
+          "description": "The proposed date of the event, if specified by the user.",
+          "format": "date"
+        },
+        "guestCount": {
+          "type": "number",
+          "description": "The estimated number of guests for the event, if specified."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the inquiry was submitted.",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the inquiry (e.g., 'new', 'read', 'responded', 'archived')."
+        },
+        "source": {
+          "type": "string",
+          "description": "The source or channel through which the inquiry was initiated (e.g., 'direct', 'ai_recommendation', 'homepage_form')."
+        }
+      },
+      "required": [
+        "id",
+        "vendorId",
+        "userId",
+        "message",
+        "contactName",
+        "contactEmail",
+        "createdAt",
+        "status"
+      ]
+    },
+    "AIChatSession": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AIChatSession",
+      "type": "object",
+      "description": "Represents a single conversation session between a user and the AI Wedding Venue Assistant.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the AIChatSession entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to UserProfile, the user participating in this chat session. (Relationship: UserProfile 1:N AIChatSession)"
+        },
+        "startTime": {
+          "type": "string",
+          "description": "Timestamp indicating when the chat session began.",
+          "format": "date-time"
+        },
+        "lastActivityTime": {
+          "type": "string",
+          "description": "Timestamp of the most recent message exchanged within this session.",
+          "format": "date-time"
+        },
+        "initialPrompt": {
+          "type": "string",
+          "description": "The very first query or topic presented by the user at the start of the session."
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the chat session (e.g., 'active', 'closed')."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "startTime",
+        "lastActivityTime",
+        "initialPrompt"
+      ]
+    },
+    "AIChatMessage": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AIChatMessage",
+      "type": "object",
+      "description": "Represents an individual message (user input or AI response) within an AI chat session.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the AIChatMessage entity."
+        },
+        "sessionId": {
+          "type": "string",
+          "description": "Reference to AIChatSession, the chat session this message belongs to. (Relationship: AIChatSession 1:N AIChatMessage)"
+        },
+        "senderType": {
+          "type": "string",
+          "description": "Indicates whether the message was sent by the 'user' or the 'ai'."
+        },
+        "content": {
+          "type": "string",
+          "description": "The text content of the message."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp indicating when the message was sent.",
+          "format": "date-time"
+        },
+        "recommendedVendorIds": {
+          "type": "array",
+          "description": "An array of VendorProfile IDs that the AI recommended in this specific message. (Relationship: VendorProfile N:N AIChatMessage)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "extractedParameters": {
+          "type": "string",
+          "description": "JSON string of key parameters (e.g., budget, location, style, guest count, event date) extracted by the AI from the user's input, used to guide recommendations. This field stores a JSON string representation of an object containing these parameters."
+        }
+      },
+      "required": [
+        "id",
+        "sessionId",
+        "senderType",
+        "content",
+        "timestamp"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores individual user profiles (couples). Access is restricted to the owner matching `request.auth.uid`. This path forms the root for user-owned subcollections, ensuring authorization independence for nested data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user, corresponding to `request.auth.uid`."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/vendor_profiles/{vendorId}",
+        "definition": {
+          "entityName": "VendorProfile",
+          "schema": {
+            "$ref": "#/backend/entities/VendorProfile"
+          },
+          "description": "Publicly accessible vendor listings. Read access is generally open (for approved vendors), and write access is restricted to the owning vendor (`request.auth.uid == vendorId`). The AI queries this collection for recommendations.",
+          "params": [
+            {
+              "name": "vendorId",
+              "description": "The unique ID of the vendor, corresponding to `request.auth.uid` for vendor-specific operations."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/ai_chat_sessions/{sessionId}",
+        "definition": {
+          "entityName": "AIChatSession",
+          "schema": {
+            "$ref": "#/backend/entities/AIChatSession"
+          },
+          "description": "Stores individual AI chat sessions for a specific user. This subcollection is path-owned by the user (`userId` in path), ensuring authorization independence without `get()` calls in security rules for session access.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user who owns this chat session."
+            },
+            {
+              "name": "sessionId",
+              "description": "The unique ID of the AI chat session."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/ai_chat_sessions/{sessionId}/messages/{messageId}",
+        "definition": {
+          "entityName": "AIChatMessage",
+          "schema": {
+            "$ref": "#/backend/entities/AIChatMessage"
+          },
+          "description": "Stores individual messages within an AI chat session. This subcollection inherits `userId` and `sessionId` from its parent path, guaranteeing full authorization independence for message access (only the owning user can read/write their messages).",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user who owns the parent chat session."
+            },
+            {
+              "name": "sessionId",
+              "description": "The unique ID of the parent AI chat session."
+            },
+            {
+              "name": "messageId",
+              "description": "The unique ID of the individual chat message."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/vendor_profiles/{vendorId}/subscriptions/{subscriptionId}",
+        "definition": {
+          "entityName": "Subscription",
+          "schema": {
+            "$ref": "#/backend/entities/Subscription"
+          },
+          "description": "Stores a vendor's membership subscription details. This subcollection is path-owned by the vendor (`vendorId` in path), ensuring direct authorization for subscription management by the owning vendor.",
+          "params": [
+            {
+              "name": "vendorId",
+              "description": "The unique ID of the vendor who owns this subscription."
+            },
+            {
+              "name": "subscriptionId",
+              "description": "The unique ID of the subscription."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/inquiries/{inquiryId}",
+        "definition": {
+          "entityName": "Inquiry",
+          "schema": {
+            "$ref": "#/backend/entities/Inquiry"
+          },
+          "description": "Stores inquiries from users to vendors. Includes `userId` and `vendorId` fields for direct access control. Read/write access is granted if `request.auth.uid` matches either the `userId` (sender) or `vendorId` (recipient). The `source` field will track AI referrals for dashboard insights. List operations require explicit `where` clauses matching `request.auth.uid` for QAP compliance.",
+          "params": [
+            {
+              "name": "inquiryId",
+              "description": "The unique ID of the inquiry."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to be secure, scalable, and debuggable, adhering strictly to the core design principles and mandates provided. The primary strategy employed is **Authorization Independence via Denormalization** and **Structural Segregation** to simplify security rules and enhance performance.\n\n**Authorization Independence (CRITICAL):**\nFor user-specific data like `UserProfile`, `AIChatSession`, and `AIChatMessage`, a hierarchical, path-based ownership model (`/users/{userId}/...`) is utilized. This ensures that the `userId` is an explicit segment in the Firestore path. Consequently, security rules can directly compare `request.auth.uid` with the `{userId}` wildcard from the path (e.g., `match /users/{userId}/ai_chat_sessions/{sessionId} { allow read, write: if request.auth.uid == userId; }`). This eliminates the need for `get()` calls in rules to fetch parent documents for authorization, thereby preventing broken atomic operations, making rules robust, and significantly improving debuggability.\n\nFor `VendorProfile` and `Subscription` data, a similar path-based ownership (`/vendor_profiles/{vendorId}/...`) is used. The `vendorId` in the path directly corresponds to the authenticated vendor's UID, allowing for direct authorization checks without `get()`.\n\nThe `Inquiry` collection is designed as a top-level collection `/inquiries/{inquiryId}`. Authorization relies on checking the `userId` or `vendorId` fields within the `resource.data` of the inquiry document itself. While not strictly path-based for the primary document, the `userId` and `vendorId` fields are denormalized *within* the inquiry document, allowing direct attribute checks (`resource.data.userId == request.auth.uid`) without `get()` calls to other collections.\n\n**QAPs (Rules are not Filters):**\n1.  **User-Owned Data (`UserProfile`, `AIChatSession`, `AIChatMessage`):** The path-based design (`/users/{userId}/...`) inherently enforces Query-Allowing Policies (QAPs). Any client attempting to `list` or `get` a document must specify their own `userId` in the path. Firestore rules will then verify that this `userId` matches `request.auth.uid`. This prevents clients from requesting broad datasets and relying on server-side rules to filter, ensuring that all queries are inherently scoped to the authenticated user's data.\n2.  **Vendor-Owned Data (`VendorProfile`, `Subscription`):** Similar to user-owned data, `Subscription` documents are nested under `/vendor_profiles/{vendorId}/subscriptions/{subscriptionId}`, ensuring `list` operations are implicitly filtered by `vendorId`. For `VendorProfile`, public `list` operations (e.g., for browsing or AI queries) are allowed for approved vendors. Vendor-specific operations like updating their profile are restricted to `request.auth.uid == vendorId`, ensuring that `list` for specific vendor data is properly scoped.\n3.  **Collaborative/Shared Data (`Inquiry`):** For the `/inquiries/{inquiryId}` collection, `list` operations will require explicit `where` clauses on `userId` or `vendorId` that match `request.auth.uid`. Firestore security rules will be configured to only permit `list` requests that include these specific filters, ensuring that `list` operations are always properly scoped and do not violate QAP by attempting to read unauthorized data that is then filtered out by the rules. For example, a rule might require `request.query.where.field('userId') == request.auth.uid` for a successful `list` operation by a user, or `request.query.where.field('vendorId') == request.auth.uid` for a vendor.\n\n**Structural Segregation:**\nEach collection and subcollection (e.g., `/users/{userId}/ai_chat_sessions`, `/vendor_profiles/{vendorId}/subscriptions`) is designed to contain documents that share a homogeneous security posture. This dramatically simplifies security rules by dedicating specific authorization logic to distinct data segments. For example, all `AIChatSession` documents under a given user's path have identical access requirements, simplifying rules to a single `request.auth.uid == userId` check."
+  }
+}

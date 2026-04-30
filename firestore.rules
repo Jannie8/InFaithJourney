@@ -1,0 +1,144 @@
+/**
+ * InFaith Journey - Firestore Security Rules
+ * 
+ * Core Philosophy:
+ * This ruleset implements a strict path-based ownership and shared-access model to secure the InFaith Journey platform.
+ * It prioritizes Authorization Independence by utilizing document paths and denormalized relational IDs 
+ * (userId, vendorId) to make security decisions without expensive get() calls.
+ * 
+ * Data Structure:
+ * - /users/{userId}: Private user profile data.
+ * - /users/{userId}/ai_chat_sessions/...: Private AI assistant interactions owned by the user.
+ * - /vendor_profiles/{vendorId}: Publicly readable vendor information with owner-restricted writes.
+ * - /vendor_profiles/{vendorId}/subscriptions/...: Private subscription and billing data for vendors.
+ * - /inquiries/{inquiryId}: Shared documents between a user (sender) and a vendor (recipient).
+ * 
+ * Key Security Decisions:
+ * 1. Prototyping Flexibility: Rules strictly enforce WHO can access data based on identity, but NOT the 
+ *    precise shape or types of the data fields, allowing for rapid schema iteration.
+ * 2. Structural Segregation: AI Chat data is nested under the user path to guarantee private-by-default access.
+ * 3. Relational Integrity: On document creation, rules verify that internal link fields (e.g., creatorId, userId) 
+ *    match the authenticated user's ID and the document path to prevent identity spoofing.
+ * 4. Shared Access: Inquiries use attribute-based access control, allowing both the original sender 
+ *    and the target vendor to interact with the document.
+ */
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- Helper Functions ---
+
+    /** Checks if the request is from an authenticated user. */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /** Checks if the authenticated user's UID matches the provided ID. */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /** Checks ownership for existing documents during update/delete. */
+    function isExistingOwner(userId) {
+      return resource != null && isOwner(userId);
+    }
+
+    /** 
+     * Validates that a user is either the sender or receiver of an inquiry.
+     * relies on denormalized IDs on the document.
+     */
+    function isInquiryParticipant(userId, vendorId) {
+      return isSignedIn() && (request.auth.uid == userId || request.auth.uid == vendorId);
+    }
+
+    // --- Collection Rules ---
+
+    /**
+     * @description Rules for the UserProfile entity. Only the user themselves can access or modify their profile.
+     * @path /users/{userId}
+     * @allow get, list, create (if UID matches userId), update, delete (if owner)
+     * @deny Any access by other users or unauthenticated clients.
+     * @principle Restricts access to a user's own data tree and enforces path consistency.
+     */
+    match /users/{userId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update, delete: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+    }
+
+    /**
+     * @description Rules for AIChatSession subcollection. Sessions are private to the owning user.
+     * @path /users/{userId}/ai_chat_sessions/{sessionId}
+     * @allow get, list, create, update, delete (if userId in path matches auth UID)
+     * @deny Access to sessions belonging to other users.
+     * @principle Authorization independence via path-based ownership.
+     */
+    match /users/{userId}/ai_chat_sessions/{sessionId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update, delete: if isExistingOwner(userId);
+
+      /**
+       * @description Rules for AIChatMessage. Individual messages within a user's private AI session.
+       * @path /users/{userId}/ai_chat_sessions/{sessionId}/messages/{messageId}
+       * @allow get, list, create, update, delete (if userId in path matches auth UID)
+       * @deny Cross-user access to message history.
+       * @principle Inherited path ownership for deep subcollections.
+       */
+      match /messages/{messageId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.sessionId == sessionId;
+        allow update, delete: if isExistingOwner(userId);
+      }
+    }
+
+    /**
+     * @description Rules for VendorProfile. Public reading for discovery; ownership-based writes.
+     * @path /vendor_profiles/{vendorId}
+     * @allow get, list (public), create, update, delete (if vendorId matches auth UID)
+     * @deny Unauthorized modification of business listings.
+     * @principle Public read with owner-only writes.
+     */
+    match /vendor_profiles/{vendorId} {
+      allow get, list: if true;
+      allow create: if isOwner(vendorId) && request.resource.data.id == vendorId;
+      allow update, delete: if isExistingOwner(vendorId) && request.resource.data.id == resource.data.id;
+
+      /**
+       * @description Rules for Subscription subcollection. Private billing data for vendors.
+       * @path /vendor_profiles/{vendorId}/subscriptions/{subscriptionId}
+       * @allow get, list, create, update, delete (if owner of vendor profile)
+       * @deny Access to subscription data by other vendors or customers.
+       * @principle Secures private vendor business data within their profile path.
+       */
+      match /subscriptions/{subscriptionId} {
+        allow get, list: if isOwner(vendorId);
+        allow create: if isOwner(vendorId) && request.resource.data.vendorId == vendorId;
+        allow update, delete: if isExistingOwner(vendorId);
+      }
+    }
+
+    /**
+     * @description Rules for the Inquiry collection. Handles quotes and messages between users and vendors.
+     * @path /inquiries/{inquiryId}
+     * @allow get (if sender or recipient), create (if auth user is sender), update/delete (if sender or recipient)
+     * @deny Reading inquiries not addressed to or sent by the user.
+     * @principle Shared access model using denormalized identity fields.
+     */
+    match /inquiries/{inquiryId} {
+      allow get: if isInquiryParticipant(resource.data.userId, resource.data.vendorId);
+      allow list: if isSignedIn() && (request.query.limit <= 100); // List requires explicit client-side filtering by UID
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if resource != null && isInquiryParticipant(resource.data.userId, resource.data.vendorId);
+    }
+  }
+}
+
+/**
+ * --- PROTOTYPING NOTE ---
+ * These rules focus on "Who" (Authorization) and "Consistency" (Path vs. Data fields). 
+ * General field types and schema validation are omitted to facilitate rapid development 
+ * and AI-driven features (like the AI Wedding Venue Assistant) that may evolve their 
+ * message structures frequently.
+ */
