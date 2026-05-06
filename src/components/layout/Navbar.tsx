@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Logo } from './Logo';
-import { User, Menu, X, Heart } from 'lucide-react';
+import { Menu, X, Heart } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
@@ -17,7 +17,11 @@ const NAV_LINKS = [
   { name: 'CONTACT', href: '/contact' },
 ];
 
-export function Navbar() {
+interface NavbarProps {
+  transparent?: boolean;
+}
+
+export function Navbar({ transparent = false }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { user } = useUser();
   const db = useFirestore();
@@ -35,17 +39,25 @@ export function Navbar() {
     setIsOpen(false);
   }, [pathname]);
 
+  const isHome = pathname === '/';
+  const forceTransparent = transparent && isHome;
+
   return (
     <>
       <a href="#main-content" className="skip-link">Skip to Main Content</a>
       <nav 
         role="navigation"
         aria-label="Main Navigation"
-        className="fixed top-0 z-[100] w-full px-6 md:px-12 h-[var(--header-height)] border-b border-border/30 flex items-center transition-all duration-300 bg-background/80 backdrop-blur-md"
+        className={cn(
+          "fixed top-0 z-[100] w-full px-6 md:px-12 h-[var(--header-height)] flex items-center transition-all duration-500",
+          forceTransparent 
+            ? "bg-transparent border-none" 
+            : "bg-background/80 backdrop-blur-md border-b border-border/30"
+        )}
       >
         <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
           <Link href="/" className="z-[110]" aria-label="InFaith Journey Home">
-            <Logo className="w-[180px] md:w-[220px]" />
+            <Logo className={cn("w-[180px] md:w-[220px]", forceTransparent && "brightness-0 invert")} />
           </Link>
 
           {/* Desktop Nav */}
@@ -56,9 +68,13 @@ export function Navbar() {
                   key={link.name}
                   href={link.href}
                   className={cn(
-                    "text-[12px] font-bold tracking-[0.2em] transition-all text-[#5C3D2E] hover:text-[#C4956A]",
-                    pathname === link.href && link.name === 'HOME' ? "nav-active-box" : "",
-                    pathname === link.href && link.name !== 'HOME' ? "text-[#C4956A]" : ""
+                    "text-[12px] font-bold tracking-[0.2em] transition-all",
+                    forceTransparent 
+                      ? "text-white hover:text-[#C9A96E]" 
+                      : "text-[#5C3D2E] hover:text-[#C4956A]",
+                    pathname === link.href && link.name === 'HOME' && !forceTransparent ? "nav-active-box" : "",
+                    pathname === link.href && link.name === 'HOME' && forceTransparent ? "border border-white/40 px-3 py-1 rounded-sm" : "",
+                    pathname === link.href && link.name !== 'HOME' ? (forceTransparent ? "text-white" : "text-[#C4956A]") : ""
                   )}
                 >
                   {link.name}
@@ -67,10 +83,13 @@ export function Navbar() {
               
               <Link 
                 href="/my-likes" 
-                className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.2em] text-[#5C3D2E] hover:text-[#C4956A]"
+                className={cn(
+                  "flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.2em] transition-colors",
+                  forceTransparent ? "text-white hover:text-[#C9A96E]" : "text-[#5C3D2E] hover:text-[#C4956A]"
+                )}
               >
                 <div className="relative">
-                  <Heart className={cn("w-4 h-4", likeCount > 0 ? "fill-[#C4956A] text-[#C4956A]" : "")} />
+                  <Heart className={cn("w-4 h-4", (likeCount > 0 || forceTransparent) ? "fill-current" : "")} />
                   {likeCount > 0 && (
                     <span className="absolute -top-1.5 -right-1.5 bg-[#C4956A] text-white text-[8px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold">
                       {likeCount}
@@ -82,7 +101,10 @@ export function Navbar() {
 
               <Link 
                 href="/dashboard" 
-                className="text-[12px] font-bold uppercase tracking-[0.2em] text-[#5C3D2E] hover:text-[#C4956A]"
+                className={cn(
+                  "text-[12px] font-bold uppercase tracking-[0.2em] transition-colors",
+                  forceTransparent ? "text-white hover:text-[#C9A96E]" : "text-[#5C3D2E] hover:text-[#C4956A]"
+                )}
               >
                 DASHBOARD
               </Link>
@@ -90,7 +112,12 @@ export function Navbar() {
 
             <Button 
               asChild 
-              className="rounded-full px-8 py-3 bg-[#C4956A] text-white hover:bg-[#B38459] transition-all duration-300 text-[11px] font-bold tracking-[0.2em] shadow-sm"
+              className={cn(
+                "rounded-full px-8 py-3 transition-all duration-300 text-[11px] font-bold tracking-[0.2em] shadow-sm",
+                forceTransparent 
+                  ? "bg-transparent border border-[#C9A96E] text-white hover:bg-[#C9A96E] hover:text-[#2C1F0E]" 
+                  : "bg-[#C4956A] text-white hover:bg-[#B38459]"
+              )}
             >
               <Link href="/apply">JOIN COLLECTIVE</Link>
             </Button>
@@ -99,7 +126,7 @@ export function Navbar() {
           {/* Mobile Toggle */}
           <button 
             onClick={() => setIsOpen(!isOpen)} 
-            className="lg:hidden p-2 z-[110] text-[#5C3D2E]"
+            className={cn("lg:hidden p-2 z-[110]", forceTransparent ? "text-white" : "text-[#5C3D2E]")}
             aria-expanded={isOpen}
           >
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}

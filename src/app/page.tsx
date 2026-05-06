@@ -32,7 +32,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
+      <Navbar transparent={true} />
       
       {/* Hero Section */}
       <section className="relative h-screen w-full overflow-hidden flex items-center justify-center px-4">
@@ -43,22 +43,23 @@ export default function Home() {
           className="object-cover brightness-[0.85] sepia-[0.1]"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#F5EFE6]"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/35 to-black/45"></div>
         
         <div className="relative z-10 max-w-5xl mx-auto text-center animate-fade-up px-6">
-          <p className="font-script text-[32px] md:text-[42px] text-[#2C1A0E] mb-2 drop-shadow-sm">A magical global journey</p>
-          <h1 className="text-[42px] md:text-[82px] font-headline text-[#2C1A0E] mb-6 leading-tight font-bold italic drop-shadow-sm">
+          <p className="font-script text-[32px] md:text-[36px] text-[#C9A96E] mb-2 drop-shadow-md">A magical global journey</p>
+          <h1 className="text-[48px] md:text-[76px] font-headline text-white mb-6 leading-tight font-bold drop-shadow-2xl">
             Find Your Perfect Global Wedding Vendor
           </h1>
-          <p className="text-[16px] md:text-[18px] text-[#5C3D2E] mb-12 font-medium max-w-2xl mx-auto leading-relaxed italic opacity-90">
+          <p className="text-[17px] md:text-[19px] text-white mb-14 font-medium max-w-3xl mx-auto leading-relaxed italic opacity-95 text-center drop-shadow-md">
             Browse curated & trusted wedding professionals dedicated to bringing your international dream day to life.
           </p>
           
-          <div className="bg-white p-2 rounded-full shadow-2xl flex flex-col md:flex-row items-center gap-1 max-w-4xl mx-auto border border-border/20">
-            <div className="flex-1 w-full px-6">
+          <div className="bg-white/95 backdrop-blur-md p-2 rounded-[50px] shadow-2xl flex flex-col md:flex-row items-center gap-1 max-w-4xl mx-auto border border-white/20">
+            <div className="flex-1 w-full px-8 py-2 text-left">
+              <label className="block text-[10px] font-bold text-[#9B7B5B] uppercase tracking-[0.2em] mb-1">I'm looking for...</label>
               <Select>
-                <SelectTrigger className="border-none focus:ring-0 shadow-none bg-transparent h-14 text-[13px] font-bold text-[#5C3D2E] uppercase tracking-widest">
-                  <SelectValue placeholder="I'M LOOKING FOR..." />
+                <SelectTrigger className="border-none p-0 focus:ring-0 shadow-none bg-transparent h-auto text-[15px] font-headline font-bold text-[#2C1A0E] italic">
+                  <SelectValue placeholder="SELECT CATEGORY" />
                 </SelectTrigger>
                 <SelectContent position="popper" sideOffset={10} className="z-[200]">
                   {CORE_VENDORS.map(v => (
@@ -67,9 +68,13 @@ export default function Home() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex-1 w-full px-6 md:border-l border-border/50">
+            
+            <div className="hidden md:block w-px h-10 bg-border/40 mx-2"></div>
+            
+            <div className="flex-1 w-full px-8 py-2 text-left">
+              <label className="block text-[10px] font-bold text-[#9B7B5B] uppercase tracking-[0.2em] mb-1">In location...</label>
               <Select>
-                <SelectTrigger className="border-none focus:ring-0 shadow-none bg-transparent h-14 text-[13px] font-bold text-[#5C3D2E] uppercase tracking-widest">
+                <SelectTrigger className="border-none p-0 focus:ring-0 shadow-none bg-transparent h-auto text-[15px] font-headline font-bold text-[#2C1A0E] italic">
                   <SelectValue placeholder="ALL LOCATIONS" />
                 </SelectTrigger>
                 <SelectContent position="popper" sideOffset={10} className="z-[200]">
@@ -81,9 +86,25 @@ export default function Home() {
                 </SelectContent>
               </Select>
             </div>
-            <Button className="w-full md:w-auto h-14 button-rose px-12 text-[13px] font-bold tracking-widest shadow-lg">
+            
+            <Button className="w-full md:w-auto h-14 button-rose px-12 text-[12px] font-bold tracking-[0.2em] shadow-lg rounded-[50px]">
               <Search className="w-4 h-4 mr-2" /> FIND VENDORS
             </Button>
+          </div>
+
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-6 animate-fade-up">
+            <span className="text-[11px] font-bold text-[#C9A96E] uppercase tracking-[0.2em]">Popular Journeys:</span>
+            <div className="flex gap-4">
+              {['"Venues in Cape Town"', '"Photographers in Paris"', '"London Florists"'].map((suggestion) => (
+                <Link 
+                  key={suggestion} 
+                  href="/vendors" 
+                  className="text-[12px] text-white/80 hover:text-white transition-colors italic hover:underline underline-offset-4"
+                >
+                  {suggestion}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </section>
