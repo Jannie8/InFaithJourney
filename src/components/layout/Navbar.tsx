@@ -43,7 +43,7 @@ export function Navbar() {
     <nav className={cn(
       "fixed top-0 z-[100] w-full px-4 md:px-8 py-3 md:py-4 transition-all duration-500 ease-in-out",
       scrolled 
-        ? "bg-background/98 backdrop-blur-2xl border-b border-primary/20 shadow-lg" 
+        ? "bg-background border-b border-primary/20 shadow-lg" 
         : "bg-transparent"
     )}>
       <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -144,7 +144,7 @@ export function Navbar() {
 
       {/* Mobile Menu Overlay */}
       <div className={cn(
-        "fixed inset-0 bg-background/98 backdrop-blur-3xl lg:hidden flex flex-col items-center justify-center gap-8 transition-all duration-500 z-[105]",
+        "fixed inset-0 bg-background lg:hidden flex flex-col items-center justify-center gap-8 transition-all duration-500 z-[105]",
         isOpen ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"
       )}>
         <div className="flex flex-col gap-8 w-full px-12 text-center">
