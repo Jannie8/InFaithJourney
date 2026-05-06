@@ -58,7 +58,7 @@ export function Navbar({ transparent = false }: NavbarProps) {
       >
         <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
           <Link href="/" className="z-[110]" aria-label="InFaith Journey Home">
-            <Logo className={cn("w-[180px] md:w-[220px]", forceTransparent && "brightness-0 invert")} />
+            <Logo className={cn("w-[180px] md:w-[220px]")} />
           </Link>
 
           {/* Desktop Nav */}

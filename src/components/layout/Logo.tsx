@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -13,7 +14,7 @@ export function Logo({ className }: { className?: string }) {
           alt="InFaith Journey"
           width={180}
           height={50}
-          className="w-full h-auto [filter:drop-shadow(0px_1px_3px_rgba(0,0,0,0.6))]"
+          className="w-full h-auto"
           priority
         />
       </div>
