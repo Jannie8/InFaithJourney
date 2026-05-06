@@ -1,46 +1,43 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    /* Hybrid Theme: Light Base (Editorial Ivory) */
+    /* Champagne Luxury Palette */
     --background: 40 10% 98%; /* #FAF9F6 - Ivory */
     --foreground: 30 10% 10%; /* #1A1816 - Ink */
     
-    --card: 0 0% 100%; /* Pure white for cards on ivory */
+    --card: 0 0% 100%;
     --card-foreground: 30 10% 10%;
     
     --popover: 0 0% 100%;
     --popover-foreground: 30 10% 10%;
     
-    --primary: 30 28% 42%; /* #8B6B4D - Deep Rosewood (AA Compliant on Ivory) */
+    --primary: 30 28% 42%; /* #8B6B4D - Deep Rosewood */
     --primary-foreground: 40 10% 98%;
     
     --secondary: 46 65% 52%; /* #D4AF37 - Gold */
     --secondary-foreground: 30 10% 8%;
     
     --muted: 30 5% 90%;
-    --muted-foreground: 30 10% 45%; /* High contrast muted text (~4.8:1) */
+    --muted-foreground: 30 10% 45%;
     
-    --accent: 30 28% 42%;
-    --accent-foreground: 40 10% 98%;
+    --accent: 40 25% 95%; /* #F5F1EA - Cream/Beige */
+    --accent-foreground: 30 10% 10%;
     
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     
-    --border: 30 10% 85%; /* Soft ivory-gray border */
+    --border: 30 10% 85%;
     --input: 30 10% 85%;
     --ring: 46 65% 52%; 
     --radius: 1.5rem;
 
-    /* Layout Variables */
-    --header-height: 64px;
+    --header-height: 80px;
     --fab-safe-area: calc(1.5rem + env(safe-area-inset-bottom, 0px));
   }
 
-  /* Dark Band Utility - Used for Heroes */
   .dark-band {
     --background: 30 10% 8%; /* #1A1816 - Ink */
     --foreground: 40 20% 95%; /* #F8F5F0 - Cream */
@@ -86,6 +83,10 @@
   @apply text-white transition-all duration-300 shadow-sm font-semibold tracking-wide uppercase rounded-full bg-gradient-to-br from-[#8B6B4D] to-[#72573E] hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg disabled:opacity-50;
 }
 
+.button-collective {
+  @apply bg-[#F5F1EA] text-[#1A1816] transition-all duration-300 shadow-sm font-bold tracking-widest uppercase rounded-full px-8 py-3 hover:bg-[#EBE5D8] hover:scale-105 active:scale-95;
+}
+
 .luxury-card {
   @apply bg-card border border-border rounded-[20px] shadow-sm transition-all duration-300 hover:shadow-md hover:border-primary/30;
 }
@@ -102,17 +103,8 @@
   box-shadow: 0 0 15px rgba(212, 175, 55, 0.08);
 }
 
-.golden-glow-hover:hover {
-  box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
-}
-
 .category-circle {
-  @apply rounded-full border-2 border-border transition-all duration-500 hover:border-secondary hover:scale-105 shadow-soft relative overflow-hidden;
-}
-
-.sr-only {
-  @apply absolute w-1 h-1 p-0 -m-1 overflow-hidden whitespace-nowrap border-0;
-  clip: rect(0, 0, 0, 0);
+  @apply rounded-full border-2 border-border transition-all duration-500 hover:border-secondary hover:scale-105 shadow-soft relative overflow-hidden bg-white;
 }
 
 .chat-scrollbar ::-webkit-scrollbar {
@@ -124,4 +116,18 @@
 .chat-scrollbar ::-webkit-scrollbar-thumb {
   background: rgba(139, 107, 77, 0.2);
   border-radius: 10px;
+}
+
+.nav-active-box {
+  @apply border border-white/50 px-3 py-1 rounded-sm;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.ai-floating-pulse {
+  animation: float 3s ease-in-out infinite;
 }

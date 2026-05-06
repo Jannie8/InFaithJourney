@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Logo } from './Logo';
-import { User, Menu, X, Heart, ShieldCheck } from 'lucide-react';
+import { User, Menu, X, Heart } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
@@ -11,9 +11,10 @@ import { collection } from 'firebase/firestore';
 import { usePathname } from 'next/navigation';
 
 const NAV_LINKS = [
-  { name: 'Vendors', href: '/vendors' },
-  { name: 'Plans', href: '/plans' },
-  { name: 'Contact', href: '/contact' },
+  { name: 'HOME', href: '/' },
+  { name: 'VENDORS', href: '/vendors' },
+  { name: 'JOIN AS A VENDOR', href: '/apply' },
+  { name: 'CONTACT', href: '/contact' },
 ];
 
 export function Navbar() {
@@ -21,8 +22,6 @@ export function Navbar() {
   const { user } = useUser();
   const db = useFirestore();
   const pathname = usePathname();
-
-  const isAdmin = user?.email === 'ricardo@infaithjourney.com';
 
   const savedVendorsQuery = useMemoFirebase(() => {
     if (!user || !db) return null;
@@ -42,79 +41,63 @@ export function Navbar() {
       <nav 
         role="navigation"
         aria-label="Main Navigation"
-        className="fixed top-0 z-[100] w-full px-6 md:px-12 h-[64px] bg-background border-b border-border transition-all duration-300 flex items-center"
+        className="fixed top-0 z-[100] w-full px-6 md:px-12 h-[var(--header-height)] bg-transparent flex items-center transition-all duration-300"
       >
         <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
-          <Link href="/" className="z-[110] outline-offset-8" aria-label="InFaith Journey Home">
-            <Logo className="w-[130px] md:w-[180px]" />
+          <Link href="/" className="z-[110]" aria-label="InFaith Journey Home">
+            <Logo className="w-[180px] md:w-[220px]" />
           </Link>
 
           {/* Desktop Nav */}
           <div className="hidden lg:flex items-center gap-10">
-            <div className="flex items-center gap-8 mr-4">
+            <div className="flex items-center gap-8">
               {NAV_LINKS.map((link) => (
                 <Link
                   key={link.name}
                   href={link.href}
-                  aria-current={pathname === link.href ? "page" : undefined}
                   className={cn(
-                    "text-[12px] font-bold uppercase tracking-[0.15em] transition-colors text-foreground/70 hover:text-secondary",
-                    pathname === link.href && "text-secondary font-extrabold"
+                    "text-[12px] font-bold tracking-[0.2em] transition-all text-white hover:text-secondary",
+                    pathname === link.href && link.name === 'HOME' ? "nav-active-box" : "",
+                    pathname === link.href && link.name !== 'HOME' ? "text-secondary" : ""
                   )}
                 >
                   {link.name}
                 </Link>
               ))}
-            </div>
-            
-            <div className="h-4 w-[1px] mx-2 bg-border" aria-hidden="true" />
-
-            <div className="flex items-center gap-6">
+              
               <Link 
                 href="/my-likes" 
-                className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.1em] transition-all group text-foreground/70 hover:text-secondary"
+                className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.2em] text-white hover:text-secondary"
               >
                 <div className="relative">
-                  <Heart className={cn("w-4 h-4 transition-transform group-hover:scale-110", likeCount > 0 ? "fill-secondary text-secondary" : "text-secondary/70")} />
+                  <Heart className={cn("w-4 h-4", likeCount > 0 ? "fill-secondary text-secondary" : "")} />
                   {likeCount > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 bg-secondary text-background text-[8px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold animate-in zoom-in">
+                    <span className="absolute -top-1.5 -right-1.5 bg-secondary text-background text-[8px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold">
                       {likeCount}
                     </span>
                   )}
                 </div>
-                Likes
+                MY LIKES
               </Link>
-
-              {isAdmin && (
-                <Link 
-                  href="/admin" 
-                  className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.1em] text-secondary hover:opacity-80 transition-all"
-                >
-                  <ShieldCheck className="w-4 h-4" />
-                  Admin
-                </Link>
-              )}
 
               <Link 
                 href="/dashboard" 
-                className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.1em] transition-all text-foreground/70 hover:text-secondary"
+                className="text-[12px] font-bold uppercase tracking-[0.2em] text-white hover:text-secondary"
               >
-                <User className="w-4 h-4 text-secondary" />
-                Portal
+                DASHBOARD
               </Link>
-
-              <Button asChild className="h-9 px-6 button-rose text-[11px] font-bold tracking-widest shadow-sm">
-                <Link href="/apply">JOIN AS VENDOR</Link>
-              </Button>
             </div>
+
+            <Button asChild className="button-collective text-[11px]">
+              <Link href="/apply">JOIN COLLECTIVE</Link>
+            </Button>
           </div>
 
           {/* Mobile Toggle */}
           <button 
             onClick={() => setIsOpen(!isOpen)} 
-            className="lg:hidden p-2 z-[110] rounded-full transition-colors text-foreground hover:bg-muted"
+            className="lg:hidden p-2 z-[110] text-white"
             aria-expanded={isOpen}
-            aria-label={isOpen ? "Close Menu" : "Open Menu"}
           >
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -129,29 +112,20 @@ export function Navbar() {
             <Link 
               key={link.name} 
               href={link.href} 
-              className="text-2xl font-headline text-foreground hover:text-secondary transition-colors" 
+              className="text-2xl font-headline text-foreground" 
               onClick={() => setIsOpen(false)}
             >
               {link.name}
             </Link>
           ))}
-          <div className="h-[1px] w-12 bg-border my-2" />
-          <Link 
-            href="/my-likes" 
-            className="text-[16px] font-bold uppercase tracking-widest flex items-center gap-3 text-foreground/80" 
-            onClick={() => setIsOpen(false)}
-          >
-            <Heart className="w-5 h-5 text-secondary fill-secondary" /> My Wishlist ({likeCount})
+          <Link href="/my-likes" className="text-[16px] font-bold tracking-widest text-foreground" onClick={() => setIsOpen(false)}>
+            MY LIKES ({likeCount})
           </Link>
-          <Link 
-            href="/dashboard" 
-            className="text-[16px] font-bold uppercase tracking-widest flex items-center gap-3 text-foreground/80" 
-            onClick={() => setIsOpen(false)}
-          >
-            <User className="w-5 h-5 text-secondary" /> Vendor Portal
+          <Link href="/dashboard" className="text-[16px] font-bold tracking-widest text-foreground" onClick={() => setIsOpen(false)}>
+            DASHBOARD
           </Link>
-          <Button asChild className="button-rose px-12 h-12 text-[14px] mt-4">
-            <Link href="/apply" onClick={() => setIsOpen(false)}>JOIN AS VENDOR</Link>
+          <Button asChild className="button-collective px-12 h-12 text-[14px]">
+            <Link href="/apply" onClick={() => setIsOpen(false)}>JOIN COLLECTIVE</Link>
           </Button>
         </div>
       </nav>
