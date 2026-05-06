@@ -107,7 +107,7 @@
 }
 
 .nav-active-box {
-  @apply border border-white/50 px-3 py-1 rounded-sm;
+  @apply border border-[#C9A96E]/50 px-3 py-1 rounded-sm;
 }
 
 @keyframes float {
