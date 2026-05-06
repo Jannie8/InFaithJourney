@@ -5,13 +5,13 @@
 @layer base {
   :root {
     --background: 40 29% 96%; /* #F8F5F0 - Soft Warm Cream */
-    --foreground: 0 12% 21%; /* #3C2F2F - Dark Warm Gray */
+    --foreground: 0 12% 21%; /* #383633 - Dark Warm Gray */
     --card: 0 0% 100%;
     --card-foreground: 0 12% 21%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 12% 21%;
     --primary: 30 42% 64%; /* #C8A37E - Dusty Rosewood */
-    --primary-foreground: 30 42% 15%; /* Deepened for AA contrast */
+    --primary-foreground: 30 42% 15%; 
     --secondary: 46 65% 52%; /* #D4AF37 - Gold */
     --secondary-foreground: 40 29% 96%;
     --muted: 30 15% 92%;
@@ -22,7 +22,7 @@
     --destructive-foreground: 0 0% 98%;
     --border: 30 15% 85%;
     --input: 30 15% 85%;
-    --ring: 46 65% 52%; /* Gold focus ring */
+    --ring: 46 65% 52%; 
     --radius: 1.5rem;
   }
 }
@@ -40,12 +40,10 @@
     @apply font-headline text-foreground font-bold tracking-tight;
   }
   
-  /* WCAG 2.2 AA Focus States */
   :focus-visible {
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background rounded-sm;
   }
 
-  /* Accessible Skip Link */
   .skip-link {
     @apply absolute left-4 -top-20 z-[200] bg-primary text-white px-4 py-2 transition-all focus:top-4;
   }
@@ -68,7 +66,6 @@
   @apply bg-white border border-primary/10 rounded-[20px] shadow-sm transition-all duration-300 hover:shadow-md hover:border-primary/30;
 }
 
-/* Custom shadows for luxury depth */
 .shadow-soft {
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
 }
@@ -81,7 +78,10 @@
   box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
 }
 
-/* Accessible utility for screen readers only */
+.category-circle {
+  @apply w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-primary/20 transition-all duration-500 hover:border-secondary hover:scale-110 shadow-soft relative;
+}
+
 .sr-only {
   @apply absolute w-1 h-1 p-0 -m-1 overflow-hidden whitespace-nowrap border-0;
   clip: rect(0, 0, 0, 0);

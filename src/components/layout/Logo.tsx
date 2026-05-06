@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 export function Logo({ className }: { className?: string }) {
   return (
     <div className={cn("flex items-center transition-transform hover:scale-105 duration-300", className)}>
-      <div className="relative w-[130px] md:w-[180px]">
+      <div className="relative">
         <Image
           src="https://ik.imagekit.io/625s6afzw/logo.png"
           alt="InFaith Journey"
