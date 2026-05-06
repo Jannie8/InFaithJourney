@@ -32,11 +32,11 @@ export default function Home() {
   const heroImage = PlaceHolderImages.find(img => img.id === 'hero-home');
 
   return (
-    <div className="flex flex-col min-h-screen watercolor-bg pt-[64px]">
+    <div className="flex flex-col min-h-screen watercolor-bg pt-[var(--header-height)]">
       <Navbar />
       
       {/* Dark Band Hero */}
-      <section className="dark-band relative h-[70vh] w-full overflow-hidden flex items-center justify-center px-4" aria-labelledby="hero-title">
+      <section className="dark-band relative min-h-[500px] h-[70dvh] w-full overflow-hidden flex items-center justify-center px-4" aria-labelledby="hero-title">
         <Image
           src={heroImage?.imageUrl || ''}
           alt="Luxury wedding sunset"
@@ -46,11 +46,11 @@ export default function Home() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60" aria-hidden="true"></div>
         
-        <div className="relative z-10 max-w-5xl mx-auto text-center animate-fade-up px-6">
-          <h1 id="hero-title" className="text-[42px] md:text-[68px] font-headline text-white mb-6 drop-shadow-2xl leading-tight">
+        <div className="relative z-10 max-w-5xl mx-auto text-center animate-fade-up px-6 py-12 md:py-0">
+          <h1 id="hero-title" className="text-[36px] md:text-[68px] font-headline text-white mb-6 drop-shadow-2xl leading-tight">
             Discover Your Perfect Wedding Partner
           </h1>
-          <p className="text-[17px] md:text-[20px] text-white/90 mb-10 font-medium italic tracking-wide max-w-2xl mx-auto drop-shadow-lg">
+          <p className="text-[16px] md:text-[20px] text-white/90 mb-10 font-medium italic tracking-wide max-w-2xl mx-auto drop-shadow-lg">
             Curated excellence for South Africa&apos;s most romantic journeys.
           </p>
           
@@ -60,7 +60,6 @@ export default function Home() {
                 <SelectTrigger className="border-none focus:ring-0 shadow-none bg-transparent h-12 text-[15px] font-medium text-foreground">
                   <SelectValue placeholder="I'm Looking For..." />
                 </SelectTrigger>
-                {/* side="bottom" forces the menu to open downward initially. position="popper" allows it to stay anchored properly. */}
                 <SelectContent position="popper" side="bottom" sideOffset={10} className="z-[200]">
                   {CORE_VENDORS.map(v => (
                     <SelectItem key={v.name} value={v.name.toLowerCase()}>{v.name}</SelectItem>
@@ -88,14 +87,13 @@ export default function Home() {
       </section>
 
       {/* Light Base Content */}
-      <main id="main-content" className="max-w-7xl mx-auto px-6 py-24 w-full">
+      <main id="main-content" className="max-w-7xl mx-auto px-6 py-12 md:py-24 w-full pb-[var(--fab-safe-area)]">
         <section className="mb-24">
           <div className="text-center mb-16">
             <h2 className="font-headline text-[36px] md:text-[42px] mb-3 text-foreground">Browse by Category</h2>
             <div className="w-16 h-1 bg-secondary mx-auto rounded-full" aria-hidden="true" />
           </div>
           
-          {/* Uniform Category Grid (6 cols desktop, 4 tablet, 2 mobile) */}
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-x-8 gap-y-12">
             {CORE_VENDORS.map((v) => {
               const categoryImg = PlaceHolderImages.find(img => img.id === v.imageId);

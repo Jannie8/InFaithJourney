@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
@@ -256,6 +257,7 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
         onClick={() => setIsOpen(true)}
         className={cn(
           "fixed bottom-6 right-6 w-14 h-14 md:w-16 md:h-16 rounded-full button-rose shadow-2xl z-[150] flex items-center justify-center transition-all hover:scale-110 ai-floating-pulse golden-glow-premium",
+          "bottom-[var(--fab-safe-area)]",
           isOpen && "scale-0 opacity-0 pointer-events-none"
         )}
         aria-label="Open AI Assistant"
