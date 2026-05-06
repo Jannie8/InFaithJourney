@@ -4,34 +4,34 @@
 
 @layer base {
   :root {
-    /* Champagne Luxury Palette - #FAF6EF Base */
-    --background: 38 48% 96%; /* #FAF6EF */
-    --foreground: 30 10% 10%; /* #1A1816 - Ink */
+    /* Editorial Ivory Palette */
+    --background: 36 27% 93%; /* #F5EFE6 */
+    --foreground: 19 33% 28%; /* #5C3D2E - Warm Brown */
     
-    --card: 38 48% 96%; 
-    --card-foreground: 30 10% 10%;
+    --card: 36 27% 93%; 
+    --card-foreground: 19 33% 28%;
     
-    --popover: 38 48% 96%;
-    --popover-foreground: 30 10% 10%;
+    --popover: 36 27% 93%;
+    --popover-foreground: 19 33% 28%;
     
-    --primary: 30 28% 42%; /* #8B6B4D - Deep Rosewood */
-    --primary-foreground: 40 10% 98%;
+    --primary: 24 55% 11%; /* #2C1A0E - Deep Brown */
+    --primary-foreground: 36 27% 98%;
     
-    --secondary: 46 65% 52%; /* #D4AF37 - Gold */
-    --secondary-foreground: 30 10% 8%;
+    --secondary: 31 46% 59%; /* #C4956A - Gold-Brown */
+    --secondary-foreground: 0 0% 100%;
     
-    --muted: 30 10% 90%;
-    --muted-foreground: 30 10% 45%;
+    --muted: 30 26% 85%;
+    --muted-foreground: 30 26% 48%; /* #9B7B5B - Muted Gold-Brown */
     
-    --accent: 40 25% 95%; /* #F5F1EA - Cream/Beige */
-    --accent-foreground: 30 10% 10%;
+    --accent: 36 27% 90%;
+    --accent-foreground: 19 33% 28%;
     
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     
-    --border: 30 10% 85%;
-    --input: 30 10% 85%;
-    --ring: 46 65% 52%; 
+    --border: 30 20% 80%;
+    --input: 30 20% 80%;
+    --ring: 31 46% 59%; 
     --radius: 1.5rem;
 
     --header-height: 80px;
@@ -45,13 +45,13 @@
   }
   body {
     @apply text-foreground font-body antialiased;
-    background-color: #FAF6EF;
+    background: linear-gradient(180deg, #F5EFE6 0%, #EDE3D6 100%);
     min-height: 100vh;
     font-size: 16px;
     line-height: 1.6;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-headline text-foreground font-bold tracking-tight;
+    @apply font-headline text-primary font-bold tracking-tight italic;
   }
   
   :focus-visible {
@@ -68,11 +68,11 @@
 }
 
 .button-rose {
-  @apply text-white transition-all duration-300 shadow-sm font-semibold tracking-wide uppercase rounded-full bg-gradient-to-br from-[#8B6B4D] to-[#72573E] hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg disabled:opacity-50;
+  @apply text-white transition-all duration-300 shadow-sm font-semibold tracking-wide uppercase rounded-full bg-[#C4956A] hover:bg-[#B38459] hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg disabled:opacity-50;
 }
 
 .button-collective {
-  @apply bg-[#F5F1EA] text-[#1A1816] transition-all duration-300 shadow-sm font-bold tracking-widest uppercase rounded-full px-8 py-3 hover:bg-[#EBE5D8] hover:scale-105 active:scale-95;
+  @apply bg-[#C4956A] text-white transition-all duration-300 shadow-sm font-bold tracking-widest uppercase rounded-full px-8 py-3 hover:bg-[#B38459] hover:scale-105 active:scale-95;
 }
 
 .luxury-card {
@@ -84,11 +84,11 @@
 }
 
 .shadow-glow {
-  box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+  box-shadow: 0 0 20px rgba(196, 149, 106, 0.1);
 }
 
 .golden-glow-premium {
-  box-shadow: 0 0 15px rgba(212, 175, 55, 0.08);
+  box-shadow: 0 0 15px rgba(196, 149, 106, 0.08);
 }
 
 .category-circle {
@@ -102,12 +102,12 @@
   background: transparent;
 }
 .chat-scrollbar ::-webkit-scrollbar-thumb {
-  background: rgba(139, 107, 77, 0.2);
+  background: rgba(155, 123, 91, 0.2);
   border-radius: 10px;
 }
 
 .nav-active-box {
-  @apply border border-[#C9A96E]/50 px-3 py-1 rounded-sm;
+  @apply border border-[#C4956A]/50 px-3 py-1 rounded-sm;
 }
 
 @keyframes float {

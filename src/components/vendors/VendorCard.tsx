@@ -103,7 +103,7 @@ export function VendorCard({
     <div 
       ref={cardRef}
       className={cn(
-        "group luxury-card overflow-hidden flex flex-col bg-card w-full mx-auto max-w-[400px] lg:max-w-none relative",
+        "group luxury-card overflow-hidden flex flex-col bg-white/40 backdrop-blur-sm w-full mx-auto max-w-[400px] lg:max-w-none relative",
         "opacity-0 translate-y-8 transition-all duration-700 ease-out",
         (mounted && isVisible) && "opacity-100 translate-y-0"
       )}
@@ -113,8 +113,8 @@ export function VendorCard({
         className={cn(
           "absolute top-4 right-4 z-20 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-md backdrop-blur-md",
           (mounted && isLiked) 
-            ? "bg-secondary text-white scale-110" 
-            : "bg-black/40 text-white hover:bg-black/60 hover:scale-110"
+            ? "bg-[#C4956A] text-white scale-110" 
+            : "bg-white/40 text-[#5C3D2E] hover:bg-white/60 hover:scale-110"
         )}
       >
         <Heart className={cn("w-5 h-5 transition-transform", (mounted && isLiked) && "fill-current")} />
@@ -130,19 +130,19 @@ export function VendorCard({
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
         <div className="absolute top-4 left-4 z-10">
-          <Badge className="bg-secondary text-white border-none font-bold px-4 py-1.5 shadow-md uppercase text-[9px] tracking-[0.15em] rounded-full">
+          <Badge className="bg-[#C4956A] text-white border-none font-bold px-4 py-1.5 shadow-md uppercase text-[9px] tracking-[0.15em] rounded-full">
             {category}
           </Badge>
         </div>
       </div>
       
       <div className="p-6 flex flex-col flex-1">
-        <h3 className="font-headline text-[18px] md:text-[20px] font-semibold text-foreground mb-2 line-clamp-1 leading-tight group-hover:text-primary transition-colors">
+        <h3 className="font-headline text-[18px] md:text-[20px] font-semibold text-[#2C1A0E] italic mb-2 line-clamp-1 leading-tight group-hover:text-[#C4956A] transition-colors">
           {name}
         </h3>
 
-        <div className="flex items-center gap-2 text-muted-foreground mb-3">
-          <MapPin className="w-4 h-4 text-primary shrink-0" />
+        <div className="flex items-center gap-2 text-[#5C3D2E] mb-3">
+          <MapPin className="w-4 h-4 text-[#C4956A] shrink-0" />
           <span className="text-[14px] font-medium truncate">{location}</span>
         </div>
 
@@ -151,21 +151,21 @@ export function VendorCard({
             {[...Array(5)].map((_, i) => (
               <Star key={i} className={cn(
                 "w-3.5 h-3.5 transition-all duration-300",
-                i < Math.floor(rating) ? 'fill-secondary text-secondary' : 'text-muted-foreground/30'
+                i < Math.floor(rating) ? 'fill-[#C4956A] text-[#C4956A]' : 'text-border'
               )} />
             ))}
           </div>
-          <span className="text-[12px] font-bold text-muted-foreground ml-2">
+          <span className="text-[12px] font-bold text-[#9B7B5B] ml-2">
             ({reviews})
           </span>
         </div>
 
         <div className="mt-auto pt-4 flex flex-col gap-3">
           <div className="flex items-center justify-between gap-3">
-            <Button asChild className="flex-1 h-11 px-4 rounded-xl text-[12px] font-bold uppercase tracking-[0.1em] button-rose whitespace-nowrap overflow-hidden text-ellipsis">
+            <Button asChild className="flex-1 h-11 px-4 rounded-xl text-[11px] font-bold uppercase tracking-[0.15em] button-rose">
               <Link href={`/vendor/${id}`}>VIEW PROFILE</Link>
             </Button>
-            <Button variant="outline" asChild className="h-11 w-11 p-0 rounded-xl border-border text-primary hover:bg-muted shrink-0 transition-all">
+            <Button variant="outline" asChild className="h-11 w-11 p-0 rounded-xl border-border text-[#C4956A] hover:bg-white shrink-0 transition-all">
               <Link href={`/vendor/${id}#quote`} title="Request Quote">
                 <MessageCircle className="w-5 h-5" />
               </Link>
@@ -181,7 +181,7 @@ export function VendorCard({
               >
                 REMOVE
               </Button>
-              <Button asChild variant="ghost" className="text-[10px] font-bold uppercase tracking-widest text-primary hover:bg-muted h-9">
+              <Button asChild variant="ghost" className="text-[10px] font-bold uppercase tracking-widest text-[#C4956A] hover:bg-white h-9">
                 <Link href={`/vendor/${id}`}>VIEW</Link>
               </Button>
             </div>
