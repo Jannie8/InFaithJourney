@@ -1,4 +1,3 @@
-
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
@@ -10,7 +9,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Contact Us',
-  description: 'Have a question or need assistance? Reach out to the InFaith Journey team. We\'re here to help you plan your perfect wedding.',
+  description: 'Reach out to the InFaith Journey team. We\'re here to help you plan your perfect wedding.',
   openGraph: {
     title: 'Contact Us | InFaith Journey',
     description: 'Reach out to the InFaith Journey team for assistance with your wedding planning.',
@@ -38,58 +37,58 @@ export default function ContactPage() {
     <div className="flex flex-col min-h-screen watercolor-bg">
       <Navbar />
       
-      <main className="flex-1 section-padding px-6">
+      <main className="flex-1 section-padding px-6 pt-32">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h1 className="text-[55px] md:text-[72px] font-headline mb-6">Get in Touch</h1>
-            <p className="text-[18px] md:text-[22px] text-muted-foreground italic max-w-2xl mx-auto">
+            <h1 className="text-[48px] md:text-[72px] font-headline mb-6 text-foreground">Get in Touch</h1>
+            <p className="text-[18px] md:text-[22px] text-muted-foreground italic max-w-2xl mx-auto font-medium">
               We'd love to hear from you. Whether you have a question about vendors, planning, or joining our network, we're here to help.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
             {/* Contact Info */}
             <div className="space-y-12">
-              <div className="bg-white p-10 rounded-[20px] border border-primary/10 shadow-lg space-y-10">
-                <h2 className="font-headline text-[32px] mb-8">Contact Information</h2>
+              <div className="bg-card p-10 rounded-[32px] border border-white/5 shadow-soft space-y-10">
+                <h2 className="font-headline text-[32px] mb-8 text-foreground">Contact Information</h2>
                 
                 <div className="space-y-8">
                   <a href="tel:0841350000" className="flex items-start gap-6 group">
-                    <div className="w-14 h-14 rounded-full bg-primary/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
+                    <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-secondary border border-white/5 group-hover:bg-secondary group-hover:text-background transition-all">
                       <Phone className="w-6 h-6" />
                     </div>
                     <div>
-                      <h3 className="text-[14px] font-bold uppercase tracking-widest text-primary mb-1">Call Us</h3>
-                      <p className="text-[20px] font-medium text-foreground">084 135 0000</p>
+                      <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-secondary mb-1">Call Us</h3>
+                      <p className="text-[20px] font-medium text-foreground tracking-wide">084 135 0000</p>
                     </div>
                   </a>
 
                   <a href="mailto:info@infaithjourney.co.za" className="flex items-start gap-6 group">
-                    <div className="w-14 h-14 rounded-full bg-primary/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
+                    <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-secondary border border-white/5 group-hover:bg-secondary group-hover:text-background transition-all">
                       <Mail className="w-6 h-6" />
                     </div>
                     <div>
-                      <h3 className="text-[14px] font-bold uppercase tracking-widest text-primary mb-1">Email Us</h3>
-                      <p className="text-[20px] font-medium text-foreground">info@infaithjourney.co.za</p>
+                      <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-secondary mb-1">Email Us</h3>
+                      <p className="text-[20px] font-medium text-foreground break-all tracking-wide">info@infaithjourney.co.za</p>
                     </div>
                   </a>
 
-                  <div className="flex items-start gap-6 group">
-                    <div className="w-14 h-14 rounded-full bg-primary/5 flex items-center justify-center text-primary">
+                  <div className="flex items-start gap-6">
+                    <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-secondary border border-white/5">
                       <MapPin className="w-6 h-6" />
                     </div>
                     <div>
-                      <h3 className="text-[14px] font-bold uppercase tracking-widest text-primary mb-1">Our Studio</h3>
-                      <p className="text-[20px] font-medium text-foreground">Cape Town, South Africa</p>
+                      <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-secondary mb-1">Our Studio</h3>
+                      <p className="text-[20px] font-medium text-foreground tracking-wide">Cape Town, South Africa</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="pt-8 border-t border-primary/10">
-                  <h3 className="text-[14px] font-bold uppercase tracking-widest text-primary mb-6">Follow Us</h3>
+                <div className="pt-8 border-t border-white/5">
+                  <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-secondary mb-6">Follow Us</h3>
                   <div className="flex gap-4">
                     {[Instagram, Facebook, Twitter].map((Icon, i) => (
-                      <button key={i} className="w-12 h-12 rounded-full border border-primary/20 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all">
+                      <button key={i} className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-secondary hover:bg-secondary hover:text-background transition-all shadow-sm">
                         <Icon className="w-5 h-5" />
                       </button>
                     ))}
@@ -99,28 +98,28 @@ export default function ContactPage() {
             </div>
 
             {/* Contact Form */}
-            <div className="bg-white p-12 rounded-[20px] border border-primary/10 shadow-lg">
-              <h2 className="font-headline text-[32px] mb-8">Send a Message</h2>
+            <div className="bg-card p-12 rounded-[32px] border border-white/5 shadow-soft">
+              <h2 className="font-headline text-[32px] mb-8 text-foreground">Send a Message</h2>
               <form className="space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-2">
-                    <Label className="uppercase text-[12px] tracking-widest font-bold text-foreground/70">Full Name</Label>
-                    <Input className="h-12 rounded-xl border-primary/10 text-[16px]" placeholder="Your Name" />
+                  <div className="space-y-3">
+                    <Label className="uppercase text-[11px] tracking-[0.2em] font-bold text-secondary">Full Name</Label>
+                    <Input className="h-12 rounded-xl border-white/10 bg-white/5 text-[16px] focus:ring-secondary/20" placeholder="Your Name" />
                   </div>
-                  <div className="space-y-2">
-                    <Label className="uppercase text-[12px] tracking-widest font-bold text-foreground/70">Email Address</Label>
-                    <Input type="email" className="h-12 rounded-xl border-primary/10 text-[16px]" placeholder="email@address.com" />
+                  <div className="space-y-3">
+                    <Label className="uppercase text-[11px] tracking-[0.2em] font-bold text-secondary">Email Address</Label>
+                    <Input type="email" className="h-12 rounded-xl border-white/10 bg-white/5 text-[16px] focus:ring-secondary/20" placeholder="email@address.com" />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label className="uppercase text-[12px] tracking-widest font-bold text-foreground/70">Phone Number</Label>
-                  <Input className="h-12 rounded-xl border-primary/10 text-[16px]" placeholder="012 345 6789" />
+                <div className="space-y-3">
+                  <Label className="uppercase text-[11px] tracking-[0.2em] font-bold text-secondary">Phone Number</Label>
+                  <Input className="h-12 rounded-xl border-white/10 bg-white/5 text-[16px] focus:ring-secondary/20" placeholder="012 345 6789" />
                 </div>
-                <div className="space-y-2">
-                  <Label className="uppercase text-[12px] tracking-widest font-bold text-foreground/70">Your Message</Label>
-                  <Textarea className="min-h-[160px] rounded-xl border-primary/10 text-[16px]" placeholder="How can we help you?" />
+                <div className="space-y-3">
+                  <Label className="uppercase text-[11px] tracking-[0.2em] font-bold text-secondary">Your Message</Label>
+                  <Textarea className="min-h-[160px] rounded-xl border-white/10 bg-white/5 text-[16px] focus:ring-secondary/20" placeholder="How can we help you?" />
                 </div>
-                <Button className="w-full h-14 button-rose text-[15px] font-semibold">
+                <Button className="w-full h-14 button-rose text-[15px] font-bold tracking-widest uppercase shadow-glow">
                   SEND MESSAGE
                 </Button>
               </form>
