@@ -60,7 +60,8 @@ export default function Home() {
                 <SelectTrigger className="border-none focus:ring-0 shadow-none bg-transparent h-12 text-[15px] font-medium text-foreground">
                   <SelectValue placeholder="I'm Looking For..." />
                 </SelectTrigger>
-                <SelectContent position="popper" sideOffset={10} className="z-[200]">
+                {/* side="bottom" forces the menu to open downward initially. position="popper" allows it to stay anchored properly. */}
+                <SelectContent position="popper" side="bottom" sideOffset={10} className="z-[200]">
                   {CORE_VENDORS.map(v => (
                     <SelectItem key={v.name} value={v.name.toLowerCase()}>{v.name}</SelectItem>
                   ))}
@@ -72,7 +73,7 @@ export default function Home() {
                 <SelectTrigger className="border-none focus:ring-0 shadow-none bg-transparent h-12 text-[15px] font-medium text-foreground">
                   <SelectValue placeholder="All Locations" />
                 </SelectTrigger>
-                <SelectContent position="popper" sideOffset={10} className="z-[200]">
+                <SelectContent position="popper" side="bottom" sideOffset={10} className="z-[200]">
                   <SelectItem value="cape-town">Cape Town</SelectItem>
                   <SelectItem value="stellenbosch">Stellenbosch</SelectItem>
                   <SelectItem value="johannesburg">Johannesburg</SelectItem>
@@ -94,7 +95,8 @@ export default function Home() {
             <div className="w-16 h-1 bg-secondary mx-auto rounded-full" aria-hidden="true" />
           </div>
           
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-8 gap-y-12">
+          {/* Uniform Category Grid (6 cols desktop, 4 tablet, 2 mobile) */}
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-x-8 gap-y-12">
             {CORE_VENDORS.map((v) => {
               const categoryImg = PlaceHolderImages.find(img => img.id === v.imageId);
               return (
