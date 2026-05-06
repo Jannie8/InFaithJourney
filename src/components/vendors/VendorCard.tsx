@@ -38,6 +38,7 @@ export function VendorCard({
 }: VendorCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { user } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
@@ -51,6 +52,7 @@ export function VendorCard({
   const isLiked = !!savedData;
 
   useEffect(() => {
+    setMounted(true);
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -99,21 +101,21 @@ export function VendorCard({
     <div 
       ref={cardRef}
       className={cn(
-        "group luxury-card overflow-hidden flex flex-col w-full mx-auto max-w-[400px] lg:max-w-none relative bg-background/50",
+        "group luxury-card overflow-hidden flex flex-col bg-card/50 w-full mx-auto max-w-[400px] lg:max-w-none relative",
         "opacity-0 translate-y-8 transition-all duration-700 ease-out",
-        isVisible && "opacity-100 translate-y-0"
+        (mounted && isVisible) && "opacity-100 translate-y-0"
       )}
     >
       <button 
         onClick={handleLikeToggle}
         className={cn(
           "absolute top-4 right-4 z-20 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-md backdrop-blur-md",
-          isLiked 
+          (mounted && isLiked) 
             ? "bg-secondary text-white scale-110" 
             : "bg-black/40 text-white hover:bg-black/60 hover:scale-110"
         )}
       >
-        <Heart className={cn("w-5 h-5 transition-transform", isLiked && "fill-current")} />
+        <Heart className={cn("w-5 h-5 transition-transform", (mounted && isLiked) && "fill-current")} />
       </button>
 
       <div className="relative aspect-[4/3] w-full overflow-hidden shrink-0">
