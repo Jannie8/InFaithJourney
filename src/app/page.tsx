@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Navbar } from '@/components/layout/Navbar';
@@ -59,7 +60,7 @@ export default function Home() {
                 <SelectTrigger className="border-none focus:ring-0 shadow-none bg-transparent h-12 text-[15px] font-medium text-foreground">
                   <SelectValue placeholder="I'm Looking For..." />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent position="popper" sideOffset={10} className="z-[200]">
                   {CORE_VENDORS.map(v => (
                     <SelectItem key={v.name} value={v.name.toLowerCase()}>{v.name}</SelectItem>
                   ))}
@@ -71,7 +72,7 @@ export default function Home() {
                 <SelectTrigger className="border-none focus:ring-0 shadow-none bg-transparent h-12 text-[15px] font-medium text-foreground">
                   <SelectValue placeholder="All Locations" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent position="popper" sideOffset={10} className="z-[200]">
                   <SelectItem value="cape-town">Cape Town</SelectItem>
                   <SelectItem value="stellenbosch">Stellenbosch</SelectItem>
                   <SelectItem value="johannesburg">Johannesburg</SelectItem>
@@ -93,26 +94,26 @@ export default function Home() {
             <div className="w-16 h-1 bg-secondary mx-auto rounded-full" aria-hidden="true" />
           </div>
           
-          <div className="flex flex-wrap justify-center gap-x-10 gap-y-12">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-8 gap-y-12">
             {CORE_VENDORS.map((v) => {
               const categoryImg = PlaceHolderImages.find(img => img.id === v.imageId);
               return (
                 <Link 
                   key={v.name} 
                   href={v.href} 
-                  className="group flex flex-col items-center gap-5 transition-all"
+                  className="group flex flex-col items-center gap-4 transition-all"
                   aria-label={`Explore ${v.name}`}
                 >
-                  <div className="category-circle border-border group-hover:border-secondary shadow-lg">
+                  <div className="category-circle border-border group-hover:border-secondary shadow-md overflow-hidden aspect-square w-24 md:w-28 relative">
                     <Image
                       src={categoryImg?.imageUrl || `https://picsum.photos/seed/cat-${v.name}/300/300`}
                       alt=""
                       fill
-                      className="object-cover group-hover:scale-110 transition-transform"
+                      className="object-cover group-hover:scale-110 transition-transform duration-500"
                       aria-hidden="true"
                     />
                   </div>
-                  <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground group-hover:text-primary transition-colors text-center">
+                  <span className="text-[11px] font-bold uppercase tracking-[0.15em] text-muted-foreground group-hover:text-primary transition-colors text-center px-2">
                     {v.name}
                   </span>
                 </Link>

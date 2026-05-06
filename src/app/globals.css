@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -102,7 +103,7 @@
 }
 
 .category-circle {
-  @apply w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-border transition-all duration-500 hover:border-secondary hover:scale-110 shadow-soft relative;
+  @apply rounded-full border-2 border-border transition-all duration-500 hover:border-secondary hover:scale-105 shadow-soft relative overflow-hidden;
 }
 
 .sr-only {
