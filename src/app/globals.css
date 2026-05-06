@@ -4,26 +4,27 @@
 
 @layer base {
   :root {
-    --background: 40 29% 96%; /* #F8F5F0 - Soft Warm Cream */
-    --foreground: 0 12% 21%; /* #383633 - Dark Warm Gray */
-    --card: 0 0% 100%;
-    --card-foreground: 0 12% 21%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 12% 21%;
+    /* New Dark Golden-Hour Theme */
+    --background: 30 10% 8%; /* #1A1816 - Dark Warm Charcoal */
+    --foreground: 40 20% 95%; /* #F8F5F0 - Soft Cream */
+    --card: 30 8% 12%; /* #24211F - Surface elevation */
+    --card-foreground: 40 20% 95%;
+    --popover: 30 8% 12%;
+    --popover-foreground: 40 20% 95%;
     --primary: 30 42% 64%; /* #C8A37E - Dusty Rosewood */
-    --primary-foreground: 30 42% 15%; 
+    --primary-foreground: 30 42% 10%; 
     --secondary: 46 65% 52%; /* #D4AF37 - Gold */
-    --secondary-foreground: 40 29% 96%;
-    --muted: 30 15% 92%;
-    --muted-foreground: 25 10% 40%;
+    --secondary-foreground: 30 10% 8%;
+    --muted: 30 10% 20%;
+    --muted-foreground: 30 10% 65%;
     --accent: 30 42% 64%;
-    --accent-foreground: 40 29% 96%;
+    --accent-foreground: 40 20% 95%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 30 15% 85%;
-    --input: 30 15% 85%;
+    --border: 30 10% 20%;
+    --input: 30 10% 20%;
     --ring: 46 65% 52%; 
-    --radius: 1.5rem;
+    --radius: 1rem;
   }
 }
 
@@ -54,8 +55,8 @@
 }
 
 .watercolor-bg {
-  background-image: radial-gradient(circle at 10% 20%, rgba(200, 163, 126, 0.04) 0%, transparent 40%),
-                    radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.04) 0%, transparent 40%);
+  background-image: radial-gradient(circle at 10% 20%, rgba(200, 163, 126, 0.05) 0%, transparent 40%),
+                    radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.05) 0%, transparent 40%);
 }
 
 .button-rose {
@@ -63,19 +64,23 @@
 }
 
 .luxury-card {
-  @apply bg-white border border-primary/10 rounded-[20px] shadow-sm transition-all duration-300 hover:shadow-md hover:border-primary/30;
+  @apply bg-card border border-white/5 rounded-[20px] shadow-sm transition-all duration-300 hover:shadow-md hover:border-primary/30;
 }
 
 .shadow-soft {
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
 }
 
 .shadow-glow {
-  box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+}
+
+.golden-glow-premium {
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.08);
 }
 
 .golden-glow-hover:hover {
-  box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
 }
 
 .category-circle {
@@ -85,4 +90,15 @@
 .sr-only {
   @apply absolute w-1 h-1 p-0 -m-1 overflow-hidden whitespace-nowrap border-0;
   clip: rect(0, 0, 0, 0);
+}
+
+.chat-scrollbar ::-webkit-scrollbar {
+  width: 5px;
+}
+.chat-scrollbar ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.chat-scrollbar ::-webkit-scrollbar-thumb {
+  background: rgba(200, 163, 126, 0.2);
+  border-radius: 10px;
 }

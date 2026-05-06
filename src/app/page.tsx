@@ -34,29 +34,28 @@ export default function Home() {
     <div className="flex flex-col min-h-screen watercolor-bg">
       <Navbar />
       
-      {/* Hero Section - Now starts BELOW nav */}
-      <section className="relative h-[70vh] w-full overflow-hidden flex items-center justify-center px-4" aria-labelledby="hero-title">
+      <section className="relative h-[85vh] w-full overflow-hidden flex items-center justify-center px-4" aria-labelledby="hero-title">
         <Image
           src={heroImage?.imageUrl || ''}
-          alt="Luxury wedding estate at sunset"
+          alt="Luxury wedding sunset"
           fill
-          className="object-cover"
+          className="object-cover brightness-[0.7] sepia-[0.2]"
           priority
         />
-        <div className="absolute inset-0 bg-black/30" aria-hidden="true"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-transparent to-background" aria-hidden="true"></div>
         
-        <div className="relative z-10 max-w-5xl mx-auto text-center animate-fade-up">
-          <h1 id="hero-title" className="text-[42px] md:text-[68px] font-headline text-white mb-6 drop-shadow-lg leading-tight">
-            Find Your Perfect Wedding Partner
+        <div className="relative z-10 max-w-5xl mx-auto text-center animate-fade-up px-6">
+          <h1 id="hero-title" className="text-[42px] md:text-[72px] font-headline text-white mb-6 drop-shadow-2xl leading-tight">
+            Discover Your Perfect Wedding Partner
           </h1>
-          <p className="text-[16px] md:text-[20px] text-white/95 mb-10 font-medium italic tracking-wide max-w-2xl mx-auto drop-shadow-md">
-            Hand-picked excellence for your magical South African wedding journey.
+          <p className="text-[17px] md:text-[22px] text-white/90 mb-10 font-medium italic tracking-wide max-w-2xl mx-auto drop-shadow-lg">
+            Curated excellence for South Africa&apos;s most romantic journeys.
           </p>
           
-          <div className="bg-white/95 backdrop-blur-md p-3 rounded-full shadow-2xl flex flex-col md:flex-row items-center gap-2 max-w-3xl mx-auto border border-primary/20">
-            <div className="flex-1 w-full px-4 md:border-r border-primary/10">
+          <div className="bg-card/90 backdrop-blur-md p-3 rounded-[32px] md:rounded-full shadow-2xl flex flex-col md:flex-row items-center gap-2 max-w-3xl mx-auto border border-white/5">
+            <div className="flex-1 w-full px-4 md:border-r border-white/5">
               <Select>
-                <SelectTrigger className="border-none focus:ring-0 shadow-none bg-transparent h-12 text-[15px] font-medium">
+                <SelectTrigger className="border-none focus:ring-0 shadow-none bg-transparent h-12 text-[15px] font-medium text-foreground">
                   <SelectValue placeholder="I'm Looking For..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -68,7 +67,7 @@ export default function Home() {
             </div>
             <div className="flex-1 w-full px-4">
               <Select>
-                <SelectTrigger className="border-none focus:ring-0 shadow-none bg-transparent h-12 text-[15px] font-medium">
+                <SelectTrigger className="border-none focus:ring-0 shadow-none bg-transparent h-12 text-[15px] font-medium text-foreground">
                   <SelectValue placeholder="All Locations" />
                 </SelectTrigger>
                 <SelectContent>
@@ -78,42 +77,40 @@ export default function Home() {
                 </SelectContent>
               </Select>
             </div>
-            <Button className="w-full md:w-auto h-12 button-rose px-8 text-[14px]">
+            <Button className="w-full md:w-auto h-12 button-rose px-8 text-[14px] font-bold tracking-widest">
               <Search className="w-4 h-4 mr-2" /> FIND VENDORS
             </Button>
           </div>
         </div>
       </section>
 
-      {/* Categories - Now smaller circular tiles */}
-      <main id="main-content" className="max-w-7xl mx-auto px-6 py-20 w-full">
+      <main id="main-content" className="max-w-7xl mx-auto px-6 py-24 w-full">
         <section className="mb-24">
           <div className="text-center mb-16">
-            <h2 className="font-headline text-[36px] md:text-[42px] mb-3">Browse by Category</h2>
+            <h2 className="font-headline text-[36px] md:text-[48px] mb-3 text-foreground">Browse by Category</h2>
             <div className="w-16 h-1 bg-secondary mx-auto rounded-full" aria-hidden="true" />
           </div>
           
-          <div className="flex flex-wrap justify-center gap-x-8 gap-y-12">
+          <div className="flex flex-wrap justify-center gap-x-10 gap-y-12">
             {CORE_VENDORS.map((v) => {
               const categoryImg = PlaceHolderImages.find(img => img.id === v.imageId);
               return (
                 <Link 
                   key={v.name} 
                   href={v.href} 
-                  className="group flex flex-col items-center gap-4 transition-all"
+                  className="group flex flex-col items-center gap-5 transition-all"
                   aria-label={`Explore ${v.name}`}
                 >
-                  <div className="category-circle">
+                  <div className="category-circle border-white/10 group-hover:border-secondary shadow-2xl">
                     <Image
                       src={categoryImg?.imageUrl || `https://picsum.photos/seed/cat-${v.name}/300/300`}
                       alt=""
                       fill
-                      className="object-cover"
+                      className="object-cover brightness-[0.8] group-hover:brightness-100 transition-all"
                       aria-hidden="true"
                     />
-                    <div className="absolute inset-0 bg-primary/5 group-hover:bg-transparent transition-colors" />
                   </div>
-                  <span className="text-[13px] font-bold uppercase tracking-[0.15em] text-foreground/80 group-hover:text-primary transition-colors text-center">
+                  <span className="text-[12px] font-bold uppercase tracking-[0.2em] text-muted-foreground group-hover:text-secondary transition-colors text-center">
                     {v.name}
                   </span>
                 </Link>
@@ -122,19 +119,18 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Value Props */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center bg-white/50 rounded-[40px] p-12 md:p-16 border border-primary/5">
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center bg-card/40 rounded-[48px] p-12 md:p-20 border border-white/5">
           {[
-            { title: "Hand-Picked Excellence", desc: "Only the finest, most reliable wedding experts pass our rigorous screening process.", icon: Sparkles },
-            { title: "Direct Access", desc: "Inquire directly with vendor owners without hidden commissions or middlemen.", icon: Utensils },
-            { title: "Stress-Free Planning", desc: "A secure, premium environment curated specifically for high-end wedding journeys.", icon: CalendarCheck }
+            { title: "Hand-Picked Excellence", desc: "Only the finest wedding experts pass our rigorous screening process.", icon: Sparkles },
+            { title: "Direct Connections", desc: "Inquire directly with owners without hidden commissions or middlemen.", icon: Utensils },
+            { title: "Romantic Curation", desc: "A secure environment curated specifically for high-end wedding visions.", icon: CalendarCheck }
           ].map((item, i) => (
-            <div key={i} className="space-y-4">
-              <div className="w-16 h-16 rounded-full bg-primary/5 flex items-center justify-center mx-auto text-primary border border-primary/10">
+            <div key={i} className="space-y-6">
+              <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto text-secondary border border-white/5 shadow-inner">
                 <item.icon className="w-7 h-7" />
               </div>
-              <h3 className="font-headline text-[24px]">{item.title}</h3>
-              <p className="text-[15px] text-muted-foreground font-medium italic leading-relaxed">{item.desc}</p>
+              <h3 className="font-headline text-[26px] text-foreground">{item.title}</h3>
+              <p className="text-[15.5px] text-muted-foreground font-medium italic leading-relaxed">{item.desc}</p>
             </div>
           ))}
         </section>
