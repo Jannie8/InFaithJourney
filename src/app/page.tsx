@@ -88,7 +88,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Main Content Sections */}
+      {/* Main Content Sections with luxurious spacing */}
       <main id="main-content" className="max-w-7xl mx-auto px-6 py-24 w-full">
         <section className="mb-32">
           <div className="text-center mb-20">
