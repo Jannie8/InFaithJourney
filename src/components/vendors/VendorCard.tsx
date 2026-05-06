@@ -99,7 +99,7 @@ export function VendorCard({
     <div 
       ref={cardRef}
       className={cn(
-        "group luxury-card overflow-hidden flex flex-col bg-card w-full mx-auto max-w-[400px] lg:max-w-none relative",
+        "group luxury-card overflow-hidden flex flex-col w-full mx-auto max-w-[400px] lg:max-w-none relative bg-background/50",
         "opacity-0 translate-y-8 transition-all duration-700 ease-out",
         isVisible && "opacity-100 translate-y-0"
       )}

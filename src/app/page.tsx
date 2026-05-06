@@ -54,7 +54,7 @@ export default function Home() {
             Browse curated & trusted wedding professionals dedicated to bringing your international dream day to life.
           </p>
           
-          <div className="bg-white/90 backdrop-blur-md p-2 rounded-full shadow-2xl flex flex-col md:flex-row items-center gap-1 max-w-4xl mx-auto border border-white/20">
+          <div className="bg-background/90 backdrop-blur-md p-2 rounded-full shadow-2xl flex flex-col md:flex-row items-center gap-1 max-w-4xl mx-auto border border-white/20">
             <div className="flex-1 w-full px-6">
               <Select>
                 <SelectTrigger className="border-none focus:ring-0 shadow-none bg-transparent h-14 text-[15px] font-bold text-[#1A1816] uppercase tracking-widest">
@@ -122,7 +122,7 @@ export default function Home() {
         </section>
 
         <section className="mb-32">
-           <div className="flex flex-col md:flex-row items-center justify-between gap-12 p-16 rounded-[40px] border border-primary/10 shadow-soft">
+           <div className="flex flex-col md:flex-row items-center justify-between gap-12 p-16 rounded-[40px] border border-primary/10 shadow-soft bg-background/50 backdrop-blur-sm">
               <div className="flex-1 space-y-8">
                 <h2 className="font-headline text-[48px] leading-tight">Hand-Picked Excellence</h2>
                 <p className="text-[18px] text-muted-foreground italic font-medium leading-relaxed">

@@ -4,14 +4,14 @@
 
 @layer base {
   :root {
-    /* Champagne Luxury Palette */
-    --background: 40 10% 98%; /* #FAF9F6 - Ivory */
+    /* Champagne Luxury Palette - #FAF6EF Base */
+    --background: 38 48% 96%; /* #FAF6EF */
     --foreground: 30 10% 10%; /* #1A1816 - Ink */
     
-    --card: 0 0% 100% / 0; /* Transparent to show gradient */
+    --card: 38 48% 96%; 
     --card-foreground: 30 10% 10%;
     
-    --popover: 0 0% 100%;
+    --popover: 38 48% 96%;
     --popover-foreground: 30 10% 10%;
     
     --primary: 30 28% 42%; /* #8B6B4D - Deep Rosewood */
@@ -20,7 +20,7 @@
     --secondary: 46 65% 52%; /* #D4AF37 - Gold */
     --secondary-foreground: 30 10% 8%;
     
-    --muted: 30 5% 90%;
+    --muted: 30 10% 90%;
     --muted-foreground: 30 10% 45%;
     
     --accent: 40 25% 95%; /* #F5F1EA - Cream/Beige */
@@ -45,7 +45,7 @@
   }
   body {
     @apply text-foreground font-body antialiased;
-    background: linear-gradient(160deg, #FAF6EF 0%, #F5EBD8 50%, #FAF6EF 100%);
+    background-color: #FAF6EF;
     min-height: 100vh;
     font-size: 16px;
     line-height: 1.6;
@@ -76,7 +76,7 @@
 }
 
 .luxury-card {
-  @apply bg-card border border-border rounded-[20px] shadow-sm transition-all duration-300 hover:shadow-md hover:border-primary/30;
+  @apply border border-border rounded-[20px] shadow-sm transition-all duration-300 hover:shadow-md hover:border-primary/30;
 }
 
 .shadow-soft {
