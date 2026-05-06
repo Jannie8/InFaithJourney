@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -72,8 +73,8 @@ export function Navbar({ transparent = false }: NavbarProps) {
                     forceTransparent 
                       ? "text-white hover:text-[#C9A96E]" 
                       : "text-[#5C3D2E] hover:text-[#C4956A]",
-                    pathname === link.href && link.name === 'HOME' && !forceTransparent ? "nav-active-box" : "",
-                    pathname === link.href && link.name === 'HOME' && forceTransparent ? "border border-white/40 px-3 py-1 rounded-sm" : "",
+                    pathname === link.href && link.name === 'HOME' && !forceTransparent ? "border border-[#C4956A]/50 px-[14px] py-[6px] rounded-sm" : "",
+                    pathname === link.href && link.name === 'HOME' && forceTransparent ? "border border-white/70 px-[14px] py-[6px] rounded-sm" : "",
                     pathname === link.href && link.name !== 'HOME' ? (forceTransparent ? "text-white" : "text-[#C4956A]") : ""
                   )}
                 >

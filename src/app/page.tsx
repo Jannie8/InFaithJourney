@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Navbar } from '@/components/layout/Navbar';
@@ -47,7 +48,7 @@ export default function Home() {
         
         <div className="relative z-10 max-w-5xl mx-auto text-center animate-fade-up px-6">
           <p className="font-script text-[32px] md:text-[36px] text-[#C9A96E] mb-2 drop-shadow-md">A magical global journey</p>
-          <h1 className="text-[48px] md:text-[76px] font-headline text-white mb-6 leading-tight font-bold drop-shadow-2xl">
+          <h1 className="text-[48px] md:text-[68px] font-headline text-white mb-6 leading-[1.1] font-bold drop-shadow-2xl not-italic">
             Find Your Perfect Global Wedding Vendor
           </h1>
           <p className="text-[17px] md:text-[19px] text-white mb-14 font-medium max-w-3xl mx-auto leading-relaxed italic opacity-95 text-center drop-shadow-md">
@@ -56,9 +57,9 @@ export default function Home() {
           
           <div className="bg-white/95 backdrop-blur-md p-2 rounded-[50px] shadow-2xl flex flex-col md:flex-row items-center gap-1 max-w-4xl mx-auto border border-white/20">
             <div className="flex-1 w-full px-8 py-2 text-left">
-              <label className="block text-[10px] font-bold text-[#9B7B5B] uppercase tracking-[0.2em] mb-1">I'm looking for...</label>
+              <label className="block text-[11px] font-normal text-[#9B7B5B] uppercase tracking-[0.15em] mb-1">I'M LOOKING FOR</label>
               <Select>
-                <SelectTrigger className="border-none p-0 focus:ring-0 shadow-none bg-transparent h-auto text-[15px] font-headline font-bold text-[#2C1A0E] italic">
+                <SelectTrigger className="border-none p-0 focus:ring-0 shadow-none bg-transparent h-auto text-[15px] font-headline font-bold text-[#2C1A0E] not-italic">
                   <SelectValue placeholder="SELECT CATEGORY" />
                 </SelectTrigger>
                 <SelectContent position="popper" sideOffset={10} className="z-[200]">
@@ -72,9 +73,9 @@ export default function Home() {
             <div className="hidden md:block w-px h-10 bg-border/40 mx-2"></div>
             
             <div className="flex-1 w-full px-8 py-2 text-left">
-              <label className="block text-[10px] font-bold text-[#9B7B5B] uppercase tracking-[0.2em] mb-1">In location...</label>
+              <label className="block text-[11px] font-normal text-[#9B7B5B] uppercase tracking-[0.15em] mb-1">IN DESTINATION</label>
               <Select>
-                <SelectTrigger className="border-none p-0 focus:ring-0 shadow-none bg-transparent h-auto text-[15px] font-headline font-bold text-[#2C1A0E] italic">
+                <SelectTrigger className="border-none p-0 focus:ring-0 shadow-none bg-transparent h-auto text-[15px] font-headline font-bold text-[#2C1A0E] not-italic">
                   <SelectValue placeholder="ALL LOCATIONS" />
                 </SelectTrigger>
                 <SelectContent position="popper" sideOffset={10} className="z-[200]">
