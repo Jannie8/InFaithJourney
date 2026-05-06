@@ -110,6 +110,17 @@ export default function CategoryBrowsePage({ params }: { params: Promise<{ slug:
     <div className="flex flex-col min-h-screen overflow-x-hidden">
       <Navbar />
       
+      {/* Breadcrumb Row */}
+      <div className="pt-24 pb-4 px-6 max-w-7xl mx-auto w-full">
+        <Link 
+          href="/vendors" 
+          className="inline-flex items-center gap-2 text-[#C9A96E] hover:opacity-80 transition-opacity text-[12px] font-bold uppercase tracking-widest"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to All Vendors
+        </Link>
+      </div>
+
       {/* Dynamic Category Hero */}
       <section className="relative h-[45vh] md:h-[55vh] w-full flex items-center justify-center overflow-hidden px-4">
         <Image
@@ -121,10 +132,6 @@ export default function CategoryBrowsePage({ params }: { params: Promise<{ slug:
         />
         <div className="absolute inset-0 bg-black/40"></div>
         <div className="relative z-10 max-w-5xl mx-auto text-center animate-fade-up">
-          <Link href="/vendors" className="inline-flex items-center gap-2 text-white/70 hover:text-white transition-colors mb-6 text-[13px] font-bold uppercase tracking-widest">
-            <ArrowLeft className="w-4 h-4" />
-            Back to All Vendors
-          </Link>
           <h1 className="text-[42px] md:text-[68px] font-headline text-white mb-6 drop-shadow-2xl leading-tight">{category.title}</h1>
           <p className="text-[17px] md:text-[20px] text-white/90 italic font-medium max-w-2xl mx-auto drop-shadow-md">
             {category.description}
