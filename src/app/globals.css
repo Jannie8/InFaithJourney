@@ -6,12 +6,12 @@
   :root {
     --background: 40 29% 96%; /* #F8F5F0 - Soft Warm Cream */
     --foreground: 0 12% 21%; /* #3C2F2F - Dark Warm Gray */
-    --card: 40 29% 96%;
+    --card: 0 0% 100%;
     --card-foreground: 0 12% 21%;
-    --popover: 40 29% 96%;
+    --popover: 0 0% 100%;
     --popover-foreground: 0 12% 21%;
     --primary: 30 42% 64%; /* #C8A37E - Dusty Rose */
-    --primary-foreground: 40 29% 96%;
+    --primary-foreground: 30 42% 25%; /* Darkened for AA contrast */
     --secondary: 46 65% 52%; /* #D4AF37 - Gold */
     --secondary-foreground: 40 29% 96%;
     --muted: 30 15% 92%;
@@ -22,69 +22,37 @@
     --destructive-foreground: 0 0% 98%;
     --border: 30 15% 85%;
     --input: 30 15% 85%;
-    --ring: 30 42% 64%;
+    --ring: 46 65% 52%; /* Gold focus ring */
     --radius: 1.5rem;
   }
 }
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border outline-offset-4;
   }
   body {
     @apply bg-background text-foreground font-body antialiased;
     font-size: 16.5px;
     line-height: 1.75;
-    font-weight: 400;
-    overflow-x: hidden;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-headline text-foreground font-bold;
+    @apply font-headline text-foreground font-bold tracking-tight;
   }
-}
+  
+  /* Accessible Focus States */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background rounded-sm;
+  }
 
-@keyframes golden-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); transform: scale(1); }
-  50% { box-shadow: 0 0 0 15px rgba(212, 175, 55, 0); transform: scale(1.05); }
-  100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); transform: scale(1); }
-}
-
-@keyframes fade-up {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-fade-up {
-  animation: fade-up 0.8s ease-out forwards;
+  /* Skip Link Pattern */
+  .skip-link {
+    @apply absolute left-4 -top-20 z-[200] bg-primary text-white px-4 py-2 transition-all focus:top-4;
+  }
 }
 
 .font-script {
   font-family: 'Great Vibes', cursive;
-}
-
-.sepia-overlay {
-  filter: sepia(0.1) contrast(1.05) brightness(1.02);
-}
-
-.button-rose {
-  @apply text-white transition-all duration-500 shadow-md font-semibold tracking-wide uppercase rounded-full;
-  background: linear-gradient(135deg, #C8A37E 0%, #E8C39E 100%);
-  border: none;
-}
-
-.button-rose:hover {
-  @apply scale-[1.05];
-  box-shadow: 0 6px 20px rgba(200, 163, 126, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.2);
-  filter: brightness(1.1);
-}
-
-.luxury-card {
-  @apply bg-white border border-primary/10 rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] transition-all duration-500;
-}
-
-.luxury-card:hover {
-  @apply translate-y-[-4px];
-  box-shadow: 0 12px 40px rgba(0,0,0,0.08), 0 0 20px rgba(212, 175, 55, 0.2);
 }
 
 .watercolor-bg {
@@ -92,80 +60,19 @@
                     radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.04) 0%, transparent 40%);
 }
 
-.floral-texture {
-  background-image: url("https://www.transparenttextures.com/patterns/natural-paper.png");
-  opacity: 0.1;
+.button-rose {
+  @apply text-white transition-all duration-300 shadow-sm font-semibold tracking-wide uppercase rounded-full bg-gradient-to-br from-[#C8A37E] to-[#B38E6A] hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg disabled:opacity-50;
 }
 
-.section-padding {
-  @apply py-16 md:py-24 lg:py-32;
+.luxury-card {
+  @apply bg-white border border-primary/10 rounded-[20px] shadow-sm transition-all duration-300 hover:shadow-md hover:border-primary/30;
 }
 
-.hero-padding {
-  @apply pt-20 pb-16 md:pt-32 md:pb-32 lg:pt-40 lg:pb-40;
+/* Luxury shadows */
+.shadow-soft {
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
 }
 
-/* Premium Golden Glow Effects */
-.golden-glow-premium {
-  @apply transition-all duration-500 ease-in-out;
-}
-
-.golden-glow-premium:hover {
-  box-shadow: 0 6px 25px rgba(212, 175, 55, 0.5);
-  transform: scale(1.03);
-}
-
-.golden-underline-glow {
-  @apply relative;
-}
-
-.golden-underline-glow::after {
-  content: '';
-  @apply absolute -bottom-1 left-1/2 w-0 h-[2.5px] transition-all duration-500 -translate-x-1/2 rounded-full;
-  background: linear-gradient(to right, #D4AF37 0%, #FAD07A 50%, #D4AF37 100%);
-  box-shadow: 0 0 12px rgba(212, 175, 55, 0.8);
-  opacity: 0.8;
-}
-
-.golden-underline-glow:hover::after {
-  @apply w-full;
-}
-
-.icon-tab {
-  @apply flex flex-col items-center gap-3 p-6 md:p-8 rounded-[24px] bg-white border border-primary/10 transition-all duration-500;
-}
-
-.icon-tab:hover {
-  @apply border-secondary/40 scale-[1.05];
-  box-shadow: 0 10px 30px rgba(212, 175, 55, 0.25);
-}
-
-.glow-on-scroll {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.6s ease-out;
-}
-
-.glow-on-scroll.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.glow-on-scroll.visible:hover {
-  box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
-}
-
-/* Custom Scrollbar for Chat */
-.chat-scrollbar::-webkit-scrollbar {
-  width: 4px;
-}
-.chat-scrollbar::-webkit-scrollbar-track {
-  @apply bg-transparent;
-}
-.chat-scrollbar::-webkit-scrollbar-thumb {
-  @apply bg-primary/20 rounded-full;
-}
-
-.ai-floating-pulse {
-  animation: golden-pulse 3s infinite ease-in-out;
+.shadow-glow {
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
 }
