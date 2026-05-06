@@ -10,8 +10,8 @@
     --card-foreground: 0 12% 21%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 12% 21%;
-    --primary: 30 42% 64%; /* #C8A37E - Dusty Rose */
-    --primary-foreground: 30 42% 25%; /* Darkened for AA contrast */
+    --primary: 30 42% 64%; /* #C8A37E - Dusty Rosewood */
+    --primary-foreground: 30 42% 15%; /* Deepened for AA contrast */
     --secondary: 46 65% 52%; /* #D4AF37 - Gold */
     --secondary-foreground: 40 29% 96%;
     --muted: 30 15% 92%;
@@ -33,19 +33,19 @@
   }
   body {
     @apply bg-background text-foreground font-body antialiased;
-    font-size: 16.5px;
-    line-height: 1.75;
+    font-size: 16px;
+    line-height: 1.6;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-headline text-foreground font-bold tracking-tight;
   }
   
-  /* Accessible Focus States */
+  /* WCAG 2.2 AA Focus States */
   :focus-visible {
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background rounded-sm;
   }
 
-  /* Skip Link Pattern */
+  /* Accessible Skip Link */
   .skip-link {
     @apply absolute left-4 -top-20 z-[200] bg-primary text-white px-4 py-2 transition-all focus:top-4;
   }
@@ -68,11 +68,21 @@
   @apply bg-white border border-primary/10 rounded-[20px] shadow-sm transition-all duration-300 hover:shadow-md hover:border-primary/30;
 }
 
-/* Luxury shadows */
+/* Custom shadows for luxury depth */
 .shadow-soft {
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
 }
 
 .shadow-glow {
   box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
+}
+
+.golden-glow-hover:hover {
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+}
+
+/* Accessible utility for screen readers only */
+.sr-only {
+  @apply absolute w-1 h-1 p-0 -m-1 overflow-hidden whitespace-nowrap border-0;
+  clip: rect(0, 0, 0, 0);
 }
