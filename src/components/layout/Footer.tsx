@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export function Footer() {
   return (
-    <footer className="bg-background border-t border-primary/10 pt-20 md:pt-32 pb-12 px-6 overflow-hidden relative">
+    <footer className="bg-[#FAF6EF] border-t border-primary/10 pt-20 md:pt-32 pb-12 px-6 overflow-hidden relative">
       <div className="absolute top-0 right-0 w-[400px] h-[400px] md:w-[600px] md:h-[600px] bg-primary/5 rounded-full blur-[100px] -mr-[200px] -mt-[200px]"></div>
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] md:w-[600px] md:h-[600px] bg-secondary/5 rounded-full blur-[100px] -ml-[200px] -mb-[200px]"></div>
       
