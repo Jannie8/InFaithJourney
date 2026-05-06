@@ -49,7 +49,9 @@ export function VendorCard({
   }, [user, db, id]);
 
   const { data: savedData } = useDoc(savedRef);
-  const isLiked = !!savedData;
+  
+  // Guard client-only state derived from Firebase
+  const isLiked = mounted ? !!savedData : false;
 
   useEffect(() => {
     setMounted(true);
@@ -101,7 +103,7 @@ export function VendorCard({
     <div 
       ref={cardRef}
       className={cn(
-        "group luxury-card overflow-hidden flex flex-col bg-card/50 w-full mx-auto max-w-[400px] lg:max-w-none relative",
+        "group luxury-card overflow-hidden flex flex-col bg-card w-full mx-auto max-w-[400px] lg:max-w-none relative",
         "opacity-0 translate-y-8 transition-all duration-700 ease-out",
         (mounted && isVisible) && "opacity-100 translate-y-0"
       )}

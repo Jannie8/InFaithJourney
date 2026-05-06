@@ -92,18 +92,6 @@ const CATEGORY_MAP: Record<string, { name: string; title: string; imageId: strin
   }
 };
 
-const INTERNATIONAL_LOCATIONS = [
-  'Tuscany, Italy', 
-  'Provence, France', 
-  'Santorini, Greece', 
-  'Ubud, Bali', 
-  'Amalfi Coast, Italy', 
-  'Paris, France', 
-  'London, UK', 
-  'New York, USA', 
-  'Sydney, Australia'
-];
-
 const SA_LOCATIONS = ['Cape Town', 'Stellenbosch', 'Franschhoek', 'Johannesburg', 'Pretoria', 'Garden Route'];
 
 export default function CategoryBrowsePage({ params }: { params: Promise<{ slug: string }> }) {
@@ -244,19 +232,25 @@ export default function CategoryBrowsePage({ params }: { params: Promise<{ slug:
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 md:gap-10">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <VendorCard 
-                  key={i} 
-                  id={`vendor-${slug}-${i}`}
-                  name={`${category.name} Expert ${i}`}
-                  location={i % 2 === 0 ? 'Stellenbosch, WC' : 'Cape Town, WC'}
-                  rating={4.8 + (i * 0.04) > 5 ? 5.0 : 4.8 + (i * 0.04)}
-                  reviews={12 * i + 5}
-                  category={category.name}
-                  imageUrl={`https://picsum.photos/seed/inf-${slug}-${i}/800/600`}
-                  imageHint={`${slug} wedding luxury`}
-                />
-              ))}
+              {[1, 2, 3, 4, 5, 6].map((i) => {
+                // Round rating to avoid floating point precision hydration mismatches
+                const rawRating = 4.8 + (i * 0.04);
+                const roundedRating = Math.round((rawRating > 5 ? 5.0 : rawRating) * 100) / 100;
+                
+                return (
+                  <VendorCard 
+                    key={i} 
+                    id={`vendor-${slug}-${i}`}
+                    name={`${category.name} Expert ${i}`}
+                    location={i % 2 === 0 ? 'Stellenbosch, WC' : 'Cape Town, WC'}
+                    rating={roundedRating}
+                    reviews={12 * i + 5}
+                    category={category.name}
+                    imageUrl={`https://picsum.photos/seed/inf-${slug}-${i}/800/600`}
+                    imageHint={`${slug} wedding luxury`}
+                  />
+                );
+              })}
             </div>
 
             <div className="mt-20 text-center">
