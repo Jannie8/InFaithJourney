@@ -42,7 +42,7 @@ export function Navbar() {
       <nav 
         role="navigation"
         aria-label="Main Navigation"
-        className="fixed top-0 z-[100] w-full px-6 md:px-12 h-[60px] bg-[#1A1816]/85 backdrop-blur-md border-b border-white/5 transition-all duration-300 flex items-center"
+        className="fixed top-0 z-[100] w-full px-6 md:px-12 h-[64px] bg-background border-b border-border transition-all duration-300 flex items-center"
       >
         <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
           <Link href="/" className="z-[110] outline-offset-8" aria-label="InFaith Journey Home">
@@ -67,7 +67,7 @@ export function Navbar() {
               ))}
             </div>
             
-            <div className="h-4 w-[1px] mx-2 bg-white/10" aria-hidden="true" />
+            <div className="h-4 w-[1px] mx-2 bg-border" aria-hidden="true" />
 
             <div className="flex items-center gap-6">
               <Link 
@@ -112,7 +112,7 @@ export function Navbar() {
           {/* Mobile Toggle */}
           <button 
             onClick={() => setIsOpen(!isOpen)} 
-            className="lg:hidden p-2 z-[110] rounded-full transition-colors text-foreground hover:bg-white/5"
+            className="lg:hidden p-2 z-[110] rounded-full transition-colors text-foreground hover:bg-muted"
             aria-expanded={isOpen}
             aria-label={isOpen ? "Close Menu" : "Open Menu"}
           >
@@ -135,7 +135,7 @@ export function Navbar() {
               {link.name}
             </Link>
           ))}
-          <div className="h-[1px] w-12 bg-primary/20 my-2" />
+          <div className="h-[1px] w-12 bg-border my-2" />
           <Link 
             href="/my-likes" 
             className="text-[16px] font-bold uppercase tracking-widest flex items-center gap-3 text-foreground/80" 

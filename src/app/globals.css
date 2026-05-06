@@ -4,27 +4,45 @@
 
 @layer base {
   :root {
-    /* Refined Luxury Dark Theme - Golden Hour */
-    --background: 30 10% 8%; /* #1A1816 - Dark Warm Charcoal */
-    --foreground: 40 20% 95%; /* #F8F5F0 - Soft Cream */
-    --card: 30 8% 12%; /* #24211F - Surface elevation */
-    --card-foreground: 40 20% 95%;
-    --popover: 30 8% 12%;
-    --popover-foreground: 40 20% 95%;
-    --primary: 30 42% 64%; /* #C8A37E - Rosewood */
-    --primary-foreground: 30 42% 10%; 
+    /* Hybrid Theme: Light Base (Editorial Ivory) */
+    --background: 40 10% 98%; /* #FAF9F6 - Ivory */
+    --foreground: 30 10% 10%; /* #1A1816 - Ink */
+    
+    --card: 0 0% 100%; /* Pure white for cards on ivory */
+    --card-foreground: 30 10% 10%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 30 10% 10%;
+    
+    --primary: 30 28% 42%; /* #8B6B4D - Deep Rosewood (AA Compliant on Ivory) */
+    --primary-foreground: 40 10% 98%;
+    
     --secondary: 46 65% 52%; /* #D4AF37 - Gold */
     --secondary-foreground: 30 10% 8%;
-    --muted: 30 10% 20%;
-    --muted-foreground: 30 10% 65%; /* High contrast muted text (~5.2:1) */
-    --accent: 30 42% 64%;
-    --accent-foreground: 40 20% 95%;
+    
+    --muted: 30 5% 90%;
+    --muted-foreground: 30 10% 45%; /* High contrast muted text (~4.8:1) */
+    
+    --accent: 30 28% 42%;
+    --accent-foreground: 40 10% 98%;
+    
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 30 10% 20%; /* Visible surface borders */
-    --input: 30 10% 20%;
+    
+    --border: 30 10% 85%; /* Soft ivory-gray border */
+    --input: 30 10% 85%;
     --ring: 46 65% 52%; 
     --radius: 1.5rem;
+  }
+
+  /* Dark Band Utility - Used for Heroes */
+  .dark-band {
+    --background: 30 10% 8%; /* #1A1816 - Ink */
+    --foreground: 40 20% 95%; /* #F8F5F0 - Cream */
+    --card: 30 8% 12%;
+    --card-foreground: 40 20% 95%;
+    --border: 30 10% 20%;
+    --muted-foreground: 30 10% 65%;
   }
 }
 
@@ -55,20 +73,20 @@
 }
 
 .watercolor-bg {
-  background-image: radial-gradient(circle at 10% 20%, rgba(200, 163, 126, 0.05) 0%, transparent 40%),
-                    radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.05) 0%, transparent 40%);
+  background-image: radial-gradient(circle at 10% 20%, rgba(139, 107, 77, 0.03) 0%, transparent 40%),
+                    radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.03) 0%, transparent 40%);
 }
 
 .button-rose {
-  @apply text-white transition-all duration-300 shadow-sm font-semibold tracking-wide uppercase rounded-full bg-gradient-to-br from-[#C8A37E] to-[#B38E6A] hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg disabled:opacity-50;
+  @apply text-white transition-all duration-300 shadow-sm font-semibold tracking-wide uppercase rounded-full bg-gradient-to-br from-[#8B6B4D] to-[#72573E] hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg disabled:opacity-50;
 }
 
 .luxury-card {
-  @apply bg-card border border-white/5 rounded-[20px] shadow-sm transition-all duration-300 hover:shadow-md hover:border-primary/30;
+  @apply bg-card border border-border rounded-[20px] shadow-sm transition-all duration-300 hover:shadow-md hover:border-primary/30;
 }
 
 .shadow-soft {
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
 }
 
 .shadow-glow {
@@ -84,7 +102,7 @@
 }
 
 .category-circle {
-  @apply w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-primary/20 transition-all duration-500 hover:border-secondary hover:scale-110 shadow-soft relative;
+  @apply w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-border transition-all duration-500 hover:border-secondary hover:scale-110 shadow-soft relative;
 }
 
 .sr-only {
@@ -99,6 +117,6 @@
   background: transparent;
 }
 .chat-scrollbar ::-webkit-scrollbar-thumb {
-  background: rgba(200, 163, 126, 0.2);
+  background: rgba(139, 107, 77, 0.2);
   border-radius: 10px;
 }
