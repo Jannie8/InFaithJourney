@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sparkles, X, Mic, Send, Bot, Wand2, Star, Info } from 'lucide-react';
+import { Sparkles, X, Mic, Send, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { aiConciergeFlow } from '@/ai/flows/ai-concierge-flow';
 import { VendorCard } from '@/components/vendors/VendorCard';
@@ -19,13 +19,6 @@ interface AIChatProps {
   initialOpen?: boolean;
   inline?: boolean;
 }
-
-const SUGGESTIONS = [
-  "I want a venue in Stellenbosch under R120000",
-  "Recommend photographers in Cape Town",
-  "Looking for a luxury garden venue for 100 guests",
-  "Best wedding cake makers in Johannesburg",
-];
 
 export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
   const [isOpen, setIsOpen] = useState(initialOpen);
@@ -75,9 +68,7 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
 
   const handleSpeech = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      return;
-    }
+    if (!SpeechRecognition) return;
     const recognition = new SpeechRecognition();
     recognition.lang = 'en-ZA';
     recognition.onstart = () => setIsListening(true);
@@ -92,7 +83,7 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
 
   const chatContent = (
     <div className={cn(
-      "relative bg-background border border-primary/20 rounded-[32px] shadow-2xl flex flex-col overflow-hidden pointer-events-auto",
+      "relative border border-primary/20 rounded-[32px] shadow-2xl flex flex-col overflow-hidden pointer-events-auto",
       inline 
         ? "w-full h-full border-none shadow-none rounded-none" 
         : "w-[94vw] max-w-[420px] h-[82vh] aspect-[1/1.55]",
@@ -115,7 +106,7 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
         )}
       </div>
 
-      <ScrollArea className="flex-1 px-6 pt-6 watercolor-bg" ref={scrollRef}>
+      <ScrollArea className="flex-1 px-6 pt-6" ref={scrollRef}>
         <div className="space-y-6 pb-6">
           {messages.map((msg, i) => (
             <div key={i} className={cn("flex flex-col gap-3", msg.role === 'user' ? "items-end" : "items-start")}>
@@ -123,7 +114,7 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
                 "max-w-[88%] p-4 rounded-[20px] text-[15px] font-medium leading-relaxed shadow-sm",
                 msg.role === 'user' 
                   ? "bg-primary text-white rounded-tr-none" 
-                  : "bg-white border border-primary/10 text-foreground rounded-tl-none"
+                  : "bg-white/40 backdrop-blur-md border border-primary/10 text-foreground rounded-tl-none"
               )}>
                 {msg.content}
               </div>
@@ -151,7 +142,7 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
         </div>
       </ScrollArea>
 
-      <div className="shrink-0 p-6 border-t border-primary/10 bg-white">
+      <div className="shrink-0 p-6 border-t border-primary/10 bg-white/20 backdrop-blur-md">
         <div className="flex items-center gap-3 relative mb-2">
           <button 
             onClick={handleSpeech}
@@ -168,7 +159,7 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               placeholder="Your global vision..."
-              className="h-12 rounded-full border-primary/20 pl-5 pr-12 shadow-inner"
+              className="h-12 rounded-full border-primary/20 bg-white/50 pl-5 pr-12 shadow-inner"
             />
             <button 
               onClick={() => handleSend()}

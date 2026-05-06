@@ -2,23 +2,23 @@
 
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { 
   Users, ClipboardCheck, TrendingUp, AlertCircle, 
-  ArrowRight, CheckCircle, XCircle, Search, Filter 
+  ArrowRight, CheckCircle, XCircle, Filter 
 } from 'lucide-react';
 import Link from 'next/link';
 import { useUser } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { cn } from '@/lib/utils';
 
 export default function AdminDashboardPage() {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
 
-  // Ricardo the Admin simulation
   useEffect(() => {
     if (!isUserLoading && (!user || user.email !== 'ricardo@infaithjourney.com')) {
       // router.push('/dashboard'); 
@@ -35,7 +35,7 @@ export default function AdminDashboardPage() {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen watercolor-bg">
+    <div className="flex flex-col min-h-screen">
       <Navbar />
       
       <main id="main-content" className="flex-1 max-w-7xl mx-auto px-6 pt-32 pb-24 w-full">
@@ -73,7 +73,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Pending Queue Summary */}
-        <section className="bg-white rounded-[40px] border border-primary/10 p-10 shadow-soft">
+        <section className="rounded-[40px] border border-primary/10 p-10 shadow-soft">
           <div className="flex items-center justify-between mb-10 pb-6 border-b border-primary/10">
             <h2 className="font-headline text-[32px]">Pending Applications</h2>
             <Link href="/admin/review" className="text-primary text-[12px] font-bold uppercase tracking-widest flex items-center gap-2 hover:translate-x-1 transition-transform">
@@ -117,8 +117,4 @@ export default function AdminDashboardPage() {
       <Footer />
     </div>
   );
-}
-
-function cn(...classes: string[]) {
-  return classes.filter(Boolean).join(' ');
 }

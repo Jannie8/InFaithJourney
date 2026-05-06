@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Navbar } from '@/components/layout/Navbar';
@@ -12,7 +11,7 @@ export default function AIPlannerPage() {
   const heroImage = PlaceHolderImages.find(img => img.id === 'hero-home');
 
   return (
-    <div className="flex flex-col min-h-screen watercolor-bg">
+    <div className="flex flex-col min-h-screen">
       <Navbar />
       
       {/* Subtle Hero Header */}
@@ -53,7 +52,7 @@ export default function AIPlannerPage() {
                 { title: "Match Styles", desc: "Discover vendors that match your romantic vision." },
                 { title: "Plan Logistics", desc: "Estimate guest counts and event flow." }
               ].map((item, i) => (
-                <div key={i} className="flex gap-4 p-5 bg-white rounded-2xl border border-primary/10 shadow-sm golden-glow-premium">
+                <div key={i} className="flex gap-4 p-5 rounded-2xl border border-primary/10 shadow-sm golden-glow-premium">
                   <div className="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center text-primary shrink-0">
                     <Wand2 className="w-5 h-5" />
                   </div>

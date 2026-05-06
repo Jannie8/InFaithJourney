@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Navbar } from '@/components/layout/Navbar';
@@ -46,7 +45,7 @@ export default function MyLikesPage() {
 
   if (isUserLoading || isLoading) {
     return (
-      <div className="flex flex-col min-h-screen watercolor-bg items-center justify-center">
+      <div className="flex flex-col min-h-screen items-center justify-center">
         <div className="relative">
           <Sparkles className="w-12 h-12 text-primary animate-pulse" />
           <div className="absolute inset-0 bg-primary/20 blur-xl animate-pulse"></div>
@@ -57,13 +56,13 @@ export default function MyLikesPage() {
 
   if (!user) {
     return (
-      <div className="flex flex-col min-h-screen watercolor-bg">
+      <div className="flex flex-col min-h-screen">
         <Navbar />
         <main className="flex-1 flex items-center justify-center p-6 text-center">
           <div className="max-w-md space-y-10 animate-fade-up">
             <div className="relative w-24 h-24 mx-auto">
               <div className="absolute inset-0 bg-primary/10 rounded-full animate-ping"></div>
-              <div className="relative w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-2xl border border-primary/10">
+              <div className="relative w-24 h-24 rounded-full flex items-center justify-center shadow-2xl border border-primary/10">
                 <Heart className="w-12 h-12 text-primary/30" />
               </div>
             </div>
@@ -87,7 +86,7 @@ export default function MyLikesPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen watercolor-bg">
+    <div className="flex flex-col min-h-screen">
       <Navbar />
       
       {/* Premium Header */}
@@ -119,7 +118,7 @@ export default function MyLikesPage() {
 
       <main className="max-w-7xl mx-auto px-6 pb-32 w-full flex-1">
         {!savedVendors || savedVendors.length === 0 ? (
-          <div className="bg-white/60 backdrop-blur-md border border-primary/10 rounded-[40px] p-20 text-center space-y-10 max-w-3xl mx-auto shadow-sm animate-fade-up">
+          <div className="backdrop-blur-md border border-primary/10 rounded-[40px] p-20 text-center space-y-10 max-w-3xl mx-auto shadow-sm animate-fade-up">
             <div className="w-20 h-20 bg-primary/5 rounded-full flex items-center justify-center mx-auto">
               <Heart className="w-10 h-10 text-primary/20" />
             </div>

@@ -8,7 +8,7 @@
     --background: 40 10% 98%; /* #FAF9F6 - Ivory */
     --foreground: 30 10% 10%; /* #1A1816 - Ink */
     
-    --card: 0 0% 100%;
+    --card: 0 0% 100% / 0; /* Transparent to show gradient */
     --card-foreground: 30 10% 10%;
     
     --popover: 0 0% 100%;
@@ -37,15 +37,6 @@
     --header-height: 80px;
     --fab-safe-area: calc(1.5rem + env(safe-area-inset-bottom, 0px));
   }
-
-  .dark-band {
-    --background: 30 10% 8%; /* #1A1816 - Ink */
-    --foreground: 40 20% 95%; /* #F8F5F0 - Cream */
-    --card: 30 8% 12%;
-    --card-foreground: 40 20% 95%;
-    --border: 30 10% 20%;
-    --muted-foreground: 30 10% 65%;
-  }
 }
 
 @layer base {
@@ -53,7 +44,9 @@
     @apply border-border outline-offset-4;
   }
   body {
-    @apply bg-background text-foreground font-body antialiased;
+    @apply text-foreground font-body antialiased;
+    background: linear-gradient(160deg, #FAF6EF 0%, #F5EBD8 50%, #FAF6EF 100%);
+    min-height: 100vh;
     font-size: 16px;
     line-height: 1.6;
   }
@@ -72,11 +65,6 @@
 
 .font-script {
   font-family: 'Great Vibes', cursive;
-}
-
-.watercolor-bg {
-  background-image: radial-gradient(circle at 10% 20%, rgba(139, 107, 77, 0.03) 0%, transparent 40%),
-                    radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.03) 0%, transparent 40%);
 }
 
 .button-rose {
@@ -104,7 +92,7 @@
 }
 
 .category-circle {
-  @apply rounded-full border-2 border-border transition-all duration-500 hover:border-secondary hover:scale-105 shadow-soft relative overflow-hidden bg-white;
+  @apply rounded-full border-2 border-border transition-all duration-500 hover:border-secondary hover:scale-105 shadow-soft relative overflow-hidden bg-white/20;
 }
 
 .chat-scrollbar ::-webkit-scrollbar {

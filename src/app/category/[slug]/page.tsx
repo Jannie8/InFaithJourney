@@ -1,4 +1,3 @@
-
 "use client";
 
 import { use } from 'react';
@@ -9,13 +8,14 @@ import { VendorCard } from '@/components/vendors/VendorCard';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
-import { Search, MapPin, Wallet, Sparkles, SlidersHorizontal, ArrowLeft } from 'lucide-react';
+import { Search, MapPin, Wallet, SlidersHorizontal, ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import Link from 'next/link';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const CATEGORY_MAP: Record<string, { name: string; title: string; imageId: string; description: string }> = {
   'venues': {
@@ -119,7 +119,7 @@ export default function CategoryBrowsePage({ params }: { params: Promise<{ slug:
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   return (
-    <div className="flex flex-col min-h-screen watercolor-bg overflow-x-hidden">
+    <div className="flex flex-col min-h-screen overflow-x-hidden">
       <Navbar />
       
       {/* Dynamic Category Hero */}
@@ -167,13 +167,13 @@ export default function CategoryBrowsePage({ params }: { params: Promise<{ slug:
             </div>
 
             <div className={cn(
-              "bg-white/50 backdrop-blur-md p-8 rounded-[32px] border border-primary/10 lg:block lg:sticky lg:top-32 transition-all shadow-sm",
+              "p-8 rounded-[32px] border border-primary/10 lg:block lg:sticky lg:top-32 transition-all shadow-sm",
               !isFilterOpen && "hidden"
             )}>
               <h3 className="hidden lg:block font-headline text-[28px] mb-8 border-b border-primary/10 pb-4">Refine Results</h3>
               
               <Accordion type="multiple" defaultValue={['location', 'budget']} className="space-y-10">
-                {/* Location Filter with International Options */}
+                {/* Location Filter */}
                 <AccordionItem value="location" className="border-none">
                   <AccordionTrigger className="text-[13.5px] font-bold uppercase tracking-widest text-primary hover:no-underline flex items-center gap-3">
                     <div className="flex items-center gap-2">
@@ -193,17 +193,6 @@ export default function CategoryBrowsePage({ params }: { params: Promise<{ slug:
                         ))}
                       </div>
                     </div>
-                    <div>
-                      <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-3">International</p>
-                      <div className="space-y-2.5">
-                        {INTERNATIONAL_LOCATIONS.map(loc => (
-                          <div key={loc} className="flex items-center space-x-3 group cursor-pointer">
-                            <Checkbox id={`loc-int-${loc}`} className="rounded-md border-primary/30 w-5 h-5 data-[state=checked]:bg-secondary transition-all" />
-                            <label htmlFor={`loc-int-${loc}`} className="text-[15px] font-medium leading-none cursor-pointer group-hover:text-primary transition-colors text-foreground/85">{loc}</label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
                   </AccordionContent>
                 </AccordionItem>
 
@@ -216,24 +205,7 @@ export default function CategoryBrowsePage({ params }: { params: Promise<{ slug:
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="pt-6">
-                    <div className="flex justify-between items-center text-[13px] font-bold text-foreground/60 mb-4">
-                      <span>R1k</span>
-                      <span>R200k+</span>
-                    </div>
                     <Slider defaultValue={[50]} max={100} step={1} className="py-2" />
-                  </AccordionContent>
-                </AccordionItem>
-
-                {/* Style Preferences */}
-                <AccordionItem value="style" className="border-none">
-                  <AccordionTrigger className="text-[13.5px] font-bold uppercase tracking-widest text-primary hover:no-underline">Style & Aesthetic</AccordionTrigger>
-                  <AccordionContent className="pt-4 space-y-3.5">
-                    {['Minimalist', 'Boho Chic', 'Classic Luxury', 'Industrial', 'Rustic Romance', 'Modern'].map(style => (
-                      <div key={style} className="flex items-center space-x-3 group cursor-pointer">
-                        <Checkbox id={`style-${style}`} className="rounded-md border-primary/30 w-5 h-5 data-[state=checked]:bg-secondary transition-all" />
-                        <label htmlFor={`style-${style}`} className="text-[15px] font-medium leading-none cursor-pointer group-hover:text-primary transition-colors text-foreground/85">{style}</label>
-                      </div>
-                    ))}
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
@@ -258,7 +230,7 @@ export default function CategoryBrowsePage({ params }: { params: Promise<{ slug:
               <div className="flex items-center gap-6">
                 <p className="text-[15.5px] text-muted-foreground italic font-medium whitespace-nowrap">Showing elite {category.name.toLowerCase()} experts</p>
                 <Select defaultValue="recommended">
-                  <SelectTrigger className="w-[180px] h-10 rounded-full border-primary/20 bg-white text-[13px] font-bold uppercase tracking-widest">
+                  <SelectTrigger className="w-[180px] h-10 rounded-full border-primary/20 text-[13px] font-bold uppercase tracking-widest">
                     <SelectValue placeholder="Sort By" />
                   </SelectTrigger>
                   <SelectContent>

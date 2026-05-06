@@ -1,4 +1,3 @@
-
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
@@ -14,31 +13,7 @@ import type { Metadata } from 'next';
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const name = slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-  
-  return {
-    title: name,
-    description: `Discover the exquisite work of ${name} on InFaith Journey. Curated premium wedding services in South Africa.`,
-    openGraph: {
-      title: `${name} | InFaith Journey`,
-      description: `Discover the exquisite work of ${name} on InFaith Journey.`,
-      url: `https://infaithjourney.com/vendor/${slug}`,
-      images: [
-        {
-          url: 'https://infaithjourney.com/og-image.jpeg',
-          width: 1200,
-          height: 630,
-        }
-      ],
-      type: 'profile',
-      siteName: 'InFaith Journey',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: `${name} | InFaith Journey`,
-      description: `Discover the exquisite work of ${name} on InFaith Journey.`,
-      images: ['https://infaithjourney.com/og-image.jpeg'],
-    }
-  };
+  return { title: name };
 }
 
 export default function VendorProfilePage() {
@@ -52,7 +27,7 @@ export default function VendorProfilePage() {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen watercolor-bg">
+    <div className="flex flex-col min-h-screen">
       <Navbar />
       
       {/* Large Hero Banner */}
@@ -64,7 +39,7 @@ export default function VendorProfilePage() {
           className="object-cover sepia-overlay brightness-[0.6]"
         />
         <div className="absolute inset-0 bg-black/40"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-black/10 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-[#FAF6EF]/20 via-black/10 to-transparent"></div>
         <div className="absolute bottom-16 left-0 w-full px-6">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-end justify-between gap-10">
             <div className="space-y-6">
@@ -84,11 +59,6 @@ export default function VendorProfilePage() {
                     ))}
                   </div>
                   <span className="font-bold text-[18px] ml-1">4.9</span>
-                  <span className="opacity-80 text-[18px] ml-1">(120 Reviews)</span>
-                </div>
-                <div className="flex items-center gap-3 bg-white/20 backdrop-blur-md px-5 py-1.5 rounded-full text-[12px] font-bold uppercase tracking-widest border border-white/30 shadow-lg">
-                  <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                  Listed on InFaith Journey
                 </div>
               </div>
             </div>
@@ -140,13 +110,10 @@ export default function VendorProfilePage() {
               <p className="text-foreground/90 leading-[1.8] text-[18px] font-medium">
                 We believe that every wedding is a unique story waiting to be told. With over a decade of experience in high-end South African weddings, Evergold Photography focuses on capturing the raw emotion, natural light, and sophisticated details of your romantic journey. 
               </p>
-              <p className="text-foreground/90 leading-[1.8] text-[18px] font-medium">
-                Our approach is a blend of fine-art photography and cinematic storytelling. We are inspired by the soft golden-hour light of the Cape Winelands and the elegant energy of Johannesburg weddings. Our goal is to provide you with a timeless collection of memories that you will cherish for a lifetime.
-              </p>
             </div>
 
             {/* Services Checklist */}
-            <div className="bg-white p-12 rounded-2xl border border-primary/10 relative overflow-hidden shadow-md">
+            <div className="p-12 rounded-2xl border border-primary/10 relative overflow-hidden shadow-md">
               <h2 className="font-headline text-[32px] mb-8">Services Offered</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
                 {[
@@ -171,24 +138,24 @@ export default function VendorProfilePage() {
           {/* Sidebar Inquiry Form */}
           <aside className="lg:col-span-1">
             <div className="sticky top-28 space-y-10">
-              <div className="bg-white p-10 rounded-[20px] border border-primary/10 shadow-lg">
+              <div className="p-10 rounded-[20px] border border-primary/10 shadow-lg">
                 <h3 className="font-headline text-[28px] mb-8 text-center">Inquire Now</h3>
                 <form className="space-y-6">
                   <div className="space-y-2">
                     <Label className="uppercase text-[12px] tracking-widest font-bold text-foreground/70">Your Name</Label>
-                    <Input className="h-12 rounded-xl px-4 border-primary/10 text-[16px]" placeholder="Full Name" />
+                    <Input className="h-12 rounded-xl px-4 border-primary/10 bg-transparent text-[16px]" placeholder="Full Name" />
                   </div>
                   <div className="space-y-2">
                     <Label className="uppercase text-[12px] tracking-widest font-bold text-foreground/70">Email Address</Label>
-                    <Input type="email" className="h-12 rounded-xl px-4 border-primary/10 text-[16px]" placeholder="email@address.com" />
+                    <Input type="email" className="h-12 rounded-xl px-4 border-primary/10 bg-transparent text-[16px]" placeholder="email@address.com" />
                   </div>
                   <div className="space-y-2">
                     <Label className="uppercase text-[12px] tracking-widest font-bold text-foreground/70">Wedding Date</Label>
-                    <Input type="date" className="h-12 rounded-xl px-4 border-primary/10 text-[16px]" />
+                    <Input type="date" className="h-12 rounded-xl px-4 border-primary/10 bg-transparent text-[16px]" />
                   </div>
                   <div className="space-y-2">
                     <Label className="uppercase text-[12px] tracking-widest font-bold text-foreground/70">Message</Label>
-                    <Textarea className="min-h-[120px] rounded-xl px-4 py-3 border-primary/10 text-[16px]" placeholder="Tell them about your wedding..." />
+                    <Textarea className="min-h-[120px] rounded-xl px-4 py-3 border-primary/10 bg-transparent text-[16px]" placeholder="Tell them about your wedding..." />
                   </div>
                   <Button className="w-full h-14 button-rose text-[15px] font-semibold">
                     SEND INQUIRY

@@ -1,4 +1,3 @@
-
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
@@ -14,26 +13,6 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Apply as a Vendor',
   description: 'Join South Africa\'s premier wedding vendor network. Showcase your premium services to high-end couples.',
-  openGraph: {
-    title: 'Apply as a Vendor | InFaith Journey',
-    description: 'Join South Africa\'s premier wedding vendor network. Showcase your premium services to high-end couples.',
-    url: 'https://infaithjourney.com/apply',
-    images: [
-      {
-        url: 'https://infaithjourney.com/og-image.jpeg',
-        width: 1200,
-        height: 630,
-      }
-    ],
-    type: 'website',
-    siteName: 'InFaith Journey',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Apply as a Vendor | InFaith Journey',
-    description: 'Join South Africa\'s premier wedding vendor network.',
-    images: ['https://infaithjourney.com/og-image.jpeg'],
-  }
 };
 
 const CATEGORIES = [
@@ -53,7 +32,7 @@ export default function ApplyPage() {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen watercolor-bg">
+    <div className="flex flex-col min-h-screen">
       <Navbar />
 
       {/* Hero */}
@@ -81,7 +60,7 @@ export default function ApplyPage() {
               <div className="absolute left-8 top-0 bottom-0 w-[1px] bg-primary/20"></div>
               {steps.map((step, i) => (
                 <div key={i} className="relative pl-20 group">
-                  <div className="absolute left-0 top-0 w-16 h-16 bg-white rounded-full border border-primary/20 flex items-center justify-center z-10 shadow-md golden-glow-hover">
+                  <div className="absolute left-0 top-0 w-16 h-16 bg-white/40 backdrop-blur-md rounded-full border border-primary/20 flex items-center justify-center z-10 shadow-md golden-glow-hover">
                     <step.icon className="w-7 h-7 text-primary" />
                   </div>
                   <h3 className="text-[20px] font-headline font-semibold mb-2">{step.title}</h3>
@@ -92,7 +71,7 @@ export default function ApplyPage() {
           </div>
 
           {/* Application Form */}
-          <div className="lg:col-span-2 bg-white p-12 md:p-16 rounded-[20px] border border-primary/10 shadow-lg space-y-12">
+          <div className="lg:col-span-2 p-12 md:p-16 rounded-[20px] border border-primary/10 shadow-lg space-y-12">
             <h2 className="font-headline text-[36px] mb-10 border-b border-primary/10 pb-6">Vendor Application</h2>
             
             <form className="space-y-10">

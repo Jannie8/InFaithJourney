@@ -9,7 +9,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { 
   Home as HomeIcon, Camera, Palette, Flower2, Utensils, Plane, 
-  Music, CalendarCheck, Shirt, PenTool, Cake, Gem, Search, Sparkles
+  Music, CalendarCheck, Shirt, PenTool, Cake, Gem, Search
 } from 'lucide-react';
 
 export const CORE_VENDORS = [
@@ -31,10 +31,10 @@ export default function Home() {
   const heroImage = PlaceHolderImages.find(img => img.id === 'hero-home');
 
   return (
-    <div className="flex flex-col min-h-screen watercolor-bg">
+    <div className="flex flex-col min-h-screen">
       <Navbar />
       
-      {/* Hero Section - 1:1 Live Replica */}
+      {/* Hero Section */}
       <section className="relative h-screen w-full overflow-hidden flex items-center justify-center px-4">
         <Image
           src={heroImage?.imageUrl || 'https://ik.imagekit.io/625s6afzw/hero2.jpeg?updatedAt=1777038149964'}
@@ -54,7 +54,7 @@ export default function Home() {
             Browse curated & trusted wedding professionals dedicated to bringing your international dream day to life.
           </p>
           
-          <div className="bg-white/95 backdrop-blur-md p-2 rounded-full shadow-2xl flex flex-col md:flex-row items-center gap-1 max-w-4xl mx-auto border border-white/20">
+          <div className="bg-white/90 backdrop-blur-md p-2 rounded-full shadow-2xl flex flex-col md:flex-row items-center gap-1 max-w-4xl mx-auto border border-white/20">
             <div className="flex-1 w-full px-6">
               <Select>
                 <SelectTrigger className="border-none focus:ring-0 shadow-none bg-transparent h-14 text-[15px] font-bold text-[#1A1816] uppercase tracking-widest">
@@ -88,7 +88,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Main Content Sections with luxurious spacing */}
       <main id="main-content" className="max-w-7xl mx-auto px-6 py-24 w-full">
         <section className="mb-32">
           <div className="text-center mb-20">
@@ -123,7 +122,7 @@ export default function Home() {
         </section>
 
         <section className="mb-32">
-           <div className="flex flex-col md:flex-row items-center justify-between gap-12 bg-white/50 p-16 rounded-[40px] border border-primary/10 shadow-soft">
+           <div className="flex flex-col md:flex-row items-center justify-between gap-12 p-16 rounded-[40px] border border-primary/10 shadow-soft">
               <div className="flex-1 space-y-8">
                 <h2 className="font-headline text-[48px] leading-tight">Hand-Picked Excellence</h2>
                 <p className="text-[18px] text-muted-foreground italic font-medium leading-relaxed">

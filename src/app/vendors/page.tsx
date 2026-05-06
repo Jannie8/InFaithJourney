@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Navbar } from '@/components/layout/Navbar';
@@ -25,26 +24,15 @@ const ALL_VENDORS = [
   { id: '5', name: 'Sunstone Manor', location: 'Stellenbosch', rating: 5.0, reviews: 210, category: 'Venues', imageUrl: PlaceHolderImages.find(img => img.id === 'vendor-sunstone')?.imageUrl || '', imageHint: 'wedding estate lights' },
 ];
 
-const INTERNATIONAL_LOCATIONS = [
-  'Tuscany, Italy', 
-  'Provence, France', 
-  'Santorini, Greece', 
-  'Ubud, Bali', 
-  'London, UK', 
-  'Paris, France', 
-  'New York, USA', 
-  'Sydney, Australia'
-];
-
 export default function VendorsPage() {
   const heroImage = PlaceHolderImages.find(img => img.id === 'hero-venues');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   return (
-    <div className="flex flex-col min-h-screen watercolor-bg overflow-x-hidden">
+    <div className="flex flex-col min-h-screen overflow-x-hidden">
       <Navbar />
       
-      {/* Search Hero - Responsive */}
+      {/* Search Hero */}
       <section className="relative h-[40vh] md:h-[50vh] w-full flex items-center justify-center overflow-hidden px-4">
         <Image
           src={heroImage?.imageUrl || ''}
@@ -66,7 +54,6 @@ export default function VendorsPage() {
       <main className="max-w-7xl mx-auto px-6 section-padding w-full flex-1">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-10 lg:gap-12">
           
-          {/* Advanced Filters Sidebar - Responsive Adaptive */}
           <aside className="lg:col-span-1">
              <div className="lg:hidden mb-6">
               <Button 
@@ -82,13 +69,12 @@ export default function VendorsPage() {
             </div>
 
             <div className={cn(
-              "bg-white/40 p-8 rounded-[32px] border border-primary/10 lg:block lg:sticky lg:top-32 transition-all shadow-sm",
+              "p-8 rounded-[32px] border border-primary/10 lg:block lg:sticky lg:top-32 transition-all shadow-sm",
               !isFilterOpen && "hidden"
             )}>
               <h3 className="hidden lg:block font-headline text-[28px] mb-8 border-b border-primary/10 pb-4">Refine Results</h3>
               
               <Accordion type="multiple" defaultValue={['categories', 'location']} className="space-y-10">
-                {/* Categories Links */}
                 <AccordionItem value="categories" className="border-none">
                    <AccordionTrigger className="text-[13.5px] font-bold uppercase tracking-widest text-primary hover:no-underline">Browse Categories</AccordionTrigger>
                    <AccordionContent className="pt-4 space-y-3.5">
@@ -105,7 +91,6 @@ export default function VendorsPage() {
                   </AccordionContent>
                 </AccordionItem>
 
-                {/* Location */}
                 <AccordionItem value="location" className="border-none">
                   <AccordionTrigger className="text-[13.5px] font-bold uppercase tracking-widest text-primary hover:no-underline flex items-center gap-3">
                     <div className="flex items-center gap-2">
@@ -115,7 +100,6 @@ export default function VendorsPage() {
                   </AccordionTrigger>
                   <AccordionContent className="pt-4 space-y-6">
                     <div>
-                      <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-3">South Africa</p>
                       <div className="space-y-2.5">
                         {['Cape Town', 'Stellenbosch', 'Franschhoek', 'Johannesburg', 'Pretoria'].map(loc => (
                           <div key={loc} className="flex items-center space-x-3 group cursor-pointer">
@@ -125,21 +109,9 @@ export default function VendorsPage() {
                         ))}
                       </div>
                     </div>
-                    <div>
-                      <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Global</p>
-                      <div className="space-y-2.5">
-                        {INTERNATIONAL_LOCATIONS.map(loc => (
-                          <div key={loc} className="flex items-center space-x-3 group cursor-pointer">
-                            <Checkbox id={`loc-int-${loc}`} className="rounded-md border-primary/30 w-5 h-5 data-[state=checked]:bg-secondary transition-all" />
-                            <label htmlFor={`loc-int-${loc}`} className="text-[15px] font-medium leading-none cursor-pointer group-hover:text-primary transition-colors text-foreground/85">{loc}</label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
                   </AccordionContent>
                 </AccordionItem>
 
-                {/* Budget */}
                 <AccordionItem value="budget" className="border-none">
                   <AccordionTrigger className="text-[13.5px] font-bold uppercase tracking-widest text-primary hover:no-underline flex items-center gap-3">
                     <div className="flex items-center gap-2">
@@ -148,10 +120,6 @@ export default function VendorsPage() {
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="pt-6">
-                    <div className="flex justify-between items-center text-[13px] font-bold text-foreground/60 mb-4">
-                      <span>R5k</span>
-                      <span>R100k+</span>
-                    </div>
                     <Slider defaultValue={[40]} max={100} step={1} className="py-2" />
                   </AccordionContent>
                 </AccordionItem>
@@ -159,7 +127,6 @@ export default function VendorsPage() {
             </div>
           </aside>
 
-          {/* Vendors grid - Responsive Columns */}
           <div className="lg:col-span-3">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 md:mb-12 gap-4">
               <h2 className="font-headline text-[32px] md:text-[42px]">Elite Selections</h2>
