@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Navbar } from '@/components/layout/Navbar';
@@ -9,6 +8,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Check, Star, Sparkles, Target, ShieldCheck, Zap } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const BENEFITS = [
   {
