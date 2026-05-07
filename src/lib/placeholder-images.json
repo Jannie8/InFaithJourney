@@ -87,74 +87,74 @@
     {
       "id": "cat-venues",
       "description": "Luxury wedding estate at golden hour with floral arch and string lights",
-      "imageUrl": "https://picsum.photos/seed/inf-cat-venues/800/1200",
-      "imageHint": "wedding estate sunset"
+      "imageUrl": "/venues.png",
+      "imageHint": "wedding estate"
     },
     {
       "id": "cat-photo",
       "description": "Couple kissing under floral arch with warm lens flare and string lights",
-      "imageUrl": "https://picsum.photos/seed/inf-cat-photo/800/1200",
-      "imageHint": "wedding couple glow"
+      "imageUrl": "/photonvideo.png",
+      "imageHint": "wedding photography"
     },
     {
       "id": "cat-beauty",
       "description": "Bride getting ready with soft natural golden light and flowers",
-      "imageUrl": "https://picsum.photos/seed/inf-cat-beauty/800/1200",
-      "imageHint": "bride makeup warm"
+      "imageUrl": "/beauty.png",
+      "imageHint": "bridal beauty"
     },
     {
       "id": "cat-flowers",
       "description": "Stunning white floral arch with golden hour sun rays and candles",
-      "imageUrl": "https://picsum.photos/seed/inf-cat-flowers/800/1200",
-      "imageHint": "wedding floral sunset"
+      "imageUrl": "/flowers.png",
+      "imageHint": "wedding flowers"
     },
     {
       "id": "cat-catering",
       "description": "Elegant reception table with florals and candles under string lights at dusk",
       "imageUrl": "https://picsum.photos/seed/inf-cat-catering/800/1200",
-      "imageHint": "wedding table candles"
+      "imageHint": "wedding catering"
     },
     {
       "id": "cat-honeymoon",
       "description": "Romantic sunset on a balcony overlooking the ocean with luxury feel",
-      "imageUrl": "https://picsum.photos/seed/inf-cat-honeymoon/800/1200",
-      "imageHint": "honeymoon sunset luxury"
+      "imageUrl": "/honeymoon.png",
+      "imageHint": "honeymoon travel"
     },
     {
       "id": "cat-music",
       "description": "Musicians playing under fairy lights at an outdoor sunset wedding",
-      "imageUrl": "https://picsum.photos/seed/inf-cat-music/800/1200",
-      "imageHint": "wedding band lights"
+      "imageUrl": "/music.png",
+      "imageHint": "wedding music"
     },
     {
       "id": "cat-planning",
       "description": "Elegant wedding planner setup with notebook and flowers at sunset",
-      "imageUrl": "https://picsum.photos/seed/inf-cat-planning/800/1200",
-      "imageHint": "wedding planning warm"
+      "imageUrl": "/planning.png",
+      "imageHint": "wedding planning"
     },
     {
       "id": "cat-fashion",
       "description": "Bride and groom portrait in luxury attire during golden hour",
-      "imageUrl": "https://picsum.photos/seed/inf-cat-fashion/800/1200",
-      "imageHint": "wedding fashion glow"
+      "imageUrl": "/fashion.png",
+      "imageHint": "wedding fashion"
     },
     {
       "id": "cat-stationery",
       "description": "Elegant wedding invitation suite with wax seals and flowers at sunset",
-      "imageUrl": "https://picsum.photos/seed/inf-cat-stationery/800/1200",
-      "imageHint": "wedding stationery gold"
+      "imageUrl": "/stationery.png",
+      "imageHint": "wedding stationery"
     },
     {
       "id": "cat-cakes",
       "description": "Multi-tier wedding cake decorated with fresh flowers under warm lights",
-      "imageUrl": "https://picsum.photos/seed/inf-cat-cakes/800/1200",
-      "imageHint": "wedding cake candles"
+      "imageUrl": "/wedding.png",
+      "imageHint": "wedding cake"
     },
     {
       "id": "cat-jewelry",
       "description": "Close-up of diamond wedding rings on floral background at golden hour",
-      "imageUrl": "https://picsum.photos/seed/inf-cat-jewelry/800/1200",
-      "imageHint": "wedding ring sparkle"
+      "imageUrl": "/jewelery.png",
+      "imageHint": "wedding jewelry"
     }
   ]
 }
