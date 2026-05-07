@@ -59,7 +59,8 @@ export default function MyLikesPage() {
     return (
       <div className="flex flex-col min-h-screen">
         <Navbar />
-        <main className="flex-1 flex items-center justify-center p-6 text-center">
+        {/* Adjusted vertical positioning: removed justify-center, added pt-44 */}
+        <main className="flex-1 flex flex-col items-center pt-44 pb-24 px-6 text-center">
           <div className="max-w-md space-y-12 animate-fade-up">
             <div className="relative w-32 h-32 mx-auto">
               <div className="absolute inset-0 bg-primary/10 rounded-full animate-ping"></div>
