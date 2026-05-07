@@ -157,10 +157,10 @@ export default function Home() {
               </div>
               <div className="flex-1 grid grid-cols-2 gap-6">
                 <div className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl">
-                  <Image src="https://picsum.photos/seed/inf-detail-1/600/600" alt="Wedding detail" fill className="object-cover" />
+                  <Image src="/KD1fz.png" alt="Wedding detail" fill className="object-cover" />
                 </div>
                 <div className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl mt-12">
-                  <Image src="https://picsum.photos/seed/inf-detail-2/600/600" alt="Wedding detail" fill className="object-cover" />
+                  <Image src="/OEwak.png" alt="Wedding detail" fill className="object-cover" />
                 </div>
               </div>
            </div>
