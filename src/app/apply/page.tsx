@@ -44,9 +44,9 @@ export default function ApplyPage() {
           className="object-cover sepia-overlay brightness-[0.7]"
         />
         <div className="absolute inset-0 bg-black/50"></div>
-        <div className="relative z-10 text-center text-white px-6">
-          <h1 className="text-[55px] md:text-[72px] font-headline mb-4 drop-shadow-2xl">Apply as a Vendor</h1>
-          <p className="text-[18px] md:text-[22px] italic tracking-widest font-medium opacity-95 drop-shadow-lg">Elevate your wedding business</p>
+        <div className="relative z-10 text-center px-6">
+          <h1 className="text-[55px] md:text-[72px] font-headline mb-4 drop-shadow-2xl text-secondary">Apply as a Vendor</h1>
+          <p className="text-[18px] md:text-[22px] italic tracking-widest font-medium opacity-95 drop-shadow-lg text-white">Elevate your wedding business</p>
         </div>
       </section>
 
@@ -55,7 +55,7 @@ export default function ApplyPage() {
           
           {/* Steps Sidebar */}
           <div className="lg:col-span-1 space-y-12">
-            <h2 className="font-headline text-[36px] mb-8">How It Works</h2>
+            <h2 className="font-headline text-[36px] mb-8 text-secondary">How It Works</h2>
             <div className="space-y-10 relative">
               <div className="absolute left-8 top-0 bottom-0 w-[1px] bg-primary/20"></div>
               {steps.map((step, i) => (
@@ -63,7 +63,7 @@ export default function ApplyPage() {
                   <div className="absolute left-0 top-0 w-16 h-16 bg-white/40 backdrop-blur-md rounded-full border border-primary/20 flex items-center justify-center z-10 shadow-md golden-glow-hover">
                     <step.icon className="w-7 h-7 text-primary" />
                   </div>
-                  <h3 className="text-[20px] font-headline font-semibold mb-2">{step.title}</h3>
+                  <h3 className="text-[20px] font-headline font-semibold mb-2 text-primary">{step.title}</h3>
                   <p className="text-[16px] text-muted-foreground leading-relaxed font-medium opacity-90">{step.desc}</p>
                 </div>
               ))}
@@ -72,7 +72,7 @@ export default function ApplyPage() {
 
           {/* Application Form */}
           <div className="lg:col-span-2 p-12 md:p-16 rounded-[20px] border border-primary/10 shadow-lg space-y-12">
-            <h2 className="font-headline text-[36px] mb-10 border-b border-primary/10 pb-6">Vendor Application</h2>
+            <h2 className="font-headline text-[36px] mb-10 border-b border-primary/10 pb-6 text-secondary">Vendor Application</h2>
             
             <form className="space-y-10">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -137,7 +137,7 @@ export default function ApplyPage() {
                 <h3 className="text-[15px] font-bold uppercase tracking-[0.2em] text-primary border-b border-primary/10 pb-2">Portfolio Upload</h3>
                 <div className="border-2 border-dashed border-primary/20 rounded-2xl p-12 text-center bg-primary/5 hover:bg-primary/10 transition-all cursor-pointer golden-glow-hover">
                   <Upload className="w-10 h-10 text-primary mx-auto mb-4" />
-                  <p className="text-[18px] font-headline mb-2">Or click to upload</p>
+                  <p className="text-[18px] font-headline mb-2 text-primary">Or click to upload</p>
                   <p className="text-[13px] text-muted-foreground uppercase tracking-widest font-bold">(JPG, PNG max 5MB)</p>
                 </div>
               </div>
