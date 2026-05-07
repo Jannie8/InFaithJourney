@@ -104,8 +104,10 @@ export function VendorCard({
       ref={cardRef}
       className={cn(
         "group luxury-card golden-glow-hover flex flex-col bg-white/40 backdrop-blur-sm w-full mx-auto max-w-[400px] lg:max-w-none relative",
-        "opacity-0 translate-y-8 transition-all duration-700 ease-out",
-        (mounted && isVisible) && "opacity-100 translate-y-0"
+        "transition-all duration-700 ease-out",
+        !mounted && "opacity-0 translate-y-8",
+        mounted && !isVisible && "opacity-0 translate-y-8",
+        mounted && isVisible && "opacity-100 translate-y-0"
       )}
     >
       <button 
