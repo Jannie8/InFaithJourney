@@ -1,3 +1,4 @@
+
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
@@ -31,47 +32,50 @@ export default function VendorProfilePage() {
       <Navbar />
       
       {/* Large Hero Banner */}
-      <section className="relative h-[65vh] w-full overflow-hidden">
+      <section className="relative min-h-[70vh] md:h-[65vh] w-full overflow-hidden">
         <Image
           src={PlaceHolderImages.find(img => img.id === 'vendor-evergold')?.imageUrl || ''}
           alt="Evergold Photography"
           fill
           className="object-cover sepia-overlay brightness-[0.6]"
+          data-ai-hint="wedding photography"
         />
         <div className="absolute inset-0 bg-black/40"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-[#FAF6EF]/20 via-black/10 to-transparent"></div>
-        <div className="absolute bottom-16 left-0 w-full px-6">
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-end justify-between gap-10">
-            <div className="space-y-6">
-              <Badge className="bg-primary text-white border-none px-5 py-2 uppercase tracking-widest font-bold text-[11px] shadow-xl">
-                PHOTOGRAPHY
-              </Badge>
-              <h1 className="text-[48px] md:text-[64px] font-headline text-white drop-shadow-2xl leading-tight">Evergold Photography</h1>
-              <div className="flex flex-wrap items-center gap-8 text-white/90">
+        <div className="absolute bottom-10 md:bottom-16 left-0 w-full px-6">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center md:items-end justify-between gap-8 md:gap-10 text-center md:text-left">
+            <div className="space-y-4 md:space-y-6 pt-32 md:pt-0">
+              <div className="flex justify-center md:justify-start">
+                <Badge className="bg-primary text-white border-none px-5 py-2 uppercase tracking-widest font-bold text-[10px] md:text-[11px] shadow-xl">
+                  PHOTOGRAPHY
+                </Badge>
+              </div>
+              <h1 className="text-[36px] md:text-[64px] font-headline text-white drop-shadow-2xl leading-tight">Evergold Photography</h1>
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 md:gap-8 text-white/90">
                 <div className="flex items-center gap-2 drop-shadow-md">
-                  <MapPin className="w-5 h-5 text-primary" />
-                  <span className="text-[18px] font-medium tracking-wide">Johannesburg, Gauteng</span>
+                  <MapPin className="w-4 md:w-5 h-4 md:w-5 text-primary" />
+                  <span className="text-[16px] md:text-[18px] font-medium tracking-wide">Johannesburg, Gauteng</span>
                 </div>
                 <div className="flex items-center gap-1.5 drop-shadow-md">
                   <div className="flex">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-secondary text-secondary" />
+                      <Star key={i} className="w-3.5 md:w-4 h-3.5 md:h-4 fill-secondary text-secondary" />
                     ))}
                   </div>
-                  <span className="font-bold text-[18px] ml-1">4.9</span>
+                  <span className="font-bold text-[16px] md:text-[18px] ml-1">4.9</span>
                 </div>
               </div>
             </div>
             
-            <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
-              <Button size="lg" className="rounded-full button-rose px-12 h-14 text-[15px] font-semibold">
+            <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+              <Button size="lg" className="rounded-full button-rose px-10 md:px-12 h-12 md:h-14 text-[14px] md:text-[15px] font-semibold w-full sm:w-auto">
                 REQUEST A QUOTE
               </Button>
-              <div className="flex gap-3">
-                <Button variant="outline" size="icon" className="rounded-full border-white/50 text-white hover:bg-white/20 h-14 w-14 backdrop-blur-md">
+              <div className="flex gap-3 justify-center">
+                <Button variant="outline" size="icon" className="rounded-full border-white/50 text-white hover:bg-white/20 h-12 md:h-14 w-12 md:w-14 backdrop-blur-md shrink-0">
                   <Phone className="w-5 h-5" />
                 </Button>
-                <Button variant="outline" size="icon" className="rounded-full border-white/50 text-white hover:bg-white/20 h-14 w-14 backdrop-blur-md">
+                <Button variant="outline" size="icon" className="rounded-full border-white/50 text-white hover:bg-white/20 h-12 md:h-14 w-12 md:w-14 backdrop-blur-md shrink-0">
                   <Share2 className="w-5 h-5" />
                 </Button>
               </div>
@@ -82,14 +86,14 @@ export default function VendorProfilePage() {
 
       {/* Profile Content */}
       <main className="max-w-7xl mx-auto px-6 section-padding w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-[36px]">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 md:gap-[36px]">
           
           {/* Main Info */}
-          <div className="lg:col-span-2 space-y-16">
+          <div className="lg:col-span-2 space-y-12 md:space-y-16">
             {/* Gallery Grid */}
-            <div className="space-y-8">
-              <h2 className="font-headline text-[36px]">Portfolio Gallery</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+            <div className="space-y-6 md:space-y-8">
+              <h2 className="font-headline text-[28px] md:text-[36px]">Portfolio Gallery</h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                 {gallery.map((img, i) => (
                   <div key={i} className="relative aspect-[3/4] rounded-xl overflow-hidden group cursor-pointer shadow-md">
                     <Image
@@ -97,6 +101,7 @@ export default function VendorProfilePage() {
                       alt={`Gallery ${i+1}`}
                       fill
                       className="object-cover sepia-overlay transition-transform duration-700 group-hover:scale-105"
+                      data-ai-hint="wedding portfolio"
                     />
                   </div>
                 ))}
@@ -105,17 +110,17 @@ export default function VendorProfilePage() {
 
             {/* About */}
             <div className="space-y-6">
-              <h2 className="font-headline text-[36px]">About Evergold Photography</h2>
+              <h2 className="font-headline text-[28px] md:text-[36px]">About Evergold Photography</h2>
               <div className="w-16 h-1 bg-primary rounded-full"></div>
-              <p className="text-foreground/90 leading-[1.8] text-[18px] font-medium">
+              <p className="text-foreground/90 leading-[1.8] text-[16px] md:text-[18px] font-medium italic">
                 We believe that every wedding is a unique story waiting to be told. With over a decade of experience in high-end South African weddings, Evergold Photography focuses on capturing the raw emotion, natural light, and sophisticated details of your romantic journey. 
               </p>
             </div>
 
             {/* Services Checklist */}
-            <div className="p-12 rounded-2xl border border-primary/10 relative overflow-hidden shadow-md">
-              <h2 className="font-headline text-[32px] mb-8">Services Offered</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
+            <div className="p-8 md:p-12 rounded-2xl border border-primary/10 relative overflow-hidden shadow-md">
+              <h2 className="font-headline text-[24px] md:text-[32px] mb-6 md:mb-8">Services Offered</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 relative z-10">
                 {[
                   "Full-day Wedding Coverage",
                   "Engagement Portrait Sessions",
@@ -127,8 +132,8 @@ export default function VendorProfilePage() {
                   "Post-Wedding Couple Sessions"
                 ].map((service, i) => (
                   <div key={i} className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />
-                    <span className="font-semibold text-foreground/80 tracking-wide text-[16.5px]">{service}</span>
+                    <CheckCircle2 className="w-4 md:w-5 h-4 md:w-5 text-primary shrink-0" />
+                    <span className="font-semibold text-foreground/80 tracking-wide text-[15px] md:text-[16.5px]">{service}</span>
                   </div>
                 ))}
               </div>
@@ -137,36 +142,36 @@ export default function VendorProfilePage() {
 
           {/* Sidebar Inquiry Form */}
           <aside className="lg:col-span-1">
-            <div className="sticky top-28 space-y-10">
-              <div className="p-10 rounded-[20px] border border-primary/10 shadow-lg">
-                <h3 className="font-headline text-[28px] mb-8 text-center">Inquire Now</h3>
-                <form className="space-y-6">
+            <div className="lg:sticky lg:top-28 space-y-10">
+              <div className="p-8 md:p-10 rounded-[20px] border border-primary/10 shadow-lg bg-card/50 backdrop-blur-sm">
+                <h3 className="font-headline text-[24px] md:text-[28px] mb-6 md:mb-8 text-center">Inquire Now</h3>
+                <form className="space-y-4 md:space-y-6">
                   <div className="space-y-2">
-                    <Label className="uppercase text-[12px] tracking-widest font-bold text-foreground/70">Your Name</Label>
-                    <Input className="h-12 rounded-xl px-4 border-primary/10 bg-transparent text-[16px]" placeholder="Full Name" />
+                    <Label className="uppercase text-[11px] md:text-[12px] tracking-widest font-bold text-foreground/70">Your Name</Label>
+                    <Input className="h-12 rounded-xl px-4 border-primary/10 bg-transparent text-[15px]" placeholder="Full Name" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="uppercase text-[12px] tracking-widest font-bold text-foreground/70">Email Address</Label>
+                    <Label className="uppercase text-[11px] md:text-[12px] tracking-widest font-bold text-foreground/70">Email Address</Label>
                     <Input type="email" className="h-12 rounded-xl px-4 border-primary/10 bg-transparent text-[16px]" placeholder="email@address.com" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="uppercase text-[12px] tracking-widest font-bold text-foreground/70">Wedding Date</Label>
+                    <Label className="uppercase text-[11px] md:text-[12px] tracking-widest font-bold text-foreground/70">Wedding Date</Label>
                     <Input type="date" className="h-12 rounded-xl px-4 border-primary/10 bg-transparent text-[16px]" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="uppercase text-[12px] tracking-widest font-bold text-foreground/70">Message</Label>
-                    <Textarea className="min-h-[120px] rounded-xl px-4 py-3 border-primary/10 bg-transparent text-[16px]" placeholder="Tell them about your wedding..." />
+                    <Label className="uppercase text-[11px] md:text-[12px] tracking-widest font-bold text-foreground/70">Message</Label>
+                    <Textarea className="min-h-[100px] md:min-h-[120px] rounded-xl px-4 py-3 border-primary/10 bg-transparent text-[15px]" placeholder="Tell them about your wedding..." />
                   </div>
-                  <Button className="w-full h-14 button-rose text-[15px] font-semibold">
+                  <Button className="w-full h-12 md:h-14 button-rose text-[14px] md:text-[15px] font-semibold">
                     SEND INQUIRY
                   </Button>
                 </form>
               </div>
 
               {/* Social row */}
-              <div className="flex justify-center gap-6">
+              <div className="flex justify-center gap-4 md:gap-6">
                 {[Instagram, Facebook, Mail].map((Icon, i) => (
-                  <button key={i} className="w-14 h-14 rounded-full border border-primary/20 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all shadow-md">
+                  <button key={i} className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-primary/20 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all shadow-md">
                     <Icon className="w-5 h-5" />
                   </button>
                 ))}

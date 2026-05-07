@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Navbar } from '@/components/layout/Navbar';
@@ -35,30 +36,31 @@ export default function Home() {
       <Navbar transparent={true} />
       
       {/* Hero Section */}
-      <section className="relative h-screen w-full overflow-hidden flex items-center justify-center px-4">
+      <section className="relative min-h-[100svh] w-full overflow-hidden flex items-center justify-center px-4">
         <Image
           src={heroImage?.imageUrl || '/RGP6p.png'}
           alt="Magical global journey"
           fill
           className="object-cover brightness-[0.85] sepia-[0.1]"
           priority
+          data-ai-hint="wedding sunset lights"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/35 to-black/45"></div>
         
-        <div className="relative z-10 max-w-5xl mx-auto text-center animate-fade-up px-6">
-          <p className="font-script text-[32px] md:text-[36px] text-[#C9A96E] mb-2 drop-shadow-md">A magical global journey</p>
-          <h1 className="text-[48px] md:text-[68px] font-headline text-white mb-6 leading-[1.1] font-bold drop-shadow-2xl not-italic">
+        <div className="relative z-10 max-w-5xl mx-auto text-center animate-fade-up px-6 pt-32 md:pt-0">
+          <p className="font-script text-[28px] md:text-[36px] text-[#C9A96E] mb-2 drop-shadow-md">A magical global journey</p>
+          <h1 className="text-[36px] md:text-[68px] font-headline text-white mb-6 leading-[1.1] font-bold drop-shadow-2xl not-italic">
             Find Your Perfect Global Wedding Vendor
           </h1>
-          <p className="text-[17px] md:text-[19px] text-white mb-14 font-medium max-w-3xl mx-auto leading-relaxed italic opacity-95 text-center drop-shadow-md">
+          <p className="text-[15px] md:text-[19px] text-white mb-10 md:mb-14 font-medium max-w-3xl mx-auto leading-relaxed italic opacity-95 text-center drop-shadow-md">
             Browse curated & trusted wedding professionals dedicated to bringing your international dream day to life.
           </p>
           
-          <div className="bg-white/95 backdrop-blur-md p-2 rounded-[50px] shadow-2xl flex flex-col md:flex-row items-center gap-1 max-w-4xl mx-auto border border-white/20">
-            <div className="flex-1 w-full px-8 py-2 text-left">
-              <label className="block text-[11px] font-normal text-[#9B7B5B] uppercase tracking-[0.15em] mb-1">I'M LOOKING FOR</label>
+          <div className="bg-white/95 backdrop-blur-md p-2 rounded-[32px] md:rounded-[50px] shadow-2xl flex flex-col md:flex-row items-center gap-1 max-w-4xl mx-auto border border-white/20">
+            <div className="flex-1 w-full px-6 md:px-8 py-2 text-left">
+              <label className="block text-[10px] font-normal text-[#9B7B5B] uppercase tracking-[0.15em] mb-1">I'M LOOKING FOR</label>
               <Select>
-                <SelectTrigger className="border-none p-0 focus:ring-0 shadow-none bg-transparent h-auto text-[15px] font-headline font-bold text-[#2C1A0E] not-italic">
+                <SelectTrigger className="border-none p-0 focus:ring-0 shadow-none bg-transparent h-auto text-[14px] md:text-[15px] font-headline font-bold text-[#2C1A0E] not-italic">
                   <SelectValue placeholder="SELECT CATEGORY" />
                 </SelectTrigger>
                 <SelectContent position="popper" sideOffset={10} className="z-[200]">
@@ -71,10 +73,10 @@ export default function Home() {
             
             <div className="hidden md:block w-px h-10 bg-border/40 mx-2"></div>
             
-            <div className="flex-1 w-full px-8 py-2 text-left">
-              <label className="block text-[11px] font-normal text-[#9B7B5B] uppercase tracking-[0.15em] mb-1">IN DESTINATION</label>
+            <div className="flex-1 w-full px-6 md:px-8 py-2 text-left">
+              <label className="block text-[10px] font-normal text-[#9B7B5B] uppercase tracking-[0.15em] mb-1">IN DESTINATION</label>
               <Select>
-                <SelectTrigger className="border-none p-0 focus:ring-0 shadow-none bg-transparent h-auto text-[15px] font-headline font-bold text-[#2C1A0E] not-italic">
+                <SelectTrigger className="border-none p-0 focus:ring-0 shadow-none bg-transparent h-auto text-[14px] md:text-[15px] font-headline font-bold text-[#2C1A0E] not-italic">
                   <SelectValue placeholder="ALL LOCATIONS" />
                 </SelectTrigger>
                 <SelectContent position="popper" sideOffset={10} className="z-[200]">
@@ -87,19 +89,19 @@ export default function Home() {
               </Select>
             </div>
             
-            <Button className="w-full md:w-auto h-14 button-rose px-12 text-[12px] font-bold tracking-[0.2em] shadow-lg rounded-[50px]">
+            <Button className="w-full md:w-auto h-12 md:h-14 button-rose px-10 md:px-12 text-[12px] font-bold tracking-[0.2em] shadow-lg rounded-[32px] md:rounded-[50px]">
               <Search className="w-4 h-4 mr-2" /> FIND VENDORS
             </Button>
           </div>
 
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-6 animate-fade-up">
-            <span className="text-[11px] font-bold text-[#C9A96E] uppercase tracking-[0.2em]">Popular Journeys:</span>
-            <div className="flex gap-4">
+          <div className="mt-8 md:mt-10 flex flex-wrap items-center justify-center gap-4 md:gap-6 animate-fade-up">
+            <span className="text-[10px] md:text-[11px] font-bold text-[#C9A96E] uppercase tracking-[0.2em]">Popular Journeys:</span>
+            <div className="flex flex-wrap justify-center gap-3 md:gap-4">
               {['"Venues in Cape Town"', '"Photographers in Paris"', '"London Florists"'].map((suggestion) => (
                 <Link 
                   key={suggestion} 
                   href="/vendors" 
-                  className="text-[12px] text-white/80 hover:text-white transition-colors italic hover:underline underline-offset-4"
+                  className="text-[11px] md:text-[12px] text-white/80 hover:text-white transition-colors italic hover:underline underline-offset-4"
                 >
                   {suggestion}
                 </Link>
@@ -109,31 +111,32 @@ export default function Home() {
         </div>
       </section>
 
-      <main id="main-content" className="max-w-7xl mx-auto px-6 py-24 w-full">
-        <section className="mb-32">
-          <div className="text-center mb-20">
-            <h2 className="font-headline text-[42px] md:text-[54px] mb-4 italic text-[#2C1A0E]">Browse by Category</h2>
-            <div className="w-24 h-1 bg-[#C4956A] mx-auto rounded-full" />
+      <main id="main-content" className="max-w-7xl mx-auto px-6 py-16 md:py-24 w-full">
+        <section className="mb-24 md:mb-32">
+          <div className="text-center mb-16 md:mb-20">
+            <h2 className="font-headline text-[32px] md:text-[54px] mb-4 italic text-[#2C1A0E]">Browse by Category</h2>
+            <div className="w-16 md:w-24 h-1 bg-[#C4956A] mx-auto rounded-full" />
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-x-8 gap-y-16">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-x-6 md:gap-x-8 gap-y-12 md:gap-y-16">
             {CORE_VENDORS.map((v) => {
               const categoryImg = PlaceHolderImages.find(img => img.id === v.imageId);
               return (
                 <Link 
                   key={v.name} 
                   href={v.href} 
-                  className="group flex flex-col items-center gap-6 transition-all"
+                  className="group flex flex-col items-center gap-4 md:gap-6 transition-all"
                 >
-                  <div className="category-circle w-28 h-28 md:w-32 md:h-32 shadow-md">
+                  <div className="category-circle w-24 h-24 md:w-32 md:h-32 shadow-md">
                     <Image
                       src={categoryImg?.imageUrl || `https://picsum.photos/seed/cat-${v.name}/400/400`}
-                      alt=""
+                      alt={v.name}
                       fill
                       className="object-cover group-hover:scale-110 transition-transform duration-700"
+                      data-ai-hint="wedding detail"
                     />
                   </div>
-                  <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-[#9B7B5B] group-hover:text-[#C4956A] transition-colors text-center">
+                  <span className="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.2em] md:tracking-[0.3em] text-[#9B7B5B] group-hover:text-[#C4956A] transition-colors text-center">
                     {v.name}
                   </span>
                 </Link>
@@ -142,25 +145,25 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="mb-32">
-           <div className="flex flex-col md:flex-row items-center justify-between gap-12 p-16 rounded-[40px] border border-border shadow-soft bg-white/50 backdrop-blur-sm">
-              <div className="flex-1 space-y-8">
-                <h2 className="font-headline text-[48px] leading-tight italic text-[#2C1A0E]">Hand-Picked Excellence</h2>
-                <p className="text-[18px] text-[#5C3D2E] italic font-medium leading-relaxed opacity-90">
+        <section className="mb-24 md:mb-32">
+           <div className="flex flex-col md:flex-row items-center justify-between gap-10 md:gap-12 p-8 md:p-16 rounded-[24px] md:rounded-[40px] border border-border shadow-soft bg-white/50 backdrop-blur-sm">
+              <div className="flex-1 space-y-6 md:space-y-8 text-center md:text-left">
+                <h2 className="font-headline text-[32px] md:text-[48px] leading-tight italic text-[#2C1A0E]">Hand-Picked Excellence</h2>
+                <p className="text-[16px] md:text-[18px] text-[#5C3D2E] italic font-medium leading-relaxed opacity-90">
                   "Planning should be as beautiful as the wedding day itself. We only work with the most dedicated professionals who share our vision for international elegance."
                 </p>
-                <div className="flex gap-4">
-                   <Button asChild className="button-rose h-14 px-10">
+                <div className="flex justify-center md:justify-start">
+                   <Button asChild className="button-rose h-12 md:h-14 px-8 md:px-10">
                      <Link href="/vendors">EXPLORE COLLECTIVE</Link>
                    </Button>
                 </div>
               </div>
-              <div className="flex-1 grid grid-cols-2 gap-6">
-                <div className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl">
-                  <Image src="/KD1fz.png" alt="Wedding detail" fill className="object-cover" />
+              <div className="flex-1 grid grid-cols-2 gap-4 md:gap-6 w-full">
+                <div className="relative aspect-square rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl">
+                  <Image src="/KD1fz.png" alt="Wedding detail" fill className="object-cover" data-ai-hint="wedding detail" />
                 </div>
-                <div className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl mt-12">
-                  <Image src="/OEwak.png" alt="Wedding detail" fill className="object-cover" />
+                <div className="relative aspect-square rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl mt-8 md:mt-12">
+                  <Image src="/OEwak.png" alt="Wedding detail" fill className="object-cover" data-ai-hint="wedding detail" />
                 </div>
               </div>
            </div>

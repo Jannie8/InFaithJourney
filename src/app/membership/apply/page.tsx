@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, Suspense } from 'react';
@@ -21,6 +22,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import Image from 'next/image';
 
 const STEPS = [
   { id: 1, name: 'Business Info', icon: User },
@@ -150,9 +152,13 @@ function ApplyForm() {
       return;
     }
     setStep(prev => Math.min(prev + 1, 4));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleBack = () => setStep(prev => Math.max(prev - 1, 1));
+  const handleBack = () => {
+    setStep(prev => Math.max(prev - 1, 1));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -194,37 +200,37 @@ function ApplyForm() {
   );
 
   if (hasExistingApp) return (
-    <div className="max-w-2xl mx-auto w-full text-center space-y-8 animate-fade-up">
-      <div className="w-24 h-24 bg-amber-50 rounded-full flex items-center justify-center mx-auto border border-amber-100">
-        <AlertCircle className="w-12 h-12 text-amber-500" />
+    <div className="max-w-2xl mx-auto w-full text-center space-y-8 animate-fade-up pt-12">
+      <div className="w-20 md:w-24 h-20 md:h-24 bg-amber-50 rounded-full flex items-center justify-center mx-auto border border-amber-100">
+        <AlertCircle className="w-10 md:w-12 h-10 md:h-12 text-amber-500" />
       </div>
       <div className="space-y-4">
-        <h2 className="font-headline text-[32px] italic">Application Pending</h2>
-        <p className="text-muted-foreground italic font-medium leading-relaxed">
+        <h2 className="font-headline text-[28px] md:text-[32px] italic">Application Pending</h2>
+        <p className="text-muted-foreground italic font-medium leading-relaxed px-4">
           You already have an active application under review. Ricardo and the team will get back to you shortly.
         </p>
       </div>
-      <Button asChild variant="outline" className="rounded-full px-12 h-14 border-primary/20 text-primary uppercase font-bold tracking-widest text-[12px]">
-        <a href="/dashboard">BACK TO DASHBOARD</a>
+      <Button asChild variant="outline" className="rounded-full px-10 h-12 border-primary/20 text-primary uppercase font-bold tracking-widest text-[11px] md:text-[12px]">
+        <Link href="/dashboard">BACK TO DASHBOARD</Link>
       </Button>
     </div>
   );
 
   return (
-    <div className="max-w-4xl mx-auto w-full px-4">
+    <div className="max-w-4xl mx-auto w-full px-4 pt-12 md:pt-0">
       {/* Progress Stepper */}
-      <div className="flex justify-between mb-20 relative">
+      <div className="flex justify-between mb-16 md:mb-20 relative">
         <div className="absolute top-1/2 left-0 w-full h-[1px] bg-primary/10 -translate-y-1/2 z-0"></div>
         {STEPS.map((s) => (
           <div key={s.id} className="relative z-10 flex flex-col items-center">
             <div className={cn(
-              "w-12 h-12 rounded-full border flex items-center justify-center transition-all duration-500",
+              "w-10 h-10 md:w-12 md:h-12 rounded-full border flex items-center justify-center transition-all duration-500",
               step >= s.id ? "bg-primary border-primary text-white shadow-glow" : "bg-white border-primary/20 text-primary/40"
             )}>
-              {step > s.id ? <CheckCircle2 className="w-6 h-6" /> : <s.icon className="w-5 h-5" />}
+              {step > s.id ? <CheckCircle2 className="w-5 md:w-6 h-5 md:h-6" /> : <s.icon className="w-4 md:w-5 h-4 md:h-5" />}
             </div>
             <span className={cn(
-              "absolute -bottom-8 whitespace-nowrap text-[10px] font-bold uppercase tracking-widest transition-opacity duration-500",
+              "absolute -bottom-8 whitespace-nowrap text-[9px] md:text-[10px] font-bold uppercase tracking-widest transition-opacity duration-500",
               step === s.id ? "opacity-100 text-primary" : "opacity-40"
             )}>
               {s.name}
@@ -233,8 +239,8 @@ function ApplyForm() {
         ))}
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white/60 backdrop-blur-xl rounded-[40px] border border-primary/10 p-8 md:p-16 shadow-soft relative overflow-hidden golden-glow-premium">
-        <div className="absolute top-0 left-0 w-full h-1.5 bg-primary/5">
+      <form onSubmit={handleSubmit} className="bg-white/60 backdrop-blur-xl rounded-[24px] md:rounded-[40px] border border-primary/10 p-6 md:p-16 shadow-soft relative overflow-hidden golden-glow-premium">
+        <div className="absolute top-0 left-0 w-full h-1 md:h-1.5 bg-primary/5">
           <motion.div 
             className="h-full bg-secondary"
             initial={{ width: "25%" }}
@@ -250,41 +256,41 @@ function ApplyForm() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="space-y-10"
+              className="space-y-8 md:space-y-10"
             >
-              <div className="space-y-2">
-                <h2 className="font-headline text-[32px] italic">Business Information</h2>
-                <p className="text-muted-foreground italic font-medium">Let's start with the heart of your brand.</p>
+              <div className="space-y-2 text-center md:text-left">
+                <h2 className="font-headline text-[28px] md:text-[32px] italic">Business Information</h2>
+                <p className="text-[14px] md:text-[15px] text-muted-foreground italic font-medium">Let's start with the heart of your brand.</p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                 <div className="space-y-2">
-                  <Label className="uppercase text-[11px] font-bold tracking-widest opacity-70">Business Name</Label>
-                  <Input name="businessName" value={formData.businessName} onChange={handleChange} placeholder="The Golden Studio" required className="h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
+                  <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Business Name</Label>
+                  <Input name="businessName" value={formData.businessName} onChange={handleChange} placeholder="The Golden Studio" required className="h-12 md:h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
                 </div>
                 <div className="space-y-2">
-                  <Label className="uppercase text-[11px] font-bold tracking-widest opacity-70">Owner Name</Label>
-                  <Input name="ownerName" value={formData.ownerName} onChange={handleChange} placeholder="Ricardo de Jager" required className="h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
+                  <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Owner Name</Label>
+                  <Input name="ownerName" value={formData.ownerName} onChange={handleChange} placeholder="Ricardo de Jager" required className="h-12 md:h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
                 </div>
                 <div className="space-y-2">
-                  <Label className="uppercase text-[11px] font-bold tracking-widest opacity-70">Email Address</Label>
-                  <Input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="ricardo@infaith.com" required className="h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
+                  <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Email Address</Label>
+                  <Input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="ricardo@infaith.com" required className="h-12 md:h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
                 </div>
                 <div className="space-y-2">
-                  <Label className="uppercase text-[11px] font-bold tracking-widest opacity-70">Phone Number</Label>
-                  <Input name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} placeholder="+27 78 442 0278" required className="h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
+                  <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Phone Number</Label>
+                  <Input name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} placeholder="+27 78 442 0278" required className="h-12 md:h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
                 </div>
                 <div className="space-y-2">
-                  <Label className="uppercase text-[11px] font-bold tracking-widest opacity-70">Website URL</Label>
-                  <Input name="websiteUrl" value={formData.websiteUrl} onChange={handleChange} placeholder="https://..." className="h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
+                  <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Website URL</Label>
+                  <Input name="websiteUrl" value={formData.websiteUrl} onChange={handleChange} placeholder="https://..." className="h-12 md:h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
                 </div>
                 <div className="space-y-2">
-                  <Label className="uppercase text-[11px] font-bold tracking-widest opacity-70">Instagram Handle</Label>
-                  <Input name="instagramHandle" value={formData.instagramHandle} onChange={handleChange} placeholder="@yourbrand" className="h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
+                  <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Instagram Handle</Label>
+                  <Input name="instagramHandle" value={formData.instagramHandle} onChange={handleChange} placeholder="@yourbrand" className="h-12 md:h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
                 </div>
                 <div className="space-y-2 md:col-span-2">
-                  <Label className="uppercase text-[11px] font-bold tracking-widest opacity-70">Primary Location</Label>
-                  <Input name="location" value={formData.location} onChange={handleChange} placeholder="Cape Town, South Africa" required className="h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
+                  <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Primary Location</Label>
+                  <Input name="location" value={formData.location} onChange={handleChange} placeholder="Cape Town, South Africa" required className="h-12 md:h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
                 </div>
               </div>
             </motion.div>
@@ -296,18 +302,18 @@ function ApplyForm() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="space-y-10"
+              className="space-y-8 md:space-y-10"
             >
-              <div className="space-y-2">
-                <h2 className="font-headline text-[32px] italic">Business Details</h2>
-                <p className="text-muted-foreground italic font-medium">Describe the artistry behind your premium services.</p>
+              <div className="space-y-2 text-center md:text-left">
+                <h2 className="font-headline text-[28px] md:text-[32px] italic">Business Details</h2>
+                <p className="text-[14px] md:text-[15px] text-muted-foreground italic font-medium">Describe the artistry behind your premium services.</p>
               </div>
 
-              <div className="space-y-8">
+              <div className="space-y-6 md:space-y-8">
                 <div className="space-y-2">
-                  <Label className="uppercase text-[11px] font-bold tracking-widest opacity-70">Vendor Category</Label>
+                  <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Vendor Category</Label>
                   <Select onValueChange={(v) => handleSelectChange('category', v)} value={formData.category}>
-                    <SelectTrigger className="h-14 rounded-2xl bg-white/50 border-primary/10">
+                    <SelectTrigger className="h-12 md:h-14 rounded-2xl bg-white/50 border-primary/10">
                       <SelectValue placeholder="Select Category" />
                     </SelectTrigger>
                     <SelectContent>
@@ -317,36 +323,36 @@ function ApplyForm() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="uppercase text-[11px] font-bold tracking-widest opacity-70">Business Description</Label>
+                  <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Business Description</Label>
                   <Textarea 
                     name="description" 
                     value={formData.description} 
                     onChange={handleChange} 
                     placeholder="Tell our couples about your unique approach and experience..." 
-                    className="min-h-[160px] rounded-2xl bg-white/50 border-primary/10" 
+                    className="min-h-[140px] md:min-h-[160px] rounded-2xl bg-white/50 border-primary/10 text-[15px]" 
                     required 
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                   <div className="space-y-2">
-                    <Label className="uppercase text-[11px] font-bold tracking-widest opacity-70">Years in Business</Label>
-                    <Input type="number" name="yearsInBusiness" value={formData.yearsInBusiness} onChange={handleChange} placeholder="5" className="h-14 rounded-2xl bg-white/50 border-primary/10" />
+                    <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Years in Business</Label>
+                    <Input type="number" name="yearsInBusiness" value={formData.yearsInBusiness} onChange={handleChange} placeholder="5" className="h-12 md:h-14 rounded-2xl bg-white/50 border-primary/10" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="uppercase text-[11px] font-bold tracking-widest opacity-70">Pricing Range</Label>
-                    <Input name="pricingRange" value={formData.pricingRange} onChange={handleChange} placeholder="From R15,000" className="h-14 rounded-2xl bg-white/50 border-primary/10" />
+                    <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Pricing Range</Label>
+                    <Input name="pricingRange" value={formData.pricingRange} onChange={handleChange} placeholder="From R15,000" className="h-12 md:h-14 rounded-2xl bg-white/50 border-primary/10" />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="uppercase text-[11px] font-bold tracking-widest opacity-70">Services Offered</Label>
+                  <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Services Offered</Label>
                   <Textarea 
                     name="servicesOffered" 
                     value={formData.servicesOffered} 
                     onChange={handleChange} 
                     placeholder="List your key packages or specialized services..." 
-                    className="min-h-[100px] rounded-2xl bg-white/50 border-primary/10" 
+                    className="min-h-[80px] md:min-h-[100px] rounded-2xl bg-white/50 border-primary/10 text-[15px]" 
                   />
                 </div>
               </div>
@@ -359,46 +365,46 @@ function ApplyForm() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="space-y-12"
+              className="space-y-10 md:space-y-12"
             >
-              <div className="space-y-2">
-                <h2 className="font-headline text-[32px] italic">Media Portfolio</h2>
-                <p className="text-muted-foreground italic font-medium">Visuals are everything. Upload your high-resolution artistry.</p>
+              <div className="space-y-2 text-center md:text-left">
+                <h2 className="font-headline text-[28px] md:text-[32px] italic">Media Portfolio</h2>
+                <p className="text-[14px] md:text-[15px] text-muted-foreground italic font-medium">Visuals are everything. Upload your high-resolution artistry.</p>
               </div>
 
-              <div className="space-y-10">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                  <div className="space-y-4">
-                    <Label className="uppercase text-[11px] font-bold tracking-widest opacity-70">Brand Logo</Label>
+              <div className="space-y-8 md:space-y-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
+                  <div className="space-y-3">
+                    <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Brand Logo</Label>
                     <div className="relative group">
                       <Input type="file" onChange={(e) => handleFileUpload(e, 'logo')} className="hidden" id="logo-upload" accept="image/*" />
-                      <label htmlFor="logo-upload" className="border-2 border-dashed border-primary/10 rounded-2xl p-8 text-center bg-white/20 hover:bg-primary/5 transition-all cursor-pointer block group-hover:border-secondary/40">
+                      <label htmlFor="logo-upload" className="border-2 border-dashed border-primary/10 rounded-2xl p-6 md:p-8 text-center bg-white/20 hover:bg-primary/5 transition-all cursor-pointer block group-hover:border-secondary/40">
                         {formData.logoUrl ? (
-                          <div className="relative w-20 h-20 mx-auto">
-                            <Image src={formData.logoUrl} alt="Logo" fill className="object-contain" />
+                          <div className="relative w-16 md:w-20 h-16 md:h-20 mx-auto">
+                            <Image src={formData.logoUrl} alt="Logo" fill className="object-contain" data-ai-hint="logo" />
                           </div>
                         ) : (
                           <>
-                            <Upload className="w-8 h-8 text-primary/40 mx-auto mb-3" />
-                            <p className="text-[12px] font-bold uppercase tracking-widest opacity-60">Upload Logo</p>
+                            <Upload className="w-6 md:w-8 h-6 md:h-8 text-primary/40 mx-auto mb-2 md:mb-3" />
+                            <p className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest opacity-60">Upload Logo</p>
                           </>
                         )}
                       </label>
                     </div>
                   </div>
-                  <div className="space-y-4">
-                    <Label className="uppercase text-[11px] font-bold tracking-widest opacity-70">Cover Banner</Label>
+                  <div className="space-y-3">
+                    <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Cover Banner</Label>
                     <div className="relative group">
                       <Input type="file" onChange={(e) => handleFileUpload(e, 'cover')} className="hidden" id="cover-upload" accept="image/*" />
-                      <label htmlFor="cover-upload" className="border-2 border-dashed border-primary/10 rounded-2xl p-8 text-center bg-white/20 hover:bg-primary/5 transition-all cursor-pointer block group-hover:border-secondary/40">
+                      <label htmlFor="cover-upload" className="border-2 border-dashed border-primary/10 rounded-2xl p-6 md:p-8 text-center bg-white/20 hover:bg-primary/5 transition-all cursor-pointer block group-hover:border-secondary/40">
                         {formData.coverImageUrl ? (
-                          <div className="relative h-20 w-full">
-                            <Image src={formData.coverImageUrl} alt="Banner" fill className="object-cover rounded-md" />
+                          <div className="relative h-16 md:h-20 w-full">
+                            <Image src={formData.coverImageUrl} alt="Banner" fill className="object-cover rounded-md" data-ai-hint="wedding banner" />
                           </div>
                         ) : (
                           <>
-                            <Upload className="w-8 h-8 text-primary/40 mx-auto mb-3" />
-                            <p className="text-[12px] font-bold uppercase tracking-widest opacity-60">Upload Banner</p>
+                            <Upload className="w-6 md:w-8 h-6 md:h-8 text-primary/40 mx-auto mb-2 md:mb-3" />
+                            <p className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest opacity-60">Upload Banner</p>
                           </>
                         )}
                       </label>
@@ -406,16 +412,25 @@ function ApplyForm() {
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <Label className="uppercase text-[11px] font-bold tracking-widest opacity-70">Portfolio Images ({formData.portfolioImageUrls.length} added)</Label>
+                <div className="space-y-3">
+                  <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Portfolio Images ({formData.portfolioImageUrls.length} added)</Label>
                   <div className="relative group">
                     <Input type="file" multiple onChange={(e) => handleFileUpload(e, 'portfolio')} className="hidden" id="portfolio-upload" accept="image/*" />
-                    <label htmlFor="portfolio-upload" className="border-2 border-dashed border-primary/10 rounded-[32px] p-16 text-center bg-white/20 hover:bg-primary/5 transition-all cursor-pointer block group-hover:border-secondary/40">
-                      <ImageIcon className="w-12 h-12 text-primary/30 mx-auto mb-6 group-hover:scale-110 transition-transform" />
-                      <p className="font-headline text-2xl italic mb-2">Add your finest work</p>
-                      <p className="text-muted-foreground italic text-sm">Select multiple high-resolution JPEG or PNG files.</p>
+                    <label htmlFor="portfolio-upload" className="border-2 border-dashed border-primary/10 rounded-[24px] md:rounded-[32px] p-10 md:p-16 text-center bg-white/20 hover:bg-primary/5 transition-all cursor-pointer block group-hover:border-secondary/40">
+                      <ImageIcon className="w-10 md:w-12 h-10 md:h-12 text-primary/30 mx-auto mb-4 md:mb-6 group-hover:scale-110 transition-transform" />
+                      <p className="font-headline text-xl md:text-2xl italic mb-1 md:mb-2 text-primary">Add your finest work</p>
+                      <p className="text-muted-foreground italic text-[12px] md:text-[13px] md:text-sm">Select multiple high-resolution JPEG or PNG files.</p>
                     </label>
                   </div>
+                  {formData.portfolioImageUrls.length > 0 && (
+                    <div className="grid grid-cols-4 md:grid-cols-6 gap-3 pt-4">
+                      {formData.portfolioImageUrls.map((url, i) => (
+                        <div key={i} className="relative aspect-square rounded-lg overflow-hidden border border-primary/10">
+                          <Image src={url} alt={`Portfolio ${i}`} fill className="object-cover" data-ai-hint="wedding detail" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </motion.div>
@@ -427,28 +442,28 @@ function ApplyForm() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="space-y-12"
+              className="space-y-10 md:space-y-12"
             >
-              <div className="space-y-2">
-                <h2 className="font-headline text-[32px] italic">Final Confirmation</h2>
-                <p className="text-muted-foreground italic font-medium">Review your commitment to excellence.</p>
+              <div className="space-y-2 text-center md:text-left">
+                <h2 className="font-headline text-[28px] md:text-[32px] italic">Final Confirmation</h2>
+                <p className="text-[14px] md:text-[15px] text-muted-foreground italic font-medium">Review your commitment to excellence.</p>
               </div>
 
-              <div className="bg-primary/5 rounded-3xl p-10 border border-primary/10 space-y-8 golden-glow-premium">
-                <div className="flex justify-between items-center border-b border-primary/10 pb-6">
+              <div className="bg-primary/5 rounded-[24px] md:rounded-3xl p-6 md:p-10 border border-primary/10 space-y-6 md:space-y-8 golden-glow-premium">
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-primary/10 pb-6 text-center sm:text-left">
                   <div>
-                    <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-secondary mb-1">Selected Plan</p>
-                    <h3 className="font-headline text-2xl italic uppercase tracking-wider">{formData.selectedPlan} Vendor</h3>
+                    <p className="text-[9px] md:text-[10px] md:text-[11px] font-bold uppercase tracking-[0.2em] text-secondary mb-1">Selected Plan</p>
+                    <h3 className="font-headline text-xl md:text-2xl italic uppercase tracking-wider">{formData.selectedPlan} Vendor</h3>
                   </div>
-                  <div className="text-right">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-secondary mb-1">Investment</p>
-                    <h3 className="text-2xl font-bold">{formData.selectedPlan === 'standard' ? 'R499' : 'R1,199'} <span className="text-sm font-medium opacity-60">/ month</span></h3>
+                  <div className="text-center sm:text-right">
+                    <p className="text-[9px] md:text-[10px] md:text-[11px] font-bold uppercase tracking-[0.2em] text-secondary mb-1">Investment</p>
+                    <h3 className="text-xl md:text-2xl font-bold">{formData.selectedPlan === 'standard' ? 'R499' : 'R1,199'} <span className="text-[12px] md:text-[13px] md:text-sm font-medium opacity-60">/ month</span></h3>
                   </div>
                 </div>
 
                 <div className="space-y-4">
-                  <p className="text-[12px] font-bold uppercase tracking-widest opacity-60">Tier Benefits:</p>
-                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <p className="text-[10px] md:text-[11px] md:text-[12px] font-bold uppercase tracking-widest opacity-60">Tier Benefits:</p>
+                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                     {[
                       "Full Editorial Profile",
                       "Verified Vendor Badge",
@@ -456,22 +471,22 @@ function ApplyForm() {
                       formData.selectedPlan === 'featured' ? "Homepage Priority Placement" : "Search Priority",
                       formData.selectedPlan === 'featured' ? "Social Media Highlights" : "Standard Listing"
                     ].map((f, i) => (
-                      <li key={i} className="flex items-center gap-3 text-sm italic font-medium">
-                        <CheckCircle2 className="w-4 h-4 text-secondary" /> {f}
+                      <li key={i} className="flex items-center gap-3 text-[13px] md:text-[14px] italic font-medium">
+                        <CheckCircle2 className="w-4 h-4 text-secondary shrink-0" /> {f}
                       </li>
                     ))}
                   </ul>
                 </div>
               </div>
 
-              <div className="flex items-start gap-4 p-4">
+              <div className="flex items-start gap-4 p-2 md:p-4">
                 <Checkbox 
                   id="terms" 
                   checked={formData.agreedToTerms} 
                   onCheckedChange={(checked) => setFormData(prev => ({ ...prev, agreedToTerms: !!checked }))}
-                  className="mt-1"
+                  className="mt-1 shrink-0"
                 />
-                <Label htmlFor="terms" className="text-sm text-muted-foreground leading-relaxed italic font-medium cursor-pointer">
+                <Label htmlFor="terms" className="text-[12px] md:text-[13px] md:text-sm text-muted-foreground leading-relaxed italic font-medium cursor-pointer">
                   I agree to the InFaith Journey terms of service and acknowledge that my application will undergo a review process by Ricardo and his team before activation.
                 </Label>
               </div>
@@ -479,13 +494,13 @@ function ApplyForm() {
           )}
         </AnimatePresence>
 
-        <div className="mt-16 pt-10 border-t border-primary/10 flex justify-between items-center">
+        <div className="mt-12 md:mt-16 pt-8 md:pt-10 border-t border-primary/10 flex flex-col-reverse sm:flex-row justify-between items-center gap-6">
           <Button 
             type="button" 
             variant="ghost" 
             onClick={handleBack}
             disabled={step === 1 || isSubmitting || isUploading}
-            className="text-[11px] font-bold uppercase tracking-widest hover:bg-primary/5 px-8 h-12"
+            className="w-full sm:w-auto text-[10px] md:text-[11px] font-bold uppercase tracking-widest hover:bg-primary/5 px-8 h-12"
           >
             <ArrowLeft className="w-4 h-4 mr-2" /> Back
           </Button>
@@ -493,7 +508,7 @@ function ApplyForm() {
           <Button 
             type="submit" 
             disabled={isSubmitting || isUploading}
-            className="button-rose px-12 h-14 text-[12px] font-bold tracking-widest shadow-xl"
+            className="w-full sm:w-auto button-rose px-10 md:px-12 h-12 md:h-14 text-[11px] md:text-[12px] font-bold tracking-widest shadow-xl"
           >
             {isSubmitting ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -516,7 +531,7 @@ export default function ApplyPage() {
     <div className="flex flex-col min-h-screen watercolor-bg">
       <Navbar />
       
-      <main className="flex-1 pt-44 pb-32 px-6">
+      <main className="flex-1 pt-32 md:pt-44 pb-24 md:pb-32 px-6">
         <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader2 className="w-10 h-10 text-primary animate-spin" /></div>}>
           <ApplyForm />
         </Suspense>
