@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Navbar } from '@/components/layout/Navbar';
@@ -59,11 +60,12 @@ export default function MyLikesPage() {
       <div className="flex flex-col min-h-screen">
         <Navbar />
         <main className="flex-1 flex items-center justify-center p-6 text-center">
-          <div className="max-w-md space-y-10 animate-fade-up">
-            <div className="relative w-24 h-24 mx-auto">
+          <div className="max-w-md space-y-12 animate-fade-up">
+            <div className="relative w-32 h-32 mx-auto">
+              {/* Outer ping animation with enough room to expand without cropping */}
               <div className="absolute inset-0 bg-primary/10 rounded-full animate-ping"></div>
-              <div className="relative w-24 h-24 rounded-full flex items-center justify-center shadow-2xl border border-primary/10">
-                <Heart className="w-12 h-12 text-primary/30" />
+              <div className="relative w-32 h-32 rounded-full flex items-center justify-center shadow-2xl border border-primary/10 bg-white/50 backdrop-blur-sm">
+                <Heart className="w-16 h-16 text-primary/30" />
               </div>
             </div>
             <div className="space-y-4">
@@ -90,8 +92,12 @@ export default function MyLikesPage() {
       <Navbar />
       
       {/* Premium Header */}
-      <section className="pt-32 pb-16 md:pt-44 md:pb-24 px-6 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] -mr-[300px] -mt-[300px]"></div>
+      <section className="pt-32 pb-16 md:pt-44 md:pb-24 px-6 relative">
+        {/* Decorative background contained in a pointer-events-none layer to avoid clipping content */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] -mr-[300px] -mt-[300px]"></div>
+        </div>
+        
         <div className="max-w-7xl mx-auto text-center space-y-8 relative z-10">
           <div className="inline-flex items-center gap-2 bg-primary/5 border border-primary/10 px-6 py-2 rounded-full text-[12px] font-bold uppercase tracking-[0.2em] text-primary">
             <Heart className="w-3.5 h-3.5 fill-current" /> Personalized Collection
@@ -118,7 +124,7 @@ export default function MyLikesPage() {
 
       <main className="max-w-7xl mx-auto px-6 pb-32 w-full flex-1">
         {!savedVendors || savedVendors.length === 0 ? (
-          <div className="backdrop-blur-md border border-primary/10 rounded-[40px] p-20 text-center space-y-10 max-w-3xl mx-auto shadow-sm animate-fade-up">
+          <div className="backdrop-blur-md border border-primary/10 rounded-[40px] p-10 md:p-20 text-center space-y-10 max-w-3xl mx-auto shadow-sm animate-fade-up">
             <div className="w-20 h-20 bg-primary/5 rounded-full flex items-center justify-center mx-auto">
               <Heart className="w-10 h-10 text-primary/20" />
             </div>

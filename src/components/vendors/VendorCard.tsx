@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from 'next/image';
@@ -103,7 +104,7 @@ export function VendorCard({
     <div 
       ref={cardRef}
       className={cn(
-        "group luxury-card overflow-hidden flex flex-col bg-white/40 backdrop-blur-sm w-full mx-auto max-w-[400px] lg:max-w-none relative",
+        "group luxury-card flex flex-col bg-white/40 backdrop-blur-sm w-full mx-auto max-w-[400px] lg:max-w-none relative",
         "opacity-0 translate-y-8 transition-all duration-700 ease-out",
         (mounted && isVisible) && "opacity-100 translate-y-0"
       )}
@@ -120,7 +121,8 @@ export function VendorCard({
         <Heart className={cn("w-5 h-5 transition-transform", (mounted && isLiked) && "fill-current")} />
       </button>
 
-      <div className="relative aspect-[4/3] w-full overflow-hidden shrink-0">
+      {/* Image container handles the overflow for zoom effects */}
+      <div className="relative aspect-[4/3] w-full overflow-hidden shrink-0 rounded-t-[20px]">
         <Image
           src={imageUrl}
           alt={name}
