@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Check, Star, Sparkles, Target, ShieldCheck, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useEffect, useState } from 'react';
 
 const BENEFITS = [
   {
@@ -79,12 +80,17 @@ const PLANS = [
 
 export default function MembershipPage() {
   const heroImage = PlaceHolderImages.find(img => img.id === 'hero-apply');
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen bg-[#F7F3EE]">
       <Navbar />
 
-      {/* Hero Section - Lowered text with pt-32 */}
+      {/* Hero Section */}
       <section className="relative h-[85vh] w-full flex items-center justify-center overflow-hidden">
         <motion.div 
           initial={{ scale: 1.1, opacity: 0 }}
@@ -126,7 +132,7 @@ export default function MembershipPage() {
       </section>
 
       <main className="flex-1 w-full">
-        {/* Benefits Section - Increased py-40 and heading spacing mb-32 */}
+        {/* Benefits Section */}
         <section className="py-40 px-6 max-w-7xl mx-auto">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -165,7 +171,7 @@ export default function MembershipPage() {
           </div>
         </section>
 
-        {/* Pricing Section - Increased py-40 and heading spacing mb-32 */}
+        {/* Pricing Section */}
         <section className="py-40 bg-white/40 border-y border-secondary/10 px-6">
           <div className="max-w-7xl mx-auto">
             <motion.div 
@@ -186,9 +192,9 @@ export default function MembershipPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.2 }}
-                  whileHover={{ y: -10 }}
                   className={cn(
-                    "relative flex flex-col p-10 rounded-[32px] border transition-all duration-500 bg-white golden-glow-hover",
+                    "relative flex flex-col p-10 rounded-[32px] border bg-white",
+                    mounted && "golden-glow-hover",
                     plan.highlight 
                       ? "border-secondary/40 shadow-2xl scale-105 z-10 ring-1 ring-secondary/20" 
                       : "border-secondary/10 shadow-soft"
@@ -244,7 +250,7 @@ export default function MembershipPage() {
           </div>
         </section>
 
-        {/* Final CTA - Increased py-40 and heading spacing */}
+        {/* Final CTA */}
         <section className="py-40 px-6 text-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
