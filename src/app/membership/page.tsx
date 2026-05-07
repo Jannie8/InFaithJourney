@@ -188,7 +188,7 @@ export default function MembershipPage() {
                   transition={{ delay: i * 0.2 }}
                   whileHover={{ y: -10 }}
                   className={cn(
-                    "relative flex flex-col p-10 rounded-[32px] border transition-all duration-500 bg-white",
+                    "relative flex flex-col p-10 rounded-[32px] border transition-all duration-500 bg-white golden-glow-hover",
                     plan.highlight 
                       ? "border-secondary/40 shadow-2xl scale-105 z-10 ring-1 ring-secondary/20" 
                       : "border-secondary/10 shadow-soft"

@@ -57,7 +57,7 @@ export default function AdminDashboardPage() {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
           {stats.map((stat, i) => (
-            <Card key={i} className="border-none shadow-soft rounded-[28px] overflow-hidden group hover:shadow-glow transition-all">
+            <Card key={i} className="border-none shadow-soft rounded-[28px] overflow-hidden group hover:shadow-glow transition-all golden-glow-hover">
               <CardContent className="p-8">
                 <div className="flex justify-between items-start mb-6">
                   <div className={cn("p-4 rounded-2xl", stat.bg)}>
@@ -87,7 +87,7 @@ export default function AdminDashboardPage() {
               { name: 'Velvet Lens Studio', category: 'Photography', date: '5 hours ago', status: 'Ready to Approve' },
               { name: 'Bloom & Petal', category: 'Florist', date: '1 day ago', status: 'Ready to Approve' },
             ].map((app, i) => (
-              <div key={i} className="flex flex-col md:flex-row items-center gap-6 p-6 rounded-[24px] hover:bg-primary/5 transition-colors border border-transparent hover:border-primary/10">
+              <div key={i} className="flex flex-col md:flex-row items-center gap-6 p-6 rounded-[24px] hover:bg-primary/5 transition-colors border border-transparent hover:border-primary/10 golden-glow-hover">
                 <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary font-headline text-2xl">
                   {app.name.charAt(0)}
                 </div>

@@ -1,4 +1,3 @@
-
 "use client";
 
 import Image from 'next/image';
@@ -104,7 +103,7 @@ export function VendorCard({
     <div 
       ref={cardRef}
       className={cn(
-        "group luxury-card flex flex-col bg-white/40 backdrop-blur-sm w-full mx-auto max-w-[400px] lg:max-w-none relative",
+        "group luxury-card golden-glow-hover flex flex-col bg-white/40 backdrop-blur-sm w-full mx-auto max-w-[400px] lg:max-w-none relative",
         "opacity-0 translate-y-8 transition-all duration-700 ease-out",
         (mounted && isVisible) && "opacity-100 translate-y-0"
       )}

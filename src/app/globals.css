@@ -76,7 +76,7 @@
 }
 
 .luxury-card {
-  @apply border border-border rounded-[20px] shadow-sm transition-all duration-300 hover:shadow-md hover:border-primary/30;
+  @apply border border-border rounded-[20px] shadow-sm transition-all duration-300 hover:shadow-md hover:border-secondary/40;
 }
 
 .shadow-soft {
@@ -89,6 +89,15 @@
 
 .golden-glow-premium {
   box-shadow: 0 0 15px rgba(196, 149, 106, 0.08);
+}
+
+.golden-glow-hover {
+  @apply transition-all duration-500;
+}
+
+.golden-glow-hover:hover {
+  box-shadow: 0 0 35px rgba(196, 149, 106, 0.22);
+  border-color: rgba(196, 149, 106, 0.4);
 }
 
 .category-circle {
