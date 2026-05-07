@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Navbar } from '@/components/layout/Navbar';
@@ -88,7 +87,7 @@ export default function MyLikesPage() {
       <Navbar />
       
       {/* Premium Header */}
-      <section className="pt-32 pb-12 md:pt-48 md:pb-24 px-6 relative">
+      <section className="pt-44 pb-12 md:pt-48 md:pb-24 px-6 relative">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-0 right-0 w-[400px] md:w-[600px] h-[400px] md:h-[600px] bg-primary/5 rounded-full blur-[100px] md:blur-[120px] -mr-[200px] md:-mr-[300px] -mt-[200px] md:-mt-[300px]"></div>
         </div>

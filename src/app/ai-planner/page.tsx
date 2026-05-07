@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Navbar } from '@/components/layout/Navbar';
@@ -26,7 +25,7 @@ export default function AIPlannerPage() {
           data-ai-hint="wedding sunset"
         />
         <div className="absolute inset-0 bg-black/40"></div>
-        <div className="relative z-10 text-center text-white px-6 max-w-4xl pt-32 md:pt-0">
+        <div className="relative z-10 text-center text-white px-6 max-w-4xl pt-44 md:pt-0">
           <div className="flex items-center justify-center gap-3 md:gap-4 mb-3 md:mb-4">
              <div className="p-2 bg-primary/10 backdrop-blur-sm rounded-full">
                <Bot className="w-8 h-8 md:w-10 md:h-10 text-primary" />

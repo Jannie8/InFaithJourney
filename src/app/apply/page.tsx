@@ -1,4 +1,3 @@
-
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
@@ -46,7 +45,7 @@ export default function ApplyPage() {
           data-ai-hint="wedding couple"
         />
         <div className="absolute inset-0 bg-black/50"></div>
-        <div className="relative z-10 text-center px-6 pt-32 md:pt-0">
+        <div className="relative z-10 text-center px-6 pt-44 md:pt-0">
           <h1 className="text-[42px] md:text-[72px] font-headline mb-4 drop-shadow-2xl text-secondary leading-tight">Apply as a Vendor</h1>
           <p className="text-[16px] md:text-[22px] italic tracking-widest font-medium opacity-95 drop-shadow-lg text-white">Elevate your wedding business</p>
         </div>
@@ -63,7 +62,7 @@ export default function ApplyPage() {
               {steps.map((step, i) => (
                 <div key={i} className="relative pl-16 md:pl-20 group">
                   <div className="absolute left-0 top-0 w-12 h-12 md:w-16 md:h-16 bg-white/40 backdrop-blur-md rounded-full border border-primary/20 flex items-center justify-center z-10 shadow-md golden-glow-hover shrink-0">
-                    <step.icon className="w-5 md:w-7 h-5 md:h-7 text-primary" />
+                    <step.icon className="w-5 md:w-7 h-5 md:h-5 text-primary" />
                   </div>
                   <h3 className="text-[18px] md:text-[20px] font-headline font-semibold mb-1 md:mb-2 text-primary">{step.title}</h3>
                   <p className="text-[14px] md:text-[16px] text-muted-foreground leading-relaxed font-medium opacity-90 italic">{step.desc}</p>

@@ -1,11 +1,10 @@
-
 "use client";
 
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import Image from 'image';
+import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Check, Star, Sparkles, Target, ShieldCheck, Zap } from 'lucide-react';
@@ -112,7 +111,7 @@ export default function MembershipPage() {
           />
         </motion.div>
         <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]"></div>
-        <div className="relative z-10 text-center px-6 max-w-4xl pt-44 md:pt-32 pb-16">
+        <div className="relative z-10 text-center px-6 max-w-4xl pt-48 md:pt-32 pb-16">
           <motion.div
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}

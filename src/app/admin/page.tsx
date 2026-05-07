@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Navbar } from '@/components/layout/Navbar';
@@ -43,7 +42,7 @@ export default function AdminDashboardPage() {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       
-      <main id="main-content" className="flex-1 max-w-7xl mx-auto px-6 pt-32 md:pt-44 pb-24 w-full">
+      <main id="main-content" className="flex-1 max-w-7xl mx-auto px-6 pt-44 md:pt-44 pb-24 w-full">
         <header className="mb-10 md:mb-12 flex flex-col md:flex-row justify-between items-center md:items-end gap-6 md:gap-4 border-b border-primary/10 pb-8 text-center md:text-left">
           <div className="space-y-2">
             <h1 className="font-headline text-[32px] md:text-[48px] leading-tight">Admin Headquarters</h1>

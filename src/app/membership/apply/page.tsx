@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, Suspense } from 'react';
@@ -531,7 +530,7 @@ export default function ApplyPage() {
     <div className="flex flex-col min-h-screen watercolor-bg">
       <Navbar />
       
-      <main className="flex-1 pt-32 md:pt-44 pb-24 md:pb-32 px-6">
+      <main className="flex-1 pt-44 md:pt-44 pb-24 md:pb-32 px-6">
         <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader2 className="w-10 h-10 text-primary animate-spin" /></div>}>
           <ApplyForm />
         </Suspense>

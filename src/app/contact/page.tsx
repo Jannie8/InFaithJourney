@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Navbar } from '@/components/layout/Navbar';
@@ -11,7 +10,7 @@ import { Mail, Phone, MapPin, Instagram, Facebook, Twitter } from 'lucide-react'
 
 export default function ContactPage() {
   return (
-    <div className="flex flex-col min-h-screen watercolor-bg pt-32 md:pt-[64px]">
+    <div className="flex flex-col min-h-screen watercolor-bg pt-44 md:pt-[64px]">
       <Navbar />
       
       <main className="flex-1 py-12 md:py-24 px-6">

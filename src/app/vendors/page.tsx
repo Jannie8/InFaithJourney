@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Navbar } from '@/components/layout/Navbar';
@@ -44,7 +43,7 @@ export default function VendorsPage() {
           data-ai-hint="wedding venue"
         />
         <div className="absolute inset-0 bg-black/40"></div>
-        <div className="relative z-10 max-w-4xl mx-auto text-center pt-32 md:pt-0">
+        <div className="relative z-10 max-w-4xl mx-auto text-center pt-44 md:pt-0">
           <h1 className="text-[32px] md:text-[60px] font-headline text-white mb-6 md:mb-10 drop-shadow-2xl">Find Your Elite Vendor</h1>
           <div className="relative w-full max-w-2xl mx-auto group">
             <Input className="rounded-full pl-12 md:pl-14 h-14 md:h-16 border-none bg-white text-[15px] md:text-[17px] shadow-2xl focus-visible:ring-secondary/30" placeholder="Search by name, category or style..." />

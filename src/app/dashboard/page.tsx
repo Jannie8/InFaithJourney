@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from 'react';
@@ -70,7 +69,7 @@ export default function DashboardPage() {
 
   if (!isLoggedIn) {
     return (
-      <div className="flex flex-col min-h-screen watercolor-bg pt-32 md:pt-[64px]">
+      <div className="flex flex-col min-h-screen watercolor-bg pt-44 md:pt-[64px]">
         <Navbar />
         <main className="flex-1 flex items-center justify-center p-6">
           <Card className="max-w-md w-full bg-card rounded-[24px] md:rounded-[32px] border border-border shadow-2xl animate-in fade-in zoom-in-95 duration-500 overflow-hidden">
@@ -151,7 +150,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen watercolor-bg pt-32 md:pt-[64px]">
+    <div className="flex flex-col min-h-screen watercolor-bg pt-44 md:pt-[64px]">
       <Navbar />
       
       <main className="flex-1 py-8 md:py-16 px-6">
