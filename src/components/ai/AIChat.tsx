@@ -83,15 +83,16 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
 
   const chatContent = (
     <div className={cn(
-      "relative border border-primary/20 rounded-[32px] shadow-2xl flex flex-col overflow-hidden pointer-events-auto",
+      "relative border border-primary/20 rounded-[32px] shadow-2xl flex flex-col overflow-hidden pointer-events-auto bg-card",
       inline 
         ? "w-full h-full border-none shadow-none rounded-none" 
         : "w-[94vw] max-w-[420px] h-[82vh] aspect-[1/1.55]",
       !inline && "animate-in zoom-in-95 slide-in-from-bottom-10 duration-500"
     )}>
-      <div className="shrink-0 p-6 border-b border-primary/10 flex items-center justify-between bg-primary/5 backdrop-blur-md z-10">
+      {/* Header */}
+      <div className="shrink-0 p-6 border-b border-primary/10 flex items-center justify-between bg-white/80 backdrop-blur-md z-10">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-secondary shadow-sm">
+          <div className="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center text-secondary shadow-sm">
             <Sparkles className="w-6 h-6" />
           </div>
           <div>
@@ -114,7 +115,7 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
                 "max-w-[88%] p-4 rounded-[20px] text-[15px] font-medium leading-relaxed shadow-sm",
                 msg.role === 'user' 
                   ? "bg-primary text-white rounded-tr-none" 
-                  : "bg-white/40 backdrop-blur-md border border-primary/10 text-foreground rounded-tl-none"
+                  : "bg-white border border-primary/10 text-foreground rounded-tl-none"
               )}>
                 {msg.content}
               </div>
@@ -124,7 +125,7 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
                   {msg.recommendations.map((vendor: any) => (
                     <div key={vendor.id} className="space-y-3">
                       <VendorCard {...vendor} />
-                      <div className="mx-4 p-4 bg-secondary/5 border-l-2 border-secondary rounded-r-xl text-[13px] italic text-foreground/80">
+                      <div className="mx-4 p-4 bg-secondary/10 border-l-2 border-secondary rounded-r-xl text-[13px] italic text-foreground/90 font-medium">
                         {vendor.whyItMatches}
                       </div>
                     </div>
@@ -142,7 +143,8 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
         </div>
       </ScrollArea>
 
-      <div className="shrink-0 p-6 border-t border-primary/10 bg-white/20 backdrop-blur-md">
+      {/* Input Area */}
+      <div className="shrink-0 p-6 border-t border-primary/10 bg-white/90 backdrop-blur-md">
         <div className="flex items-center gap-3 relative mb-2">
           <button 
             onClick={handleSpeech}
@@ -159,7 +161,7 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               placeholder="Your global vision..."
-              className="h-12 rounded-full border-primary/20 bg-white/50 pl-5 pr-12 shadow-inner"
+              className="h-12 rounded-full border-primary/20 bg-white pl-5 pr-12 shadow-sm focus-visible:ring-secondary/50"
             />
             <button 
               onClick={() => handleSend()}
@@ -170,9 +172,9 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
             </button>
           </div>
         </div>
-        <div className="flex items-center justify-center gap-1.5 opacity-40">
-          <Info className="w-3 h-3" />
-          <span className="text-[9px] uppercase tracking-widest font-bold">Concierge powered by Gemini</span>
+        <div className="flex items-center justify-center gap-1.5 opacity-50">
+          <Info className="w-3 h-3 text-primary" />
+          <span className="text-[9px] uppercase tracking-widest font-bold text-primary">Concierge powered by Gemini</span>
         </div>
       </div>
     </div>
