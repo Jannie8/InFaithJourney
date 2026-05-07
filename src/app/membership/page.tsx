@@ -37,6 +37,7 @@ const BENEFITS = [
 const PLANS = [
   {
     name: "Free Listing",
+    id: "free",
     price: "Free",
     description: "Get discovered by local couples.",
     features: ["Business name", "1 category", "Location", "Short description"],
@@ -46,6 +47,7 @@ const PLANS = [
   },
   {
     name: "Standard Vendor",
+    id: "standard",
     price: "R499",
     period: "/ mo or R4,999 / yr",
     description: "Start receiving direct inquiries.",
@@ -62,6 +64,7 @@ const PLANS = [
   },
   {
     name: "Featured Vendor",
+    id: "featured",
     price: "R1,199",
     period: "/ mo or R11,999 / yr",
     description: "Maximum exposure for elite brands.",
@@ -113,7 +116,7 @@ export default function MembershipPage() {
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.8 }}
           >
-            <h1 className="text-[48px] md:text-[82px] font-headline text-white mb-8 leading-tight drop-shadow-2xl">
+            <h1 className="text-[48px] md:text-[82px] font-headline text-white mb-8 leading-tight drop-shadow-2xl italic">
               Vendor Membership Plans
             </h1>
             <p className="text-[18px] md:text-[22px] text-white/90 italic font-medium mb-16 max-w-2xl mx-auto drop-shadow-lg leading-relaxed">
@@ -121,7 +124,7 @@ export default function MembershipPage() {
             </p>
             <div className="flex flex-col items-center gap-6">
               <Button asChild className="h-16 px-16 button-rose text-[14px] font-bold tracking-[0.2em] shadow-2xl golden-glow-premium">
-                <Link href="/apply">APPLY AS A VENDOR</Link>
+                <Link href="/membership/apply">APPLY AS A VENDOR</Link>
               </Button>
               <p className="text-[11px] text-white/60 uppercase tracking-[0.2em] font-bold">
                 *Application required before listing goes live
@@ -140,7 +143,7 @@ export default function MembershipPage() {
             viewport={{ once: true }}
             className="text-center mb-32"
           >
-            <h2 className="font-headline text-[42px] md:text-[54px] text-primary mb-8">Elevate Your Presence</h2>
+            <h2 className="font-headline text-[42px] md:text-[54px] text-primary mb-8 italic">Elevate Your Presence</h2>
             <div className="w-24 h-1 bg-secondary mx-auto rounded-full mb-10"></div>
             <p className="text-[18px] text-muted-foreground italic font-medium max-w-2xl mx-auto">
               Join an exclusive collective of the finest wedding professionals.
@@ -161,7 +164,7 @@ export default function MembershipPage() {
                   <benefit.icon className="w-8 h-8" />
                 </div>
                 <div className="space-y-6">
-                  <h3 className="font-headline text-[28px] text-primary">{benefit.title}</h3>
+                  <h3 className="font-headline text-[28px] text-primary italic">{benefit.title}</h3>
                   <p className="text-muted-foreground leading-relaxed text-[16px] font-medium opacity-90">
                     {benefit.description}
                   </p>
@@ -180,7 +183,7 @@ export default function MembershipPage() {
               viewport={{ once: true }}
               className="text-center mb-32"
             >
-              <h2 className="font-headline text-[42px] md:text-[54px] text-primary mb-10">The Collective Tiers</h2>
+              <h2 className="font-headline text-[42px] md:text-[54px] text-primary mb-10 italic">The Collective Tiers</h2>
               <p className="text-[16px] text-muted-foreground uppercase tracking-[0.3em] font-bold">Refined growth for your brand</p>
             </motion.div>
 
@@ -202,7 +205,7 @@ export default function MembershipPage() {
                 >
                   {plan.badge && (
                     <div className={cn(
-                      "absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-6 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 shadow-lg",
+                      "absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-6 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 shadow-lg z-20",
                       plan.highlight ? "bg-secondary text-white" : "bg-primary text-white"
                     )}>
                       {plan.highlight && <Star className="w-3.5 h-3.5 fill-white" />}
@@ -211,7 +214,7 @@ export default function MembershipPage() {
                   )}
 
                   <div className="text-center mb-10">
-                    <h3 className="font-headline text-[24px] text-primary uppercase tracking-wide mb-6">{plan.name}</h3>
+                    <h3 className="font-headline text-[24px] text-primary uppercase tracking-wide mb-6 italic">{plan.name}</h3>
                     <p className="text-[13px] text-muted-foreground italic mb-8">{plan.description}</p>
                     <div className="flex flex-col items-center">
                       <span className="text-[48px] font-bold text-primary leading-none">{plan.price}</span>
@@ -240,7 +243,7 @@ export default function MembershipPage() {
                     "w-full h-14 rounded-full font-bold tracking-[0.2em] text-[12px] shadow-lg transition-all",
                     plan.highlight ? "button-rose" : "bg-primary/5 text-primary hover:bg-primary/10 border border-primary/10"
                   )}>
-                    <Link href={`/apply?plan=${plan.name.toLowerCase().split(' ')[0]}`}>
+                    <Link href={`/membership/apply?plan=${plan.id}`}>
                       {plan.button}
                     </Link>
                   </Button>
@@ -258,12 +261,12 @@ export default function MembershipPage() {
             viewport={{ once: true }}
             className="max-w-3xl mx-auto space-y-12"
           >
-            <h2 className="font-headline text-[36px] md:text-[48px] text-primary">Ready to Join the Collective?</h2>
+            <h2 className="font-headline text-[36px] md:text-[48px] text-primary italic">Ready to Join the Collective?</h2>
             <p className="text-[18px] text-muted-foreground italic font-medium">
               Start your journey with InFaith Journey today and reach the couples who value your artistry.
             </p>
             <Button asChild size="lg" className="h-16 px-16 button-rose text-[14px] font-bold tracking-[0.2em] shadow-xl">
-              <Link href="/apply">BEGIN APPLICATION</Link>
+              <Link href="/membership/apply">BEGIN APPLICATION</Link>
             </Button>
           </motion.div>
         </section>
