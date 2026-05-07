@@ -62,7 +62,6 @@ export default function MyLikesPage() {
         <main className="flex-1 flex items-center justify-center p-6 text-center">
           <div className="max-w-md space-y-12 animate-fade-up">
             <div className="relative w-32 h-32 mx-auto">
-              {/* Outer ping animation with enough room to expand without cropping */}
               <div className="absolute inset-0 bg-primary/10 rounded-full animate-ping"></div>
               <div className="relative w-32 h-32 rounded-full flex items-center justify-center shadow-2xl border border-primary/10 bg-white/50 backdrop-blur-sm">
                 <Heart className="w-16 h-16 text-primary/30" />
@@ -93,12 +92,11 @@ export default function MyLikesPage() {
       
       {/* Premium Header */}
       <section className="pt-32 pb-16 md:pt-44 md:pb-24 px-6 relative">
-        {/* Decorative background contained in a pointer-events-none layer to avoid clipping content */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] -mr-[300px] -mt-[300px]"></div>
         </div>
         
-        <div className="max-w-7xl mx-auto text-center space-y-8 relative z-10">
+        <div className="max-w-7xl auto text-center space-y-8 relative z-10 mx-auto">
           <div className="inline-flex items-center gap-2 bg-primary/5 border border-primary/10 px-6 py-2 rounded-full text-[12px] font-bold uppercase tracking-[0.2em] text-primary">
             <Heart className="w-3.5 h-3.5 fill-current" /> Personalized Collection
           </div>
