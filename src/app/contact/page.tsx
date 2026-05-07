@@ -29,23 +29,23 @@ export default function ContactPage() {
                 <h2 className="font-headline text-[32px] mb-8 text-foreground">Contact Information</h2>
                 
                 <div className="space-y-8">
-                  <a href="tel:0841350000" className="flex items-start gap-6 group">
+                  <a href="tel:+27784420278" className="flex items-start gap-6 group">
                     <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all shadow-inner">
                       <Phone className="w-6 h-6" />
                     </div>
                     <div>
                       <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary mb-1">Call Us</h3>
-                      <p className="text-[18px] font-semibold text-foreground tracking-wide">084 135 0000</p>
+                      <p className="text-[18px] font-semibold text-foreground tracking-wide">+27 78 442 0278</p>
                     </div>
                   </a>
 
-                  <a href="mailto:info@infaithjourney.co.za" className="flex items-start gap-6 group">
+                  <a href="mailto:admin@infaithjourney.com" className="flex items-start gap-6 group">
                     <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all shadow-inner">
                       <Mail className="w-6 h-6" />
                     </div>
                     <div>
                       <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary mb-1">Email Us</h3>
-                      <p className="text-[18px] font-semibold text-foreground break-all tracking-wide">info@infaithjourney.co.za</p>
+                      <p className="text-[18px] font-semibold text-foreground break-all tracking-wide">admin@infaithjourney.com</p>
                     </div>
                   </a>
 

@@ -20,7 +20,7 @@ export default function AdminDashboardPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!isUserLoading && (!user || user.email !== 'ricardo@infaithjourney.com')) {
+    if (!isUserLoading && (!user || user.email !== 'admin@infaithjourney.com')) {
       // router.push('/dashboard'); 
     }
   }, [user, isUserLoading, router]);

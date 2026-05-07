@@ -46,7 +46,7 @@ export function Footer() {
             <ul className="flex flex-col gap-5 md:gap-6 text-[15.5px] text-muted-foreground font-medium">
               <li className="flex items-start gap-4 hover:text-primary transition-colors group cursor-pointer">
                 <Mail className="w-5.5 h-5.5 text-primary shrink-0 group-hover:scale-110 transition-transform" />
-                <span className="break-all">info@infaithjourney.co.za</span>
+                <span className="break-all">admin@infaithjourney.com</span>
               </li>
               <li className="flex items-start gap-4">
                 <MapPin className="w-5.5 h-5.5 text-primary shrink-0" />
@@ -54,7 +54,7 @@ export function Footer() {
               </li>
               <li className="flex items-start gap-4">
                 <Phone className="w-5.5 h-5.5 text-primary shrink-0" />
-                <a href="tel:0841350000" className="hover:text-primary transition-colors font-bold tracking-wider">084 135 0000</a>
+                <a href="tel:+27784420278" className="hover:text-primary transition-colors font-bold tracking-wider">+27 78 442 0278</a>
               </li>
             </ul>
           </div>
