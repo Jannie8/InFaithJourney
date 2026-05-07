@@ -103,8 +103,10 @@ export function VendorCard({
     <div 
       ref={cardRef}
       className={cn(
-        "group luxury-card golden-glow-hover flex flex-col bg-white/40 backdrop-blur-sm w-full mx-auto max-w-[400px] lg:max-w-none relative",
+        "group luxury-card flex flex-col bg-white/40 backdrop-blur-sm w-full mx-auto max-w-[400px] lg:max-w-none relative",
         "transition-all duration-700 ease-out",
+        // Apply glow and visibility classes only after mounting to prevent hydration mismatch
+        mounted && "golden-glow-hover",
         !mounted && "opacity-0 translate-y-8",
         mounted && !isVisible && "opacity-0 translate-y-8",
         mounted && isVisible && "opacity-100 translate-y-0"
