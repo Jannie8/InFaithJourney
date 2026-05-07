@@ -10,13 +10,14 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useUser, useFirestore } from '@/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { useUser, useFirestore, useFirebaseApp } from '@/firebase';
+import { collection, addDoc, serverTimestamp, query, where, getDocs, limit } from 'firebase/firestore';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Briefcase, User, ImageIcon, CreditCard, 
   ArrowRight, ArrowLeft, CheckCircle2, Upload,
-  Sparkles, Loader2
+  Sparkles, Loader2, AlertCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -40,10 +41,15 @@ function ApplyForm() {
   const initialPlan = searchParams.get('plan') || 'standard';
   const { user, isUserLoading } = useUser();
   const db = useFirestore();
+  const app = useFirebaseApp();
+  const storage = getStorage(app);
   const { toast } = useToast();
 
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [hasExistingApp, setHasExistingApp] = useState(false);
+  
   const [formData, setFormData] = useState({
     businessName: '',
     ownerName: '',
@@ -58,14 +64,35 @@ function ApplyForm() {
     pricingRange: '',
     servicesOffered: '',
     selectedPlan: initialPlan,
-    agreedToTerms: false
+    agreedToTerms: false,
+    logoUrl: '',
+    coverImageUrl: '',
+    portfolioImageUrls: [] as string[]
   });
+
+  // Check for existing pending applications
+  useEffect(() => {
+    async function checkExisting() {
+      if (!user || !db) return;
+      const q = query(
+        collection(db, 'vendorApplications'),
+        where('submitterUid', '==', user.uid),
+        where('applicationStatus', '==', 'pending'),
+        limit(1)
+      );
+      const snapshot = await getDocs(q);
+      if (!snapshot.empty) {
+        setHasExistingApp(true);
+      }
+    }
+    checkExisting();
+  }, [user, db]);
 
   useEffect(() => {
     if (!isUserLoading && !user) {
       toast({
         title: "Account Required",
-        description: "Please sign in to continue with your application.",
+        description: "Please sign in or create an account to start your vendor application.",
       });
       router.push('/dashboard');
     }
@@ -80,7 +107,51 @@ function ApplyForm() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleNext = () => setStep(prev => Math.min(prev + 1, 4));
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'cover' | 'portfolio') => {
+    const files = e.target.files;
+    if (!files || files.length === 0 || !user) return;
+
+    setIsUploading(true);
+    try {
+      const uploadPromises = Array.from(files).map(async (file) => {
+        const fileRef = ref(storage, `applications/${user.uid}/${type}/${Date.now()}-${file.name}`);
+        await uploadBytes(fileRef, file);
+        return getDownloadURL(fileRef);
+      });
+
+      const urls = await Promise.all(uploadPromises);
+
+      if (type === 'logo') {
+        setFormData(prev => ({ ...prev, logoUrl: urls[0] }));
+        toast({ title: "Logo Uploaded", description: "Your business logo has been saved." });
+      } else if (type === 'cover') {
+        setFormData(prev => ({ ...prev, coverImageUrl: urls[0] }));
+        toast({ title: "Banner Uploaded", description: "Your profile banner has been saved." });
+      } else if (type === 'portfolio') {
+        setFormData(prev => ({ ...prev, portfolioImageUrls: [...prev.portfolioImageUrls, ...urls] }));
+        toast({ title: "Images Added", description: `${urls.length} images added to your portfolio.` });
+      }
+    } catch (error) {
+      console.error("Upload error", error);
+      toast({ title: "Upload Failed", description: "Could not upload media. Please try again.", variant: "destructive" });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleNext = () => {
+    // Basic validation per step
+    if (step === 1 && (!formData.businessName || !formData.ownerName || !formData.email || !formData.phoneNumber)) {
+      toast({ title: "Missing Info", description: "Please fill in all required fields.", variant: "destructive" });
+      return;
+    }
+    if (step === 2 && (!formData.category || !formData.description)) {
+      toast({ title: "Missing Details", description: "Category and description are required.", variant: "destructive" });
+      return;
+    }
+    setStep(prev => Math.min(prev + 1, 4));
+  };
+
   const handleBack = () => setStep(prev => Math.max(prev - 1, 1));
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -93,11 +164,7 @@ function ApplyForm() {
     }
 
     if (!formData.agreedToTerms) {
-      toast({
-        title: "Terms Required",
-        description: "Please agree to the terms and conditions to proceed.",
-        variant: "destructive"
-      });
+      toast({ title: "Terms Required", description: "Please agree to the terms to proceed.", variant: "destructive" });
       return;
     }
 
@@ -113,30 +180,46 @@ function ApplyForm() {
       router.push('/membership/success');
     } catch (error) {
       console.error("Submission failed", error);
-      toast({
-        title: "Submission Failed",
-        description: "There was an error submitting your application. Please try again.",
-        variant: "destructive"
-      });
+      toast({ title: "Submission Failed", description: "There was an error saving your application.", variant: "destructive" });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  if (isUserLoading) return <div className="h-screen flex items-center justify-center">
-    <Loader2 className="w-10 h-10 text-primary animate-spin" />
-  </div>;
+  if (isUserLoading) return (
+    <div className="h-screen flex flex-col items-center justify-center gap-4">
+      <Loader2 className="w-10 h-10 text-primary animate-spin" />
+      <p className="text-muted-foreground italic font-medium">Preparing your application...</p>
+    </div>
+  );
+
+  if (hasExistingApp) return (
+    <div className="max-w-2xl mx-auto w-full text-center space-y-8 animate-fade-up">
+      <div className="w-24 h-24 bg-amber-50 rounded-full flex items-center justify-center mx-auto border border-amber-100">
+        <AlertCircle className="w-12 h-12 text-amber-500" />
+      </div>
+      <div className="space-y-4">
+        <h2 className="font-headline text-[32px] italic">Application Pending</h2>
+        <p className="text-muted-foreground italic font-medium leading-relaxed">
+          You already have an active application under review. Ricardo and the team will get back to you shortly.
+        </p>
+      </div>
+      <Button asChild variant="outline" className="rounded-full px-12 h-14 border-primary/20 text-primary uppercase font-bold tracking-widest text-[12px]">
+        <a href="/dashboard">BACK TO DASHBOARD</a>
+      </Button>
+    </div>
+  );
 
   return (
-    <div className="max-w-4xl mx-auto w-full">
+    <div className="max-w-4xl mx-auto w-full px-4">
       {/* Progress Stepper */}
-      <div className="flex justify-between mb-16 relative">
+      <div className="flex justify-between mb-20 relative">
         <div className="absolute top-1/2 left-0 w-full h-[1px] bg-primary/10 -translate-y-1/2 z-0"></div>
         {STEPS.map((s) => (
           <div key={s.id} className="relative z-10 flex flex-col items-center">
             <div className={cn(
               "w-12 h-12 rounded-full border flex items-center justify-center transition-all duration-500",
-              step >= s.id ? "bg-primary border-primary text-white shadow-lg" : "bg-white border-primary/20 text-primary/40"
+              step >= s.id ? "bg-primary border-primary text-white shadow-glow" : "bg-white border-primary/20 text-primary/40"
             )}>
               {step > s.id ? <CheckCircle2 className="w-6 h-6" /> : <s.icon className="w-5 h-5" />}
             </div>
@@ -150,13 +233,13 @@ function ApplyForm() {
         ))}
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white/40 backdrop-blur-md rounded-[40px] border border-primary/10 p-10 md:p-16 shadow-soft relative overflow-hidden">
+      <form onSubmit={handleSubmit} className="bg-white/60 backdrop-blur-xl rounded-[40px] border border-primary/10 p-8 md:p-16 shadow-soft relative overflow-hidden golden-glow-premium">
         <div className="absolute top-0 left-0 w-full h-1.5 bg-primary/5">
           <motion.div 
             className="h-full bg-secondary"
             initial={{ width: "25%" }}
             animate={{ width: `${(step / 4) * 100}%` }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.8, ease: "circOut" }}
           />
         </div>
 
@@ -171,37 +254,37 @@ function ApplyForm() {
             >
               <div className="space-y-2">
                 <h2 className="font-headline text-[32px] italic">Business Information</h2>
-                <p className="text-muted-foreground italic font-medium">Let's start with the essentials of your brand.</p>
+                <p className="text-muted-foreground italic font-medium">Let's start with the heart of your brand.</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2">
                   <Label className="uppercase text-[11px] font-bold tracking-widest opacity-70">Business Name</Label>
-                  <Input name="businessName" value={formData.businessName} onChange={handleChange} placeholder="The Golden Studio" required className="h-14 rounded-2xl bg-white/50 border-primary/10" />
+                  <Input name="businessName" value={formData.businessName} onChange={handleChange} placeholder="The Golden Studio" required className="h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
                 </div>
                 <div className="space-y-2">
                   <Label className="uppercase text-[11px] font-bold tracking-widest opacity-70">Owner Name</Label>
-                  <Input name="ownerName" value={formData.ownerName} onChange={handleChange} placeholder="Ricardo de Jager" required className="h-14 rounded-2xl bg-white/50 border-primary/10" />
+                  <Input name="ownerName" value={formData.ownerName} onChange={handleChange} placeholder="Ricardo de Jager" required className="h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
                 </div>
                 <div className="space-y-2">
                   <Label className="uppercase text-[11px] font-bold tracking-widest opacity-70">Email Address</Label>
-                  <Input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="ricardo@infaith.com" required className="h-14 rounded-2xl bg-white/50 border-primary/10" />
+                  <Input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="ricardo@infaith.com" required className="h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
                 </div>
                 <div className="space-y-2">
                   <Label className="uppercase text-[11px] font-bold tracking-widest opacity-70">Phone Number</Label>
-                  <Input name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} placeholder="+27 78 442 0278" required className="h-14 rounded-2xl bg-white/50 border-primary/10" />
+                  <Input name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} placeholder="+27 78 442 0278" required className="h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
                 </div>
                 <div className="space-y-2">
                   <Label className="uppercase text-[11px] font-bold tracking-widest opacity-70">Website URL</Label>
-                  <Input name="websiteUrl" value={formData.websiteUrl} onChange={handleChange} placeholder="https://..." className="h-14 rounded-2xl bg-white/50 border-primary/10" />
+                  <Input name="websiteUrl" value={formData.websiteUrl} onChange={handleChange} placeholder="https://..." className="h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
                 </div>
                 <div className="space-y-2">
                   <Label className="uppercase text-[11px] font-bold tracking-widest opacity-70">Instagram Handle</Label>
-                  <Input name="instagramHandle" value={formData.instagramHandle} onChange={handleChange} placeholder="@yourbrand" className="h-14 rounded-2xl bg-white/50 border-primary/10" />
+                  <Input name="instagramHandle" value={formData.instagramHandle} onChange={handleChange} placeholder="@yourbrand" className="h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
                 </div>
                 <div className="space-y-2 md:col-span-2">
                   <Label className="uppercase text-[11px] font-bold tracking-widest opacity-70">Primary Location</Label>
-                  <Input name="location" value={formData.location} onChange={handleChange} placeholder="Cape Town, South Africa" required className="h-14 rounded-2xl bg-white/50 border-primary/10" />
+                  <Input name="location" value={formData.location} onChange={handleChange} placeholder="Cape Town, South Africa" required className="h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
                 </div>
               </div>
             </motion.div>
@@ -217,7 +300,7 @@ function ApplyForm() {
             >
               <div className="space-y-2">
                 <h2 className="font-headline text-[32px] italic">Business Details</h2>
-                <p className="text-muted-foreground italic font-medium">Help us understand the artistry behind your service.</p>
+                <p className="text-muted-foreground italic font-medium">Describe the artistry behind your premium services.</p>
               </div>
 
               <div className="space-y-8">
@@ -239,7 +322,7 @@ function ApplyForm() {
                     name="description" 
                     value={formData.description} 
                     onChange={handleChange} 
-                    placeholder="Describe your unique approach and experience..." 
+                    placeholder="Tell our couples about your unique approach and experience..." 
                     className="min-h-[160px] rounded-2xl bg-white/50 border-primary/10" 
                     required 
                   />
@@ -280,33 +363,58 @@ function ApplyForm() {
             >
               <div className="space-y-2">
                 <h2 className="font-headline text-[32px] italic">Media Portfolio</h2>
-                <p className="text-muted-foreground italic font-medium">Visuals are the heart of your profile. Upload high-quality imagery.</p>
+                <p className="text-muted-foreground italic font-medium">Visuals are everything. Upload your high-resolution artistry.</p>
               </div>
 
               <div className="space-y-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                   <div className="space-y-4">
                     <Label className="uppercase text-[11px] font-bold tracking-widest opacity-70">Brand Logo</Label>
-                    <div className="border-2 border-dashed border-primary/10 rounded-2xl p-8 text-center bg-white/20 hover:bg-primary/5 transition-all cursor-pointer group">
-                      <Upload className="w-8 h-8 text-primary/40 mx-auto mb-3 group-hover:text-primary transition-colors" />
-                      <p className="text-[12px] font-bold uppercase tracking-widest opacity-60">Upload Logo</p>
+                    <div className="relative group">
+                      <Input type="file" onChange={(e) => handleFileUpload(e, 'logo')} className="hidden" id="logo-upload" accept="image/*" />
+                      <label htmlFor="logo-upload" className="border-2 border-dashed border-primary/10 rounded-2xl p-8 text-center bg-white/20 hover:bg-primary/5 transition-all cursor-pointer block group-hover:border-secondary/40">
+                        {formData.logoUrl ? (
+                          <div className="relative w-20 h-20 mx-auto">
+                            <Image src={formData.logoUrl} alt="Logo" fill className="object-contain" />
+                          </div>
+                        ) : (
+                          <>
+                            <Upload className="w-8 h-8 text-primary/40 mx-auto mb-3" />
+                            <p className="text-[12px] font-bold uppercase tracking-widest opacity-60">Upload Logo</p>
+                          </>
+                        )}
+                      </label>
                     </div>
                   </div>
                   <div className="space-y-4">
                     <Label className="uppercase text-[11px] font-bold tracking-widest opacity-70">Cover Banner</Label>
-                    <div className="border-2 border-dashed border-primary/10 rounded-2xl p-8 text-center bg-white/20 hover:bg-primary/5 transition-all cursor-pointer group">
-                      <Upload className="w-8 h-8 text-primary/40 mx-auto mb-3 group-hover:text-primary transition-colors" />
-                      <p className="text-[12px] font-bold uppercase tracking-widest opacity-60">Upload Banner</p>
+                    <div className="relative group">
+                      <Input type="file" onChange={(e) => handleFileUpload(e, 'cover')} className="hidden" id="cover-upload" accept="image/*" />
+                      <label htmlFor="cover-upload" className="border-2 border-dashed border-primary/10 rounded-2xl p-8 text-center bg-white/20 hover:bg-primary/5 transition-all cursor-pointer block group-hover:border-secondary/40">
+                        {formData.coverImageUrl ? (
+                          <div className="relative h-20 w-full">
+                            <Image src={formData.coverImageUrl} alt="Banner" fill className="object-cover rounded-md" />
+                          </div>
+                        ) : (
+                          <>
+                            <Upload className="w-8 h-8 text-primary/40 mx-auto mb-3" />
+                            <p className="text-[12px] font-bold uppercase tracking-widest opacity-60">Upload Banner</p>
+                          </>
+                        )}
+                      </label>
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-4">
-                  <Label className="uppercase text-[11px] font-bold tracking-widest opacity-70">Portfolio Images (Min 5)</Label>
-                  <div className="border-2 border-dashed border-primary/10 rounded-[32px] p-20 text-center bg-white/20 hover:bg-primary/5 transition-all cursor-pointer group">
-                    <ImageIcon className="w-12 h-12 text-primary/30 mx-auto mb-6 group-hover:scale-110 transition-transform" />
-                    <p className="font-headline text-2xl italic mb-2">Drag and drop your finest work</p>
-                    <p className="text-muted-foreground italic text-sm">Select multiple high-resolution JPEG or PNG files.</p>
+                  <Label className="uppercase text-[11px] font-bold tracking-widest opacity-70">Portfolio Images ({formData.portfolioImageUrls.length} added)</Label>
+                  <div className="relative group">
+                    <Input type="file" multiple onChange={(e) => handleFileUpload(e, 'portfolio')} className="hidden" id="portfolio-upload" accept="image/*" />
+                    <label htmlFor="portfolio-upload" className="border-2 border-dashed border-primary/10 rounded-[32px] p-16 text-center bg-white/20 hover:bg-primary/5 transition-all cursor-pointer block group-hover:border-secondary/40">
+                      <ImageIcon className="w-12 h-12 text-primary/30 mx-auto mb-6 group-hover:scale-110 transition-transform" />
+                      <p className="font-headline text-2xl italic mb-2">Add your finest work</p>
+                      <p className="text-muted-foreground italic text-sm">Select multiple high-resolution JPEG or PNG files.</p>
+                    </label>
                   </div>
                 </div>
               </div>
@@ -323,10 +431,10 @@ function ApplyForm() {
             >
               <div className="space-y-2">
                 <h2 className="font-headline text-[32px] italic">Final Confirmation</h2>
-                <p className="text-muted-foreground italic font-medium">Review your selected tier and finalize your application.</p>
+                <p className="text-muted-foreground italic font-medium">Review your commitment to excellence.</p>
               </div>
 
-              <div className="bg-primary/5 rounded-3xl p-10 border border-primary/10 space-y-8">
+              <div className="bg-primary/5 rounded-3xl p-10 border border-primary/10 space-y-8 golden-glow-premium">
                 <div className="flex justify-between items-center border-b border-primary/10 pb-6">
                   <div>
                     <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-secondary mb-1">Selected Plan</p>
@@ -339,7 +447,7 @@ function ApplyForm() {
                 </div>
 
                 <div className="space-y-4">
-                  <p className="text-[12px] font-bold uppercase tracking-widest opacity-60">Key Features Included:</p>
+                  <p className="text-[12px] font-bold uppercase tracking-widest opacity-60">Tier Benefits:</p>
                   <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {[
                       "Full Editorial Profile",
@@ -364,7 +472,7 @@ function ApplyForm() {
                   className="mt-1"
                 />
                 <Label htmlFor="terms" className="text-sm text-muted-foreground leading-relaxed italic font-medium cursor-pointer">
-                  I agree to the InFaith Journey terms of service and acknowledge that my application will undergo a review process before activation.
+                  I agree to the InFaith Journey terms of service and acknowledge that my application will undergo a review process by Ricardo and his team before activation.
                 </Label>
               </div>
             </motion.div>
@@ -376,7 +484,7 @@ function ApplyForm() {
             type="button" 
             variant="ghost" 
             onClick={handleBack}
-            disabled={step === 1 || isSubmitting}
+            disabled={step === 1 || isSubmitting || isUploading}
             className="text-[11px] font-bold uppercase tracking-widest hover:bg-primary/5 px-8 h-12"
           >
             <ArrowLeft className="w-4 h-4 mr-2" /> Back
@@ -384,11 +492,13 @@ function ApplyForm() {
 
           <Button 
             type="submit" 
-            disabled={isSubmitting}
+            disabled={isSubmitting || isUploading}
             className="button-rose px-12 h-14 text-[12px] font-bold tracking-widest shadow-xl"
           >
             {isSubmitting ? (
               <Loader2 className="w-4 h-4 animate-spin" />
+            ) : isUploading ? (
+              <>UPLOADING... <Loader2 className="w-4 h-4 ml-2 animate-spin" /></>
             ) : step === 4 ? (
               <>SUBMIT APPLICATION <Sparkles className="w-4 h-4 ml-2" /></>
             ) : (
