@@ -14,7 +14,7 @@ import { usePathname } from 'next/navigation';
 const NAV_LINKS = [
   { name: 'HOME', href: '/' },
   { name: 'VENDORS', href: '/vendors' },
-  { name: 'JOIN AS A VENDOR', href: '/apply' },
+  { name: 'JOIN AS A VENDOR', href: '/membership' },
   { name: 'CONTACT', href: '/contact' },
 ];
 
@@ -120,7 +120,7 @@ export function Navbar({ transparent = false }: NavbarProps) {
                   : "bg-[#C4956A] text-white hover:bg-[#B38459]"
               )}
             >
-              <Link href="/apply">JOIN COLLECTIVE</Link>
+              <Link href="/membership">JOIN COLLECTIVE</Link>
             </Button>
           </div>
 
@@ -162,7 +162,7 @@ export function Navbar({ transparent = false }: NavbarProps) {
             asChild 
             className="rounded-full px-12 h-12 text-[14px] bg-[#C4956A] text-white hover:bg-[#B38459]"
           >
-            <Link href="/apply" onClick={() => setIsOpen(false)}>JOIN COLLECTIVE</Link>
+            <Link href="/membership" onClick={() => setIsOpen(false)}>JOIN COLLECTIVE</Link>
           </Button>
         </div>
       </nav>
