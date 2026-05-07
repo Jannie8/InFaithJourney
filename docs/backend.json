@@ -1,11 +1,10 @@
-
 {
   "entities": {
     "UserProfile": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "UserProfile",
       "type": "object",
-      "description": "Represents a non-vendor user (e.g., a couple) interacting with the InFaith Journey platform.",
+      "description": "Represents a user profile for individuals (couples) interacting with the marketplace, primarily for sending inquiries or managing preferences. Does not store authentication credentials.",
       "properties": {
         "id": {
           "type": "string",
@@ -13,246 +12,512 @@
         },
         "email": {
           "type": "string",
-          "description": "The user's email address, used for communication and login.",
+          "description": "The user's email address.",
           "format": "email"
         },
-        "fullName": {
+        "firstName": {
           "type": "string",
-          "description": "The full name of the user."
+          "description": "The user's first name."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The user's last name."
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "The user's contact phone number."
         },
         "createdAt": {
           "type": "string",
-          "description": "Timestamp indicating when the user profile was created.",
+          "description": "Timestamp when the user profile was created.",
           "format": "date-time"
         },
-        "lastLoginAt": {
+        "updatedAt": {
           "type": "string",
-          "description": "Timestamp indicating the user's last login time.",
+          "description": "Timestamp when the user profile was last updated.",
           "format": "date-time"
         }
       },
       "required": [
         "id",
         "email",
-        "fullName",
+        "firstName",
+        "lastName",
+        "phoneNumber",
         "createdAt",
-        "lastLoginAt"
+        "updatedAt"
       ]
     },
-    "VendorProfile": {
+    "MembershipPlan": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "VendorProfile",
+      "title": "MembershipPlan",
       "type": "object",
-      "description": "Represents a wedding vendor's listing and detailed profile information on the marketplace.",
+      "description": "Defines the different subscription tiers (Free, Standard, Featured) available for vendors, outlining pricing and features.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the VendorProfile entity."
+          "description": "Unique identifier for the MembershipPlan entity (e.g., 'free', 'standard', 'featured')."
+        },
+        "name": {
+          "type": "string",
+          "description": "The display name of the membership plan (e.g., 'FREE LISTING', 'STANDARD VENDOR')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description or tagline for the membership plan."
+        },
+        "monthlyPrice": {
+          "type": "number",
+          "description": "The monthly price of the plan in Rands (ZAR), if applicable."
+        },
+        "yearlyPrice": {
+          "type": "number",
+          "description": "The yearly price of the plan in Rands (ZAR), if applicable."
+        },
+        "features": {
+          "type": "array",
+          "description": "A list of features included with this membership plan.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "disabledFeatures": {
+          "type": "array",
+          "description": "A list of features explicitly not included or disabled for this membership plan.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "isRecommended": {
+          "type": "boolean",
+          "description": "Indicates if this plan is recommended (e.g., 'STANDARD VENDOR')."
+        },
+        "isMostVisibility": {
+          "type": "boolean",
+          "description": "Indicates if this plan offers the most visibility (e.g., 'FEATURED VENDOR')."
+        },
+        "sortOrder": {
+          "type": "number",
+          "description": "A numeric value to determine the display order of the membership plans."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "features",
+        "disabledFeatures",
+        "isRecommended",
+        "isMostVisibility",
+        "sortOrder"
+      ]
+    },
+    "ServiceCategory": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ServiceCategory",
+      "type": "object",
+      "description": "Defines distinct categories for wedding vendors (e.g., Photography, Venues, Catering). Used for classification and filtering.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ServiceCategory entity (e.g., 'photography', 'venues')."
+        },
+        "name": {
+          "type": "string",
+          "description": "The display name of the service category (e.g., 'Photography', 'Wedding Venues')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description of the service category."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description"
+      ]
+    },
+    "Location": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Location",
+      "type": "object",
+      "description": "Defines geographical locations relevant to the marketplace, such as vendor operating regions or venue locations. Used for filtering and search.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Location entity (e.g., 'cape-town', 'johannesburg')."
+        },
+        "name": {
+          "type": "string",
+          "description": "The display name of the location (e.g., 'Cape Town', 'Johannesburg')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description or additional details for the location."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description"
+      ]
+    },
+    "VendorApplication": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "VendorApplication",
+      "type": "object",
+      "description": "Stores the information submitted by a prospective vendor during the application process, awaiting admin review.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the VendorApplication entity."
+        },
+        "ownerName": {
+          "type": "string",
+          "description": "The name of the business owner or primary contact."
         },
         "businessName": {
           "type": "string",
           "description": "The registered name of the vendor's business."
         },
-        "category": {
+        "email": {
           "type": "string",
-          "description": "The primary service category of the vendor (e.g., 'Venue', 'Photographer', 'Caterer')."
-        },
-        "location": {
-          "type": "string",
-          "description": "The primary operational location of the vendor (e.g., 'Cape Town', 'Johannesburg')."
-        },
-        "shortDescription": {
-          "type": "string",
-          "description": "A brief summary of the vendor's services or business."
-        },
-        "aboutDescription": {
-          "type": "string",
-          "description": "A detailed 'About Us' section text for the vendor's profile page."
-        },
-        "minPrice": {
-          "type": "number",
-          "description": "The minimum estimated price for the vendor's services or packages in ZAR."
-        },
-        "maxPrice": {
-          "type": "number",
-          "description": "The maximum estimated price for the vendor's services or packages in ZAR."
-        },
-        "membershipPlan": {
-          "type": "string",
-          "description": "The current membership plan of the vendor (e.g., 'FREE', 'STANDARD', 'FEATURED')."
-        },
-        "profileImageUrl": {
-          "type": "string",
-          "description": "URL to the vendor's main profile image or logo.",
-          "format": "uri"
-        },
-        "galleryImageUrls": {
-          "type": "array",
-          "description": "An array of URLs to images in the vendor's portfolio gallery.",
-          "items": {
-            "type": "string"
-          }
-        },
-        "servicesOffered": {
-          "type": "array",
-          "description": "A list of specific services or packages offered by the vendor.",
-          "items": {
-            "type": "string"
-          }
-        },
-        "contactEmail": {
-          "type": "string",
-          "description": "The primary email address for contacting the vendor.",
+          "description": "The business's primary contact email address.",
           "format": "email"
         },
-        "contactPhone": {
+        "phoneNumber": {
           "type": "string",
-          "description": "The primary phone number for contacting the vendor."
-        },
-        "facebookUrl": {
-          "type": "string",
-          "description": "URL to the vendor's Facebook profile or page.",
-          "format": "uri"
-        },
-        "instagramUrl": {
-          "type": "string",
-          "description": "URL to the vendor's Instagram profile.",
-          "format": "uri"
+          "description": "The business's primary contact phone number."
         },
         "websiteUrl": {
           "type": "string",
-          "description": "URL to the vendor's official website.",
+          "description": "The official website URL for the vendor's business.",
           "format": "uri"
         },
-        "averageRating": {
-          "type": "number",
-          "description": "The calculated average rating (0.0 to 5.0) from reviews for this vendor."
+        "instagramHandle": {
+          "type": "string",
+          "description": "The Instagram handle for the vendor's business (e.g., '@infaithjourney')."
         },
-        "reviewCount": {
-          "type": "number",
-          "description": "The total number of reviews submitted for this vendor."
+        "locationId": {
+          "type": "string",
+          "description": "Reference to the primary Location where the vendor's business is based. (Relationship: Location 1:N VendorApplication)"
         },
-        "isApproved": {
-          "type": "boolean",
-          "description": "Indicates if the vendor's profile has been approved by an administrator and is live on the marketplace."
+        "categoryId": {
+          "type": "string",
+          "description": "Reference to the primary ServiceCategory the vendor belongs to. (Relationship: ServiceCategory 1:N VendorApplication)"
+        },
+        "description": {
+          "type": "string",
+          "description": "A short description of the vendor's business or services."
+        },
+        "yearsInBusiness": {
+          "type": "number",
+          "description": "The number of years the business has been operating."
+        },
+        "pricingRange": {
+          "type": "string",
+          "description": "A general indication of the vendor's pricing (e.g., 'R10,000 - R20,000', 'R50,000+')."
+        },
+        "servicesOffered": {
+          "type": "array",
+          "description": "A detailed list of specific services or products offered by the vendor.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "logoUrl": {
+          "type": "string",
+          "description": "URL to the vendor's uploaded business logo in Firebase Storage.",
+          "format": "uri"
+        },
+        "coverImageUrl": {
+          "type": "string",
+          "description": "URL to the vendor's uploaded cover image for their profile/application in Firebase Storage.",
+          "format": "uri"
+        },
+        "portfolioImageUrls": {
+          "type": "array",
+          "description": "URLs to the vendor's uploaded portfolio images in Firebase Storage.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "selectedPlanId": {
+          "type": "string",
+          "description": "Reference to the MembershipPlan selected by the vendor during application. (Relationship: MembershipPlan 1:N VendorApplication)"
+        },
+        "howDidYouHearAboutUs": {
+          "type": "string",
+          "description": "Information on how the vendor heard about InFaith Journey."
+        },
+        "applicationStatus": {
+          "type": "string",
+          "description": "The current status of the vendor application (e.g., 'pending', 'approved', 'rejected')."
         },
         "createdAt": {
           "type": "string",
-          "description": "Timestamp indicating when the vendor profile was initially created/submitted.",
+          "description": "Timestamp when the application was submitted.",
           "format": "date-time"
         },
         "updatedAt": {
           "type": "string",
-          "description": "Timestamp indicating the last time the vendor profile was updated.",
+          "description": "Timestamp when the application was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "ownerName",
+        "businessName",
+        "email",
+        "phoneNumber",
+        "locationId",
+        "categoryId",
+        "description",
+        "yearsInBusiness",
+        "pricingRange",
+        "servicesOffered",
+        "logoUrl",
+        "coverImageUrl",
+        "portfolioImageUrls",
+        "selectedPlanId",
+        "applicationStatus",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Vendor": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Vendor",
+      "type": "object",
+      "description": "Represents an approved and active wedding vendor listed on the InFaith Journey marketplace.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Vendor entity. This may also correspond to the Firebase Authentication User ID."
+        },
+        "businessName": {
+          "type": "string",
+          "description": "The registered name of the vendor's business."
+        },
+        "ownerName": {
+          "type": "string",
+          "description": "The name of the business owner or primary contact."
+        },
+        "email": {
+          "type": "string",
+          "description": "The business's primary contact email address.",
+          "format": "email"
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "The business's primary contact phone number."
+        },
+        "websiteUrl": {
+          "type": "string",
+          "description": "The official website URL for the vendor's business.",
+          "format": "uri"
+        },
+        "instagramHandle": {
+          "type": "string",
+          "description": "The Instagram handle for the vendor's business (e.g., '@evergoldphotography')."
+        },
+        "locationIds": {
+          "type": "array",
+          "description": "References to Locations where the vendor operates or provides services. (Relationship: Location N:N Vendor)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "categoryIds": {
+          "type": "array",
+          "description": "References to ServiceCategories that describe the vendor's services. (Relationship: ServiceCategory N:N Vendor)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed 'About' section description for the vendor's profile page."
+        },
+        "yearsInBusiness": {
+          "type": "number",
+          "description": "The number of years the business has been operating."
+        },
+        "pricingRange": {
+          "type": "string",
+          "description": "A general indication of the vendor's pricing (e.g., 'R10,000 - R20,000', 'R50,000+')."
+        },
+        "servicesOffered": {
+          "type": "array",
+          "description": "A checklist of specific services or packages offered by the vendor, displayed on their profile.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "logoUrl": {
+          "type": "string",
+          "description": "URL to the vendor's business logo, used for branding.",
+          "format": "uri"
+        },
+        "coverImageUrl": {
+          "type": "string",
+          "description": "URL to the vendor's hero banner or cover image on their profile page.",
+          "format": "uri"
+        },
+        "portfolioImageUrls": {
+          "type": "array",
+          "description": "URLs to the vendor's portfolio images, displayed in a gallery on their profile page.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "membershipPlanId": {
+          "type": "string",
+          "description": "Reference to the current MembershipPlan the vendor is subscribed to. (Relationship: MembershipPlan 1:N Vendor)"
+        },
+        "rating": {
+          "type": "number",
+          "description": "The average rating of the vendor (e.g., 4.5 out of 5 stars)."
+        },
+        "reviewCount": {
+          "type": "number",
+          "description": "The total number of reviews received by the vendor."
+        },
+        "isApproved": {
+          "type": "boolean",
+          "description": "Indicates if the vendor's profile has been approved by an administrator."
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Indicates if the vendor's listing is currently active and visible on the marketplace."
+        },
+        "isVerified": {
+          "type": "boolean",
+          "description": "Indicates if the vendor has a 'Verified vendor badge'."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the vendor profile was created (e.g., upon approval of application).",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the vendor profile was last updated.",
           "format": "date-time"
         }
       },
       "required": [
         "id",
         "businessName",
-        "category",
-        "location",
-        "shortDescription",
-        "membershipPlan",
-        "contactEmail",
+        "ownerName",
+        "email",
+        "phoneNumber",
+        "locationIds",
+        "categoryIds",
+        "description",
+        "yearsInBusiness",
+        "pricingRange",
+        "servicesOffered",
+        "logoUrl",
+        "coverImageUrl",
+        "portfolioImageUrls",
+        "membershipPlanId",
+        "rating",
+        "reviewCount",
         "isApproved",
+        "isActive",
+        "isVerified",
         "createdAt",
         "updatedAt"
       ]
     },
-    "SavedVendor": {
+    "Venue": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "SavedVendor",
+      "title": "Venue",
       "type": "object",
-      "description": "A denormalized reference to a vendor saved by a user in their wishlist.",
-      "properties": {
-        "id": { "type": "string" },
-        "name": { "type": "string" },
-        "location": { "type": "string" },
-        "rating": { "type": "number" },
-        "reviews": { "type": "number" },
-        "category": { "type": "string" },
-        "imageUrl": { "type": "string" },
-        "imageHint": { "type": "string" },
-        "savedAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["id", "name", "savedAt"]
-    },
-    "Subscription": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Subscription",
-      "type": "object",
-      "description": "Manages a vendor's membership subscription details and payment status.",
+      "description": "Represents a wedding venue listing on the marketplace, distinct from general service vendors.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the Subscription entity."
+          "description": "Unique identifier for the Venue entity."
         },
-        "vendorId": {
+        "name": {
           "type": "string",
-          "description": "Reference to VendorProfile. (Relationship: VendorProfile 1:N Subscription)"
+          "description": "The display name of the wedding venue (e.g., 'Rosewood Manor')."
         },
-        "planType": {
+        "description": {
           "type": "string",
-          "description": "The type of membership plan subscribed to (e.g., 'FREE', 'STANDARD', 'FEATURED')."
+          "description": "A detailed description of the venue, its offerings, and amenities."
         },
-        "status": {
+        "locationId": {
           "type": "string",
-          "description": "The current status of the subscription (e.g., 'active', 'cancelled', 'expired', 'pending')."
+          "description": "Reference to the primary Location of the venue. (Relationship: Location 1:N Venue)"
         },
-        "startDate": {
+        "capacityRange": {
           "type": "string",
-          "description": "The date when the subscription became active.",
-          "format": "date-time"
+          "description": "A description of the venue's guest capacity (e.g., '100-200 guests', '200+')."
         },
-        "endDate": {
+        "budgetRange": {
           "type": "string",
-          "description": "The date when the subscription is set to expire or was cancelled. Null for 'FREE' plans.",
-          "format": "date-time"
+          "description": "A general indication of the venue's budget range (e.g., 'R80,000 - R150,000')."
         },
-        "paymentGatewaySubscriptionId": {
+        "styleTags": {
+          "type": "array",
+          "description": "A list of tags describing the architectural or aesthetic style of the venue (e.g., 'Vineyard', 'Garden', 'Beach', 'Estate').",
+          "items": {
+            "type": "string"
+          }
+        },
+        "imageUrl": {
           "type": "string",
-          "description": "The unique identifier for this subscription within the payment gateway (e.g., PayFast, Stripe)."
+          "description": "URL to the main image for the venue, used for card display.",
+          "format": "uri"
         },
-        "amount": {
+        "startingPrice": {
           "type": "number",
-          "description": "The recurring amount billed for this subscription in ZAR."
+          "description": "The starting price for booking the venue, in Rands (ZAR)."
         },
-        "currency": {
-          "type": "string",
-          "description": "The currency of the subscription amount (e.g., 'ZAR')."
+        "rating": {
+          "type": "number",
+          "description": "The average rating of the venue (e.g., 4.5 out of 5 stars)."
         },
-        "billingCycle": {
-          "type": "string",
-          "description": "The billing frequency for the subscription (e.g., 'monthly', 'annually', 'free')."
+        "reviewCount": {
+          "type": "number",
+          "description": "The total number of reviews received by the venue."
         },
-        "lastPaymentDate": {
+        "createdAt": {
           "type": "string",
-          "description": "The date of the most recent successful payment.",
+          "description": "Timestamp when the venue listing was created.",
           "format": "date-time"
         },
-        "nextPaymentDate": {
+        "updatedAt": {
           "type": "string",
-          "description": "The scheduled date for the next payment.",
+          "description": "Timestamp when the venue listing was last updated.",
           "format": "date-time"
         }
       },
       "required": [
         "id",
-        "vendorId",
-        "planType",
-        "status",
-        "startDate",
-        "amount",
-        "currency",
-        "billingCycle"
+        "name",
+        "description",
+        "locationId",
+        "capacityRange",
+        "budgetRange",
+        "styleTags",
+        "imageUrl",
+        "startingPrice",
+        "rating",
+        "reviewCount",
+        "createdAt",
+        "updatedAt"
       ]
     },
     "Inquiry": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Inquiry",
       "type": "object",
-      "description": "Stores details of a request for a quote or general inquiry sent from a user to a vendor.",
+      "description": "Stores requests for quotes or general inquiries sent by couples to vendors.",
       "properties": {
         "id": {
           "type": "string",
@@ -260,149 +525,68 @@
         },
         "vendorId": {
           "type": "string",
-          "description": "Reference to VendorProfile, the recipient of the inquiry. (Relationship: VendorProfile 1:N Inquiry)"
+          "description": "Reference to the Vendor to whom the inquiry is directed. (Relationship: Vendor 1:N Inquiry)"
         },
-        "userId": {
+        "userProfileId": {
           "type": "string",
-          "description": "Reference to UserProfile, the sender of the inquiry. (Relationship: UserProfile 1:N Inquiry)"
+          "description": "Optional reference to the UserProfile who sent the inquiry if they are logged in. (Relationship: UserProfile 1:N Inquiry)"
+        },
+        "inquirerName": {
+          "type": "string",
+          "description": "The full name of the person sending the inquiry."
+        },
+        "inquirerEmail": {
+          "type": "string",
+          "description": "The email address of the person sending the inquiry.",
+          "format": "email"
+        },
+        "inquirerPhoneNumber": {
+          "type": "string",
+          "description": "The phone number of the person sending the inquiry."
         },
         "message": {
           "type": "string",
-          "description": "The detailed message or request from the user."
+          "description": "The detailed message or request from the inquirer."
         },
-        "contactName": {
+        "eventType": {
           "type": "string",
-          "description": "The name of the user making the inquiry."
-        },
-        "contactEmail": {
-          "type": "string",
-          "description": "The email address of the user for replies.",
-          "format": "email"
-        },
-        "contactPhone": {
-          "type": "string",
-          "description": "The phone number of the user for direct contact."
+          "description": "The type of event the inquiry is for (e.g., 'Wedding', 'Engagement')."
         },
         "eventDate": {
           "type": "string",
-          "description": "The proposed date of the event, if specified by the user.",
+          "description": "The planned date of the event, if provided.",
           "format": "date"
         },
-        "guestCount": {
-          "type": "number",
-          "description": "The estimated number of guests for the event, if specified."
-        },
-        "createdAt": {
+        "inquiryType": {
           "type": "string",
-          "description": "Timestamp indicating when the inquiry was submitted.",
-          "format": "date-time"
+          "description": "The type of inquiry (e.g., 'Quote Request', 'General Inquiry')."
         },
         "status": {
           "type": "string",
-          "description": "The current status of the inquiry (e.g., 'new', 'read', 'responded', 'archived')."
+          "description": "The current status of the inquiry (e.g., 'new', 'viewed', 'replied', 'closed')."
         },
-        "source": {
+        "createdAt": {
           "type": "string",
-          "description": "The source or channel through which the inquiry was initiated (e.g., 'direct', 'ai_recommendation', 'homepage_form')."
+          "description": "Timestamp when the inquiry was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the inquiry was last updated.",
+          "format": "date-time"
         }
       },
       "required": [
         "id",
         "vendorId",
-        "userId",
+        "inquirerName",
+        "inquirerEmail",
+        "inquirerPhoneNumber",
         "message",
-        "contactName",
-        "contactEmail",
+        "inquiryType",
+        "status",
         "createdAt",
-        "status"
-      ]
-    },
-    "AIChatSession": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "AIChatSession",
-      "type": "object",
-      "description": "Represents a single conversation session between a user and the AI Wedding Venue Assistant.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the AIChatSession entity."
-        },
-        "userId": {
-          "type": "string",
-          "description": "Reference to UserProfile, the user participating in this chat session. (Relationship: UserProfile 1:N AIChatSession)"
-        },
-        "startTime": {
-          "type": "string",
-          "description": "Timestamp indicating when the chat session began.",
-          "format": "date-time"
-        },
-        "lastActivityTime": {
-          "type": "string",
-          "description": "Timestamp of the most recent message exchanged within this session.",
-          "format": "date-time"
-        },
-        "initialPrompt": {
-          "type": "string",
-          "description": "The very first query or topic presented by the user at the start of the session."
-        },
-        "status": {
-          "type": "string",
-          "description": "The current status of the chat session (e.g., 'active', 'closed')."
-        }
-      },
-      "required": [
-        "id",
-        "userId",
-        "startTime",
-        "lastActivityTime",
-        "initialPrompt"
-      ]
-    },
-    "AIChatMessage": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "AIChatMessage",
-      "type": "object",
-      "description": "Represents an individual message (user input or AI response) within an AI chat session.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the AIChatMessage entity."
-        },
-        "sessionId": {
-          "type": "string",
-          "description": "Reference to AIChatSession, the chat session this message belongs to. (Relationship: AIChatSession 1:N AIChatMessage)"
-        },
-        "senderType": {
-          "type": "string",
-          "description": "Indicates whether the message was sent by the 'user' or the 'ai'."
-        },
-        "content": {
-          "type": "string",
-          "description": "The text content of the message."
-        },
-        "timestamp": {
-          "type": "string",
-          "description": "Timestamp indicating when the message was sent.",
-          "format": "date-time"
-        },
-        "recommendedVendorIds": {
-          "type": "array",
-          "description": "An array of VendorProfile IDs that the AI recommended in this specific message. (Relationship: VendorProfile N:N AIChatMessage)",
-          "items": {
-            "type": "string"
-          }
-        },
-        "extractedParameters": {
-          "type": "string",
-          "description": "JSON string of key parameters (e.g., budget, location, style, guest count, event date) extracted by the AI from the user's input, used to guide recommendations. This field stores a JSON string representation of an object containing these parameters."
-        }
-      },
-      "required": [
-        "id",
-        "sessionId",
-        "senderType",
-        "content",
-        "timestamp"
+        "updatedAt"
       ]
     }
   },
@@ -415,111 +599,65 @@
   "firestore": {
     "structure": [
       {
-        "path": "/users/{userId}",
+        "path": "/users/{userId}/profile",
         "definition": {
           "entityName": "UserProfile",
           "schema": {
             "$ref": "#/backend/entities/UserProfile"
           },
-          "description": "Stores individual user profiles (couples).",
+          "description": "Stores individual user profiles for couples interacting with the marketplace. This path enforces path-based ownership, where the 'userId' parameter corresponds to the authenticated user's UID (request.auth.uid). Each document in this subcollection is privately owned by the 'userId' in the path. This design adheres to Authorization Independence as the owner is directly encoded in the path, simplifying security rules. QAP: Only the authenticated user can read/write their own profile.",
           "params": [
             {
               "name": "userId",
-              "description": "The unique ID of the user."
+              "description": "The unique Firebase Authentication User ID (UID) of the user who owns this profile."
             }
           ]
         }
       },
       {
-        "path": "/users/{userId}/saved_vendors/{vendorId}",
+        "path": "/vendorApplications/{applicationId}",
         "definition": {
-          "entityName": "SavedVendor",
+          "entityName": "VendorApplication",
           "schema": {
-            "$ref": "#/backend/entities/SavedVendor"
+            "$ref": "#/backend/entities/VendorApplication"
           },
-          "description": "Stores vendors saved/liked by a user.",
+          "description": "Stores applications submitted by prospective vendors for review. Each document includes a denormalized 'submitterUid' field (which must match request.auth.uid) for Authorization Independence. This allows for atomic updates and simplified rules, avoiding 'get()' calls. QAP: Submitting user can read/update their own application; administrators can list and read all applications. Duplicate pending submissions for a user should be prevented at the application logic or rule level by checking the 'submitterUid' and 'applicationStatus' fields.",
           "params": [
-            { "name": "userId" },
-            { "name": "vendorId" }
+            {
+              "name": "applicationId",
+              "description": "The unique identifier for a specific vendor application."
+            }
           ]
         }
       },
       {
-        "path": "/vendor_profiles/{vendorId}",
+        "path": "/vendors/{vendorId}",
         "definition": {
-          "entityName": "VendorProfile",
+          "entityName": "Vendor",
           "schema": {
-            "$ref": "#/backend/entities/VendorProfile"
+            "$ref": "#/backend/entities/Vendor"
           },
-          "description": "Publicly accessible vendor listings.",
+          "description": "Stores profiles of approved and active vendors. The 'vendorId' parameter corresponds to the vendor's Firebase Authentication UID, enforcing direct ownership. This denormalization simplifies rules for owner-specific updates. QAP: Publicly readable for all users to browse listings; only the owner (vendorId == request.auth.uid) or an administrator can modify their profile.",
           "params": [
             {
               "name": "vendorId",
-              "description": "The unique ID of the vendor."
+              "description": "The unique Firebase Authentication User ID (UID) of the approved vendor."
             }
           ]
         }
       },
       {
-        "path": "/users/{userId}/ai_chat_sessions/{sessionId}",
+        "path": "/venues/{venueId}",
         "definition": {
-          "entityName": "AIChatSession",
+          "entityName": "Venue",
           "schema": {
-            "$ref": "#/backend/entities/AIChatSession"
+            "$ref": "#/backend/entities/Venue"
           },
-          "description": "Stores individual AI chat sessions for a specific user.",
+          "description": "Stores listings for wedding venues. This collection has a homogeneous security posture: publicly readable by all users for browsing. Write access is restricted to administrators only, ensuring data integrity. QAP: Publicly readable; administrators can manage venue listings.",
           "params": [
             {
-              "name": "userId",
-              "description": "The unique ID of the user who owns this chat session."
-            },
-            {
-              "name": "sessionId",
-              "description": "The unique ID of the AI chat session."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}/ai_chat_sessions/{sessionId}/messages/{messageId}",
-        "definition": {
-          "entityName": "AIChatMessage",
-          "schema": {
-            "$ref": "#/backend/entities/AIChatMessage"
-          },
-          "description": "Stores individual messages within an AI chat session.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique ID of the user who owns the parent chat session."
-            },
-            {
-              "name": "sessionId",
-              "description": "The unique ID of the parent AI chat session."
-            },
-            {
-              "name": "messageId",
-              "description": "The unique ID of the individual chat message."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/vendor_profiles/{vendorId}/subscriptions/{subscriptionId}",
-        "definition": {
-          "entityName": "Subscription",
-          "schema": {
-            "$ref": "#/backend/entities/Subscription"
-          },
-          "description": "Stores a vendor's membership subscription details.",
-          "params": [
-            {
-              "name": "vendorId",
-              "description": "The unique ID of the vendor who owns this subscription."
-            },
-            {
-              "name": "subscriptionId",
-              "description": "The unique ID of the subscription."
+              "name": "venueId",
+              "description": "The unique identifier for a specific wedding venue listing."
             }
           ]
         }
@@ -531,15 +669,80 @@
           "schema": {
             "$ref": "#/backend/entities/Inquiry"
           },
-          "description": "Stores inquiries from users to vendors.",
+          "description": "Stores inquiries sent from users (couples) to vendors. Each document includes denormalized 'vendorId' and 'userProfileId' (sender's UID) fields for Authorization Independence. This allows both the sender and the recipient vendor to access their relevant inquiries without complex 'get()' operations in rules. QAP: Only the sender (userProfileId) or the recipient vendor (vendorId) can read inquiries. Creation is permitted for authenticated users (with userProfileId matching request.auth.uid) or anonymous users (if userProfileId is null, and required contact info is provided).",
           "params": [
             {
               "name": "inquiryId",
-              "description": "The unique ID of the inquiry."
+              "description": "The unique identifier for a specific inquiry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/membershipPlans/{planId}",
+        "definition": {
+          "entityName": "MembershipPlan",
+          "schema": {
+            "$ref": "#/backend/entities/MembershipPlan"
+          },
+          "description": "Stores static configuration details for all membership plans (Free, Standard, Featured). This collection is publicly readable to allow all users to view and compare plans. Write access is restricted to administrators only. QAP: Publicly readable; administrators can manage plan definitions.",
+          "params": [
+            {
+              "name": "planId",
+              "description": "The unique identifier for a specific membership plan (e.g., 'free', 'standard', 'featured')."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/serviceCategories/{categoryId}",
+        "definition": {
+          "entityName": "ServiceCategory",
+          "schema": {
+            "$ref": "#/backend/entities/ServiceCategory"
+          },
+          "description": "Stores static definitions of service categories for vendors (e.g., Photography, Venues). This collection is publicly readable for display and filtering purposes. Write access is restricted to administrators only. QAP: Publicly readable; administrators can manage category definitions.",
+          "params": [
+            {
+              "name": "categoryId",
+              "description": "The unique identifier for a specific service category."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/locations/{locationId}",
+        "definition": {
+          "entityName": "Location",
+          "schema": {
+            "$ref": "#/backend/entities/Location"
+          },
+          "description": "Stores static definitions of geographical locations. This collection is publicly readable for display and filtering purposes. Write access is restricted to administrators only. QAP: Publicly readable; administrators can manage location definitions.",
+          "params": [
+            {
+              "name": "locationId",
+              "description": "The unique identifier for a specific geographical location."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_admin/{userId}",
+        "definition": {
+          "entityName": "AdminRole",
+          "schema": {
+            "$ref": "#/backend/entities/AdminRole"
+          },
+          "description": "A dedicated collection for Database Access Control (DBAC) to signify administrator roles. The existence of a document at this path, where 'userId' is the authenticated user's UID, grants administrative privileges. This design uses 'Existence over Content' to simplify role checks in security rules. Authorization Independence is maintained as the role is checked directly via path existence, not content. QAP: Readable only by the owner (for internal checks by client-side admin dashboards) and writable by other administrators for management.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique Firebase Authentication User ID (UID) of the user who holds the administrator role."
             }
           ]
         }
       }
-    ]
+    ],
+    "reasoning": "The Firestore structure is designed following the core principles of Authorization Independence, Clarity of Intent, DBAC, QAPs, and Invariants, alongside the mandated strategies for security, scalability, and debuggability. The primary goal is to minimize complexity in security rules and ensure robust authorization.\n\n**Authorization Independence via Denormalization:**\n\n1.  **Vendor Applications (`/vendorApplications/{applicationId}`):** Each `VendorApplication` document explicitly includes a `submitterUid` field. This field stores the Firebase Authentication UID of the user who submitted the application. Security rules can directly compare `request.auth.uid` with `resource.data.submitterUid` without performing any `get()` operations on parent collections or other documents, ensuring atomic authorization checks. This is crucial for creating and managing applications. Admins, identified by the `/roles_admin/{userId}` collection, can also access these documents. This setup also facilitates preventing duplicate pending applications by allowing application logic or security rules to query for existing pending applications by `submitterUid`.\n2.  **Vendors (`/vendors/{vendorId}`):** The document ID `{vendorId}` for each `Vendor` document is set to the vendor's Firebase Authentication UID. This inherently denormalizes ownership directly into the path and document ID. Rules can simply check `request.auth.uid == vendorId` for write operations by the owner, completely eliminating `get()` calls for ownership verification.\n3.  **Inquiries (`/inquiries/{inquiryId}`):** Each `Inquiry` document includes `senderUid` (the UID of the user who sent the inquiry) and `vendorId` (the UID of the vendor receiving it). This denormalization allows both the sender and the recipient to access their relevant inquiries independently by checking `request.auth.uid` against either `resource.data.senderUid` or `resource.data.vendorId`. This avoids `get()` operations for cross-entity authorization.\n4.  **User Profiles (`/users/{userId}/profile`):** By nesting `UserProfile` documents under `/users/{userId}`, where `{userId}` is the authenticated user's UID, ownership is embedded in the path. Rules verify `request.auth.uid == userId` for direct, atomic authorization.\n5.  **Admin Roles (`/roles_admin/{userId}`):** Admin roles are determined by the *existence* of a document where `userId` matches `request.auth.uid`. This 'Existence over Content' approach is an explicit form of denormalization for role-based access, enabling direct checks like `exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid))` without reading document contents.\n\n**Querying for Authorization Posture (QAPs):**\n\n1.  **Homogeneous Security Posture & Public Readability:** Collections like `membershipPlans`, `serviceCategories`, `locations`, `vendors`, and `venues` are designed for public readability. All documents within these collections share the same security requirements for reading (i.e., anyone can read). This enables secure `list` operations without relying on security rules to filter results, as rules will simply `allow read` for everyone. Write access for these collections is typically restricted to administrators, ensuring data integrity.\n2.  **User-Specific & Admin-Accessible Lists:**\n    *   `vendorApplications`: Security rules will allow an authenticated user to `list` applications where `submitterUid == request.auth.uid`. Additionally, administrators (checked via `/roles_admin`) can `list` all applications. This satisfies QAPs by ensuring lists are pre-filtered by the user's role/ownership without relying on client-side filtering being enforced by rules.\n    *   `inquiries`: Both the sender (`senderUid`) and the recipient vendor (`vendorId`) can `list` their respective inquiries. Security rules enforce that `list` queries must include filters (`where('senderUid', '==', request.auth.uid)` or `where('vendorId', '==', request.auth.uid)`) to match the requesting user's UID, upholding QAPs.\n\nThis architecture ensures that security rules are straightforward, concise, and do not incur performance penalties or complexity from cross-document `get()` calls. It also clearly defines access patterns, enhancing debuggability and maintaining data integrity through explicit ownership and state modeling fields."
   }
 }

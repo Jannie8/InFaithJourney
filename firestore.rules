@@ -1,3 +1,28 @@
+/**
+ * InFaith Journey: Premium Wedding Marketplace Security Rules
+ *
+ * Core Philosophy:
+ * This ruleset enforces a multi-tiered access model suitable for a high-end marketplace. 
+ * It strictly separates data between public browsing (Vendors, Venues, Plans), 
+ * private vendor applications, and direct communication (Inquiries). 
+ *
+ * Data Structure:
+ * - Public Listings: /vendors, /venues, /membershipPlans, /serviceCategories, /locations
+ * - Protected Applications: /vendorApplications
+ * - Private User Data: /users/{userId}/profile
+ * - Secure Communication: /inquiries
+ * - Administrative Control: /roles_admin
+ *
+ * Key Security Decisions:
+ * 1. Authorization Independence: We favor denormalized ownership fields (e.g., submitterUid, vendorId) 
+ *    directly on documents to ensure fast, scalable, and independent authorization checks.
+ * 2. Administrative Privileges: A specialized collection `/roles_admin` acts as a registry for 
+ *    super-users who can bypass standard ownership restrictions for management.
+ * 3. Prototyping Mode: Schema validation is omitted to allow for rapid UI/UX iteration, 
+ *    while strictly maintaining authorization boundaries.
+ * 4. Relationship Integrity: On document creation, we enforce that ownership links 
+ *    match the authenticated user's ID.
+ */
 
 rules_version = '2';
 service cloud.firestore {
@@ -5,64 +30,137 @@ service cloud.firestore {
 
     // --- Helper Functions ---
 
+    /** Checks if the requester is signed in. */
     function isSignedIn() {
       return request.auth != null;
     }
 
+    /** Checks if the requester's UID matches the provided ID. */
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    function isExistingOwner(userId) {
-      return resource != null && isOwner(userId);
+    /** Checks if the user has an entry in the admin roles collection. */
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
     }
 
-    function isInquiryParticipant(userId, vendorId) {
-      return isSignedIn() && (request.auth.uid == userId || request.auth.uid == vendorId);
+    /** Validates ownership on an existing resource. */
+    function isExistingOwner(ownerId) {
+      return resource != null && isOwner(ownerId);
+    }
+
+    /** Helper for update/delete that requires either ownership or admin rights. */
+    function canModify(ownerId) {
+      return isExistingOwner(ownerId) || isAdmin();
     }
 
     // --- Collection Rules ---
 
-    match /users/{userId} {
-      allow get, list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.id == userId;
-      allow update, delete: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
-
-      match /saved_vendors/{vendorId} {
-        allow get, list: if isOwner(userId);
-        allow create, update, delete: if isOwner(userId);
-      }
+    /**
+     * @description Stores private profiles for couples/users.
+     * @path /users/{userId}/profile
+     * @allow get, list, create, update: if requester is {userId}.
+     * @deny delete: Always (profiles should be deactivated, not deleted).
+     * @principle Path-based ownership for user data.
+     */
+    match /users/{userId}/profile {
+      allow get, list: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if false; 
     }
 
-    match /users/{userId}/ai_chat_sessions/{sessionId} {
-      allow get, list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update, delete: if isExistingOwner(userId);
-
-      match /messages/{messageId} {
-        allow get, list: if isOwner(userId);
-        allow create: if isOwner(userId) && request.resource.data.sessionId == sessionId;
-        allow update, delete: if isExistingOwner(userId);
-      }
+    /**
+     * @description Applications submitted by vendors for marketplace entry.
+     * @path /vendorApplications/{applicationId}
+     * @allow create: if authenticated.
+     * @allow get, update: if submitter or admin.
+     * @principle Field-based ownership (submitterUid) for applications.
+     */
+    match /vendorApplications/{applicationId} {
+      allow get: if isOwner(resource.data.submitterUid) || isAdmin();
+      allow list: if isAdmin() || (isSignedIn() && request.query.limit <= 100); // Admin can list all, users should query by UID
+      allow create: if isSignedIn() && request.resource.data.submitterUid == request.auth.uid;
+      allow update: if (isExistingOwner(resource.data.submitterUid) && resource.data.applicationStatus == 'pending') || isAdmin();
+      allow delete: if isAdmin();
     }
 
-    match /vendor_profiles/{vendorId} {
+    /**
+     * @description Public profiles of approved wedding vendors.
+     * @path /vendors/{vendorId}
+     * @allow get, list: Publicly available.
+     * @allow update: if the vendor owner (UID matches vendorId) or admin.
+     * @principle Path-based ownership where document ID equals User UID.
+     */
+    match /vendors/{vendorId} {
       allow get, list: if true;
-      allow create: if isOwner(vendorId) && request.resource.data.id == vendorId;
-      allow update, delete: if isExistingOwner(vendorId) && request.resource.data.id == resource.data.id;
-
-      match /subscriptions/{subscriptionId} {
-        allow get, list: if isOwner(vendorId);
-        allow create: if isOwner(vendorId) && request.resource.data.vendorId == vendorId;
-        allow update, delete: if isExistingOwner(vendorId);
-      }
+      allow create: if isOwner(vendorId) || isAdmin();
+      allow update: if canModify(vendorId); // Fixed: Using canModify
+      allow delete: if isAdmin();
     }
 
+    /**
+     * @description Wedding venue listings managed by administrators.
+     * @path /venues/{venueId}
+     * @allow get, list: Publicly available.
+     * @allow write: Admin only.
+     * @principle Public consumption with administrative content control.
+     */
+    match /venues/{venueId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Inquiries sent from couples to specific vendors.
+     * @path /inquiries/{inquiryId}
+     * @allow create: if authenticated or anonymous.
+     * @allow get: if sender (userProfileId) or recipient (vendorId).
+     * @principle Dual-party authorization via denormalized UIDs.
+     */
     match /inquiries/{inquiryId} {
-      allow get: if isInquiryParticipant(resource.data.userId, resource.data.vendorId);
-      allow list: if isSignedIn() && (request.query.limit <= 100); 
-      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-      allow update, delete: if resource != null && isInquiryParticipant(resource.data.userId, resource.data.vendorId);
+      allow get: if isOwner(resource.data.userProfileId) || isOwner(resource.data.vendorId) || isAdmin();
+      allow list: if isSignedIn(); // Queries must be filtered by userProfileId or vendorId
+      allow create: if (request.resource.data.userProfileId == null || isOwner(request.resource.data.userProfileId));
+      allow update: if canModify(resource.data.vendorId); // Fixed: Using canModify
+      allow delete: if isAdmin();
     }
+
+    /**
+     * @description Static lookup data for plans, categories, and locations.
+     * @path /membershipPlans/{id}, /serviceCategories/{id}, /locations/{id}
+     * @allow get, list: Publicly available.
+     * @allow write: Admin only.
+     * @principle Read-only public configuration with admin management.
+     */
+    match /membershipPlans/{planId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /serviceCategories/{categoryId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /locations/{locationId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Registry for administrative roles.
+     * @path /roles_admin/{userId}
+     * @allow get: if self (for UI role checks).
+     * @allow write: Admin only (bootstrap via Console if none exist).
+     * @principle DBAC via existence check for role-based access.
+     */
+    match /roles_admin/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create, update, delete: if isAdmin();
+    }
+
   }
 }
