@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Navbar } from '@/components/layout/Navbar';
@@ -38,7 +37,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative h-screen w-full overflow-hidden flex items-center justify-center px-4">
         <Image
-          src={heroImage?.imageUrl || 'https://ik.imagekit.io/625s6afzw/hero2.jpeg?updatedAt=1777038149964'}
+          src={heroImage?.imageUrl || '/RGP6p.png'}
           alt="Magical global journey"
           fill
           className="object-cover brightness-[0.85] sepia-[0.1]"
