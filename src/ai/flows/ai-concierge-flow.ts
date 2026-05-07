@@ -75,7 +75,7 @@ Chat History:
       rating: 5.0,
       reviews: 24,
       category: 'Venues',
-      imageUrl: "https://picsum.photos/seed/inf-golden-sunstone/800/600",
+      imageUrl: "/790fD.png",
       imageHint: 'wedding estate lights',
       priceRange: 'From R85,000',
       isFeatured: true
@@ -87,7 +87,7 @@ Chat History:
       rating: 5.0,
       reviews: 85,
       category: 'Venues',
-      imageUrl: "https://picsum.photos/seed/inf-golden-mountain/800/600",
+      imageUrl: "/AnzrV.png",
       imageHint: 'wedding venue sunset',
       priceRange: 'From R65,000',
       isFeatured: false
@@ -99,7 +99,7 @@ Chat History:
       rating: 4.9,
       reviews: 42,
       category: 'Photography & Videography',
-      imageUrl: "https://picsum.photos/seed/inf-golden-evergold/800/1000",
+      imageUrl: "/9ARRK.png",
       imageHint: 'wedding couple glow',
       priceRange: 'From R18,000',
       isFeatured: true
@@ -111,7 +111,7 @@ Chat History:
       rating: 4.8,
       reviews: 18,
       category: 'Fashion',
-      imageUrl: "https://picsum.photos/seed/inf-golden-bridal/800/600",
+      imageUrl: "/9ARRK.png",
       imageHint: 'wedding dress warm',
       priceRange: 'From R15,000',
       isFeatured: true

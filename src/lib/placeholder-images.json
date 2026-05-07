@@ -21,25 +21,25 @@
     {
       "id": "hero-venues",
       "description": "Mountain backdrop wedding venue with golden sunset light and rows of white flowers",
-      "imageUrl": "https://picsum.photos/seed/inf-golden-mountain/1920/800",
+      "imageUrl": "/AnzrV.png",
       "imageHint": "wedding venue sunset"
     },
     {
       "id": "vendor-evergold",
       "description": "Wedding couple laughing in a garden lit by warm string lights and candles",
-      "imageUrl": "https://picsum.photos/seed/inf-golden-evergold/800/1000",
+      "imageUrl": "/9ARRK.png",
       "imageHint": "wedding couple glow"
     },
     {
       "id": "vendor-sunstone",
       "description": "Luxury estate with stone paths and cascading white floral installations at dusk",
-      "imageUrl": "https://picsum.photos/seed/inf-golden-sunstone/800/600",
+      "imageUrl": "/790fD.png",
       "imageHint": "wedding estate lights"
     },
     {
       "id": "vendor-bridal",
       "description": "Bridal gown detail reflecting warm candle light in a luxury setting",
-      "imageUrl": "https://picsum.photos/seed/inf-golden-bridal/800/600",
+      "imageUrl": "/9ARRK.png",
       "imageHint": "wedding dress warm"
     },
     {
