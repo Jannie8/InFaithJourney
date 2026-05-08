@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -18,10 +19,12 @@ import Link from 'next/link';
 import { useUser, useAuth } from '@/firebase';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 export default function DashboardPage() {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
+  const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -34,10 +37,16 @@ export default function DashboardPage() {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login failed", error);
       if (!email || !password) {
         setIsSimulating(true);
+      } else {
+        toast({
+          title: "Authentication Failed",
+          description: "Invalid email or password. Please check your credentials and try again.",
+          variant: "destructive"
+        });
       }
     }
   };
@@ -69,9 +78,9 @@ export default function DashboardPage() {
 
   if (!isLoggedIn) {
     return (
-      <div className="flex flex-col min-h-screen watercolor-bg pt-44 md:pt-[64px]">
+      <div className="flex flex-col min-h-screen watercolor-bg">
         <Navbar />
-        <main className="flex-1 flex items-center justify-center p-6">
+        <main className="flex-1 flex items-center justify-center p-6 pt-56 md:pt-[120px]">
           <Card className="max-w-md w-full bg-card rounded-[24px] md:rounded-[32px] border border-border shadow-2xl animate-in fade-in zoom-in-95 duration-500 overflow-hidden">
             <CardHeader className="text-center space-y-2 pb-6 md:pb-8 pt-8 md:pt-10">
               <CardTitle className="font-headline text-[28px] md:text-[32px] leading-tight text-foreground">Vendor Portal</CardTitle>
@@ -138,7 +147,7 @@ export default function DashboardPage() {
                   Demo Access
                 </Button>
                 <p className="text-[13px] md:text-[14px] text-muted-foreground font-medium">
-                  New here? <Link href="/plans" className="text-primary font-bold hover:underline decoration-primary decoration-2 underline-offset-4">Apply as a Vendor</Link>
+                  New here? <Link href="/membership" className="text-primary font-bold hover:underline decoration-primary decoration-2 underline-offset-4">Apply as a Vendor</Link>
                 </p>
               </div>
             </CardContent>
@@ -150,10 +159,10 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen watercolor-bg pt-44 md:pt-[64px]">
+    <div className="flex flex-col min-h-screen watercolor-bg">
       <Navbar />
       
-      <main className="flex-1 py-8 md:py-16 px-6">
+      <main className="flex-1 py-8 md:py-16 px-6 pt-56 md:pt-[120px]">
         <div className="max-w-7xl mx-auto">
           
           <div className="flex flex-col lg:flex-row gap-8">

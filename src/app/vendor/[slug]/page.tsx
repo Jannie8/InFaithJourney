@@ -1,3 +1,4 @@
+
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
@@ -43,7 +44,7 @@ export default function VendorProfilePage() {
         <div className="absolute inset-0 bg-gradient-to-t from-[#FAF6EF]/20 via-black/10 to-transparent"></div>
         <div className="absolute bottom-10 md:bottom-16 left-0 w-full px-6">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center md:items-end justify-between gap-8 md:gap-10 text-center md:text-left">
-            <div className="space-y-4 md:space-y-6 pt-44 md:pt-0">
+            <div className="space-y-4 md:space-y-6 pt-56 md:pt-0">
               <div className="flex justify-center md:justify-start">
                 <Badge className="bg-primary text-white border-none px-5 py-2 uppercase tracking-widest font-bold text-[10px] md:text-[11px] shadow-xl">
                   PHOTOGRAPHY

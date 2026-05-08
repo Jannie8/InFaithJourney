@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Navbar } from '@/components/layout/Navbar';
@@ -46,7 +47,7 @@ export default function Home() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/35 to-black/45"></div>
         
-        <div className="relative z-10 max-w-5xl mx-auto text-center animate-fade-up px-6 pt-44 md:pt-0">
+        <div className="relative z-10 max-w-5xl mx-auto text-center animate-fade-up px-6 pt-56 md:pt-0">
           <p className="font-script text-[28px] md:text-[36px] text-[#C9A96E] mb-2 drop-shadow-md">A magical global journey</p>
           <h1 className="text-[36px] md:text-[68px] font-headline text-white mb-6 leading-[1.1] font-bold drop-shadow-2xl not-italic">
             Find Your Perfect Global Wedding Vendor

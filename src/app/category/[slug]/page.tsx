@@ -1,3 +1,4 @@
+
 "use client";
 
 import { use } from 'react';
@@ -111,7 +112,7 @@ export default function CategoryBrowsePage({ params }: { params: Promise<{ slug:
       <Navbar />
       
       {/* Breadcrumb Row */}
-      <div className="pt-24 md:pt-32 pb-4 px-6 max-w-7xl mx-auto w-full">
+      <div className="pt-28 md:pt-32 pb-4 px-6 max-w-7xl mx-auto w-full">
         <Link 
           href="/vendors" 
           className="inline-flex items-center gap-2 text-[#C9A96E] hover:opacity-80 transition-opacity text-[11px] md:text-[12px] font-bold uppercase tracking-widest"
@@ -132,7 +133,7 @@ export default function CategoryBrowsePage({ params }: { params: Promise<{ slug:
           data-ai-hint="wedding hero"
         />
         <div className="absolute inset-0 bg-black/40"></div>
-        <div className="relative z-10 max-w-5xl mx-auto text-center animate-fade-up pt-44 md:pt-0">
+        <div className="relative z-10 max-w-5xl mx-auto text-center animate-fade-up pt-56 md:pt-0">
           <h1 className="text-[32px] md:text-[68px] font-headline text-white mb-4 md:mb-6 drop-shadow-2xl leading-tight">{category.title}</h1>
           <p className="text-[15px] md:text-[20px] text-white/90 italic font-medium max-w-2xl mx-auto drop-shadow-md px-4">
             {category.description}
