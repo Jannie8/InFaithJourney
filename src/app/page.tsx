@@ -12,6 +12,7 @@ import {
   Home as HomeIcon, Camera, Palette, Flower2, Utensils, Plane, 
   Music, CalendarCheck, Shirt, PenTool, Cake, Gem, Search
 } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 export const CORE_VENDORS = [
   { name: 'Venues', icon: HomeIcon, href: '/category/venues', imageId: 'cat-venues' },
@@ -30,6 +31,11 @@ export const CORE_VENDORS = [
 
 export default function Home() {
   const heroImage = PlaceHolderImages.find(img => img.id === 'hero-home');
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -41,11 +47,12 @@ export default function Home() {
           src={heroImage?.imageUrl || '/RGP6p.png'}
           alt="Magical global journey"
           fill
-          className="object-cover brightness-[0.85] sepia-[0.1]"
+          className={`object-cover brightness-[0.85] sepia-[0.1] transition-opacity duration-1000 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
           priority
           data-ai-hint="wedding sunset lights"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/35 to-black/45"></div>
+        {/* Soft Linear Gradient Overlay */}
+        <div className="absolute inset-0 luxury-gradient-overlay opacity-90"></div>
         
         <div className="relative z-10 max-w-5xl mx-auto text-center animate-fade-up px-6 pt-56 md:pt-0">
           <p className="font-script text-[28px] md:text-[36px] text-[#C9A96E] mb-2 drop-shadow-md">A magical global journey</p>

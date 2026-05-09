@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Navbar } from '@/components/layout/Navbar';
@@ -6,9 +7,15 @@ import { AIChat } from '@/components/ai/AIChat';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { Bot, Sparkles, Wand2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 export default function AIPlannerPage() {
   const heroImage = PlaceHolderImages.find(img => img.id === 'hero-home');
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -20,11 +27,12 @@ export default function AIPlannerPage() {
           src={heroImage?.imageUrl || ''}
           alt="Golden hour wedding aesthetic"
           fill
-          className="object-cover sepia-overlay brightness-[0.6]"
+          className={`object-cover sepia-overlay brightness-[0.6] transition-opacity duration-1000 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
           priority
           data-ai-hint="wedding sunset"
         />
-        <div className="absolute inset-0 bg-black/40"></div>
+        {/* Soft Linear Gradient Overlay */}
+        <div className="absolute inset-0 luxury-gradient-overlay opacity-80 backdrop-blur-[1px]"></div>
         <div className="relative z-10 text-center text-white px-6 max-w-4xl pt-44 md:pt-0">
           <div className="flex items-center justify-center gap-3 md:gap-4 mb-3 md:mb-4">
              <div className="p-2 bg-primary/10 backdrop-blur-sm rounded-full">

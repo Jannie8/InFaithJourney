@@ -1,4 +1,6 @@
 
+"use client";
+
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
@@ -9,15 +11,15 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { Star, MapPin, Share2, Phone, Mail, Instagram, Facebook, CheckCircle2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import type { Metadata } from 'next';
-
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { slug } = await params;
-  const name = slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-  return { title: name };
-}
+import { useState, useEffect } from 'react';
 
 export default function VendorProfilePage() {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
+
   const gallery = [
     PlaceHolderImages.find(img => img.id === 'gallery-1'),
     PlaceHolderImages.find(img => img.id === 'gallery-2'),
@@ -37,10 +39,12 @@ export default function VendorProfilePage() {
           src={PlaceHolderImages.find(img => img.id === 'vendor-evergold')?.imageUrl || ''}
           alt="Evergold Photography"
           fill
-          className="object-cover sepia-overlay brightness-[0.6]"
+          className={`object-cover sepia-overlay brightness-[0.6] transition-opacity duration-1000 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
           data-ai-hint="wedding photography"
+          priority
         />
-        <div className="absolute inset-0 bg-black/40"></div>
+        {/* Soft Linear Gradient Overlay */}
+        <div className="absolute inset-0 luxury-gradient-overlay opacity-85"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-[#FAF6EF]/20 via-black/10 to-transparent"></div>
         <div className="absolute bottom-10 md:bottom-16 left-0 w-full px-6">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center md:items-end justify-between gap-8 md:gap-10 text-center md:text-left">

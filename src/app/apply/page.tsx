@@ -1,3 +1,6 @@
+
+"use client";
+
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
@@ -8,12 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { Upload, User, Briefcase, CreditCard, Image as ImageIcon } from 'lucide-react';
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: 'Apply as a Vendor',
-  description: 'Join South Africa\'s premier wedding vendor network. Showcase your premium services to high-end couples.',
-};
+import { useState, useEffect } from 'react';
 
 const CATEGORIES = [
   'Venues', 'Photography & Videography', 'Beauty', 'Flowers & Decor', 
@@ -23,6 +21,11 @@ const CATEGORIES = [
 
 export default function ApplyPage() {
   const heroImage = PlaceHolderImages.find(img => img.id === 'hero-apply');
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
 
   const steps = [
     { title: "Step 1. Create Account", desc: "Sign up and verify your email address to start your journey.", icon: User },
@@ -41,10 +44,12 @@ export default function ApplyPage() {
           src={heroImage?.imageUrl || ''}
           alt="Romantic couple under floral arch"
           fill
-          className="object-cover sepia-overlay brightness-[0.7]"
+          className={`object-cover sepia-overlay brightness-[0.7] transition-opacity duration-1000 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
           data-ai-hint="wedding couple"
+          priority
         />
-        <div className="absolute inset-0 bg-black/50"></div>
+        {/* Soft Linear Gradient Overlay */}
+        <div className="absolute inset-0 luxury-gradient-overlay opacity-85"></div>
         <div className="relative z-10 text-center px-6 pt-44 md:pt-0">
           <h1 className="text-[42px] md:text-[72px] font-headline mb-4 drop-shadow-2xl text-secondary leading-tight">Apply as a Vendor</h1>
           <p className="text-[16px] md:text-[22px] italic tracking-widest font-medium opacity-95 drop-shadow-lg text-white">Elevate your wedding business</p>

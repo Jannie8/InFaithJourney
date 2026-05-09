@@ -10,7 +10,7 @@ import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Search, MapPin, Wallet, SlidersHorizontal, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -28,6 +28,11 @@ const ALL_VENDORS = [
 export default function VendorsPage() {
   const heroImage = PlaceHolderImages.find(img => img.id === 'hero-venues');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen overflow-x-hidden">
@@ -39,11 +44,12 @@ export default function VendorsPage() {
           src={heroImage?.imageUrl || ''}
           alt="Golden hour wedding venue"
           fill
-          className="object-cover sepia-overlay brightness-[0.6]"
+          className={`object-cover sepia-overlay brightness-[0.6] transition-opacity duration-1000 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
           priority
           data-ai-hint="wedding venue"
         />
-        <div className="absolute inset-0 bg-black/40"></div>
+        {/* Soft Linear Gradient Overlay */}
+        <div className="absolute inset-0 luxury-gradient-overlay opacity-85"></div>
         <div className="relative z-10 max-w-4xl mx-auto text-center pt-56 md:pt-0">
           <h1 className="text-[32px] md:text-[60px] font-headline text-white mb-6 md:mb-10 drop-shadow-2xl">Find Your Elite Vendor</h1>
           <div className="relative w-full max-w-2xl mx-auto group">

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Navbar } from '@/components/layout/Navbar';
@@ -84,9 +85,11 @@ const PLANS = [
 export default function MembershipPage() {
   const heroImage = PlaceHolderImages.find(img => img.id === 'hero-apply');
   const [mounted, setMounted] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    setIsLoaded(true);
   }, []);
 
   return (
@@ -102,15 +105,16 @@ export default function MembershipPage() {
           className="absolute inset-0"
         >
           <Image
-            src={heroImage?.imageUrl || ''}
+            src="https://ik.imagekit.io/625s6afzw/featured_1.png"
             alt="Cinematic Wedding Aesthetic"
             fill
-            className="object-cover brightness-[0.4] sepia-[0.1]"
+            className={`object-cover brightness-[0.45] sepia-[0.1] transition-opacity duration-1000 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
             priority
             data-ai-hint="wedding aesthetic"
           />
         </motion.div>
-        <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]"></div>
+        {/* Soft Linear Gradient Overlay */}
+        <div className="absolute inset-0 luxury-gradient-overlay opacity-80 backdrop-blur-[2px]"></div>
         <div className="relative z-10 text-center px-6 max-w-4xl pt-48 md:pt-32 pb-16">
           <motion.div
             initial={{ y: 30, opacity: 0 }}

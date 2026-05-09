@@ -11,7 +11,7 @@ import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Search, MapPin, Wallet, SlidersHorizontal, ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -106,6 +106,11 @@ export default function CategoryBrowsePage({ params }: { params: Promise<{ slug:
 
   const heroImage = PlaceHolderImages.find(img => img.id === category.imageId);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen overflow-x-hidden">
@@ -128,11 +133,12 @@ export default function CategoryBrowsePage({ params }: { params: Promise<{ slug:
           src={heroImage?.imageUrl || `https://picsum.photos/seed/inf-cat-${slug}/1920/1080`}
           alt={category.title}
           fill
-          className="object-cover sepia-overlay brightness-[0.55]"
+          className={`object-cover sepia-overlay brightness-[0.55] transition-opacity duration-1000 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
           priority
           data-ai-hint="wedding hero"
         />
-        <div className="absolute inset-0 bg-black/40"></div>
+        {/* Soft Linear Gradient Overlay */}
+        <div className="absolute inset-0 luxury-gradient-overlay opacity-80"></div>
         <div className="relative z-10 max-w-5xl mx-auto text-center animate-fade-up pt-56 md:pt-0">
           <h1 className="text-[32px] md:text-[68px] font-headline text-white mb-4 md:mb-6 drop-shadow-2xl leading-tight">{category.title}</h1>
           <p className="text-[15px] md:text-[20px] text-white/90 italic font-medium max-w-2xl mx-auto drop-shadow-md px-4">
@@ -209,7 +215,7 @@ export default function CategoryBrowsePage({ params }: { params: Promise<{ slug:
 
               <div className="mt-10 md:mt-12 p-6 md:p-8 bg-primary/5 rounded-[24px] border border-primary/10 text-center golden-glow-premium">
                 <h3 className="font-headline text-[18px] md:text-[22px] mb-4">Run a {category.name} Business?</h3>
-                <p className="text-[12px] md:text-[14px] text-muted-foreground mb-6 md:mb-8 italic">Get seen by high-end couples searching for excellence.</p>
+                <p className="text-[12px] md:text-[14px] text-muted-foreground mb-6 md:mb-8 italic">{category.description}</p>
                 <div className="flex justify-center">
                   <Button asChild className="w-full button-rose h-11 md:h-12 text-[12px] shadow-lg">
                     <Link href="/apply">JOIN AS A VENDOR</Link>
