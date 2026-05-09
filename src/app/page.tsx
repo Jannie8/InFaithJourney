@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Navbar } from '@/components/layout/Navbar';
@@ -134,12 +133,12 @@ export default function Home() {
                   href={v.href} 
                   className="group flex flex-col items-center gap-4 md:gap-6 transition-all"
                 >
-                  <div className="category-circle w-24 h-24 md:w-32 md:h-32 shadow-md">
+                  <div className="category-circle w-24 h-24 md:w-32 md:h-32">
                     <Image
                       src={categoryImg?.imageUrl || `https://picsum.photos/seed/cat-${v.name}/400/400`}
                       alt={v.name}
                       fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-700"
+                      className="object-cover transition-transform duration-700"
                       data-ai-hint="wedding detail"
                     />
                   </div>

@@ -105,7 +105,14 @@
 }
 
 .category-circle {
-  @apply rounded-full border-2 border-border transition-all duration-500 hover:border-secondary hover:scale-105 shadow-soft relative overflow-hidden bg-white/20;
+  @apply rounded-full border-2 border-border relative overflow-hidden bg-white/20;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.category-circle:hover, .group:hover .category-circle {
+  transform: scale(1.08);
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
+  @apply border-secondary/50;
 }
 
 .chat-scrollbar ::-webkit-scrollbar {
