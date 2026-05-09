@@ -24,9 +24,18 @@ interface NavbarProps {
 
 export function Navbar({ transparent = false }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const { user } = useUser();
   const db = useFirestore();
   const pathname = usePathname();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const savedVendorsQuery = useMemoFirebase(() => {
     if (!user || !db) return null;
@@ -41,7 +50,8 @@ export function Navbar({ transparent = false }: NavbarProps) {
   }, [pathname]);
 
   const isHome = pathname === '/';
-  const forceTransparent = transparent && isHome;
+  // Start transparent on home, but become solid/blurred on scroll
+  const shouldBeTransparent = transparent && isHome && !isScrolled;
 
   return (
     <>
@@ -51,9 +61,9 @@ export function Navbar({ transparent = false }: NavbarProps) {
         aria-label="Main Navigation"
         className={cn(
           "fixed top-0 z-[100] w-full px-6 md:px-12 h-[var(--header-height)] flex items-center transition-all duration-500",
-          forceTransparent 
+          shouldBeTransparent 
             ? "bg-transparent border-none" 
-            : "bg-background/80 backdrop-blur-md border-b border-border/30"
+            : "bg-background/85 backdrop-blur-[12px] border-b border-border/10 shadow-[0_2px_10px_rgba(0,0,0,0.1)]"
         )}
       >
         <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
@@ -70,12 +80,11 @@ export function Navbar({ transparent = false }: NavbarProps) {
                   href={link.href}
                   className={cn(
                     "text-[12px] font-bold tracking-[0.2em] transition-all",
-                    forceTransparent 
+                    shouldBeTransparent 
                       ? "text-white hover:text-[#C9A96E]" 
                       : "text-[#5C3D2E] hover:text-[#C4956A]",
-                    pathname === link.href && link.name === 'HOME' && !forceTransparent ? "border border-[#C4956A]/50 px-[14px] py-[6px] rounded-sm" : "",
-                    pathname === link.href && link.name === 'HOME' && forceTransparent ? "border border-white/70 px-[14px] py-[6px] rounded-sm" : "",
-                    pathname === link.href && link.name !== 'HOME' ? (forceTransparent ? "text-white" : "text-[#C4956A]") : ""
+                    pathname === link.href && link.name === 'HOME' ? (shouldBeTransparent ? "border border-white/70 px-[14px] py-[6px] rounded-sm" : "border border-[#C4956A]/50 px-[14px] py-[6px] rounded-sm") : "",
+                    pathname === link.href && link.name !== 'HOME' ? (shouldBeTransparent ? "text-white" : "text-[#C4956A]") : ""
                   )}
                 >
                   {link.name}
@@ -86,11 +95,11 @@ export function Navbar({ transparent = false }: NavbarProps) {
                 href="/my-likes" 
                 className={cn(
                   "flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.2em] transition-colors",
-                  forceTransparent ? "text-white hover:text-[#C9A96E]" : "text-[#5C3D2E] hover:text-[#C4956A]"
+                  shouldBeTransparent ? "text-white hover:text-[#C9A96E]" : "text-[#5C3D2E] hover:text-[#C4956A]"
                 )}
               >
                 <div className="relative">
-                  <Heart className={cn("w-4 h-4", (likeCount > 0 || forceTransparent) ? "fill-current" : "")} />
+                  <Heart className={cn("w-4 h-4", (likeCount > 0 || shouldBeTransparent) ? "fill-current" : "")} />
                   {likeCount > 0 && (
                     <span className="absolute -top-1.5 -right-1.5 bg-[#C4956A] text-white text-[8px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold">
                       {likeCount}
@@ -104,7 +113,7 @@ export function Navbar({ transparent = false }: NavbarProps) {
                 href="/dashboard" 
                 className={cn(
                   "text-[12px] font-bold uppercase tracking-[0.2em] transition-colors",
-                  forceTransparent ? "text-white hover:text-[#C9A96E]" : "text-[#5C3D2E] hover:text-[#C4956A]"
+                  shouldBeTransparent ? "text-white hover:text-[#C9A96E]" : "text-[#5C3D2E] hover:text-[#C4956A]"
                 )}
               >
                 DASHBOARD
@@ -115,7 +124,7 @@ export function Navbar({ transparent = false }: NavbarProps) {
               asChild 
               className={cn(
                 "rounded-full px-8 py-3 transition-all duration-300 text-[11px] font-bold tracking-[0.2em] shadow-sm",
-                forceTransparent 
+                shouldBeTransparent 
                   ? "bg-transparent border border-[#C9A96E] text-white hover:bg-[#C9A96E] hover:text-[#2C1F0E]" 
                   : "bg-[#C4956A] text-white hover:bg-[#B38459]"
               )}
@@ -127,7 +136,7 @@ export function Navbar({ transparent = false }: NavbarProps) {
           {/* Mobile Toggle */}
           <button 
             onClick={() => setIsOpen(!isOpen)} 
-            className={cn("lg:hidden p-2 z-[110]", forceTransparent ? "text-white" : "text-[#5C3D2E]")}
+            className={cn("lg:hidden p-2 z-[110]", shouldBeTransparent ? "text-white" : "text-[#5C3D2E]")}
             aria-expanded={isOpen}
           >
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
