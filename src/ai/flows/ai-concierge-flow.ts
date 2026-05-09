@@ -83,7 +83,10 @@ export async function aiConciergeFlow(input: z.infer<typeof AIConciergeInputSche
     const { output } = await conciergePrompt(input);
     
     if (!output) {
-      throw new Error("I'm having trouble thinking clearly right now.");
+      return {
+        response: "I'm having a little moment of reflection. Could you tell me more about your wedding vision?",
+        recommendations: []
+      };
     }
 
     // Real-world mock database for the prototype
@@ -139,10 +142,11 @@ export async function aiConciergeFlow(input: z.infer<typeof AIConciergeInputSche
     ];
 
     const lowerMsg = input.message.toLowerCase();
+    const recommendations = [];
     
     // Filter logic: Prioritizes 'isFeatured' for recommendation richness
     if (lowerMsg.includes('venue') || lowerMsg.includes('place') || lowerMsg.includes('looking for') || lowerMsg.includes('franschhoek') || lowerMsg.includes('stellenbosch')) {
-      output.recommendations = MOCK_DB
+      const matches = MOCK_DB
         .filter(v => v.category === 'Venues')
         .map(v => ({
           ...v,
@@ -151,18 +155,26 @@ export async function aiConciergeFlow(input: z.infer<typeof AIConciergeInputSche
             : "A highly-rated venue that beautifully accommodates your group size and location preference."
         }))
         .sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
+      output.recommendations = matches;
     } else if (lowerMsg.includes('photo') || lowerMsg.includes('camera')) {
-      output.recommendations = MOCK_DB
+      const matches = MOCK_DB
         .filter(v => v.category === 'Photography & Videography')
         .map(v => ({
           ...v,
           whyItMatches: "This studio is renowned for capturing the 'golden glow' in every frame, fitting your romantic vision."
         }));
+      output.recommendations = matches;
     }
 
-    return output;
+    return {
+      response: output.response || "That sounds like a beautiful vision. Here are a few experts who can bring it to life.",
+      recommendations: output.recommendations || []
+    };
   } catch (error) {
     console.error("AI Concierge Flow Error:", error);
-    throw error;
+    return {
+      response: "I'm having a small connection issue. Please try again in a moment.",
+      recommendations: []
+    };
   }
 }
