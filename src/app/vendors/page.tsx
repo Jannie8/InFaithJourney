@@ -29,6 +29,7 @@ export default function VendorsPage() {
   const heroImage = PlaceHolderImages.find(img => img.id === 'hero-venues');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [budget, setBudget] = useState([20, 80]);
 
   useEffect(() => {
     setIsLoaded(true);
@@ -82,7 +83,7 @@ export default function VendorsPage() {
             )}>
               <h3 className="hidden lg:block font-headline text-[28px] mb-8 border-b border-primary/10 pb-4">Refine Results</h3>
               
-              <Accordion type="multiple" defaultValue={['categories', 'location']} className="space-y-8 md:space-y-10">
+              <Accordion type="multiple" defaultValue={['categories', 'location', 'budget']} className="space-y-8 md:space-y-10">
                 <AccordionItem value="categories" className="border-none">
                    <AccordionTrigger className="text-[12px] md:text-[13.5px] font-bold uppercase tracking-widest text-primary hover:no-underline">Browse Categories</AccordionTrigger>
                    <AccordionContent className="pt-4 space-y-3.5">
@@ -128,7 +129,20 @@ export default function VendorsPage() {
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="pt-6">
-                    <Slider defaultValue={[40]} max={100} step={1} className="py-2" />
+                    <div className="mb-4 flex flex-col gap-1">
+                      <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Estimated Range</p>
+                      <p className="text-[14px] font-headline font-bold text-primary italic">
+                        R{(budget[0] * 1000).toLocaleString()} — R{(budget[1] * 1000).toLocaleString()}
+                      </p>
+                    </div>
+                    <Slider 
+                      value={budget} 
+                      onValueChange={setBudget}
+                      max={200} 
+                      min={0}
+                      step={5} 
+                      className="py-2" 
+                    />
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>

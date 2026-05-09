@@ -107,6 +107,7 @@ export default function CategoryBrowsePage({ params }: { params: Promise<{ slug:
   const heroImage = PlaceHolderImages.find(img => img.id === category.imageId);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [budget, setBudget] = useState([50, 150]);
 
   useEffect(() => {
     setIsLoaded(true);
@@ -208,7 +209,20 @@ export default function CategoryBrowsePage({ params }: { params: Promise<{ slug:
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="pt-6">
-                    <Slider defaultValue={[50]} max={100} step={1} className="py-2" />
+                    <div className="mb-4 flex flex-col gap-1">
+                      <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Budget Filter</p>
+                      <p className="text-[14px] font-headline font-bold text-primary italic">
+                        R{(budget[0] * 1000).toLocaleString()} — R{(budget[1] * 1000).toLocaleString()}
+                      </p>
+                    </div>
+                    <Slider 
+                      value={budget} 
+                      onValueChange={setBudget} 
+                      max={300} 
+                      min={0}
+                      step={5} 
+                      className="py-2" 
+                    />
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
