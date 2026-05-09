@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Navbar } from '@/components/layout/Navbar';
@@ -8,7 +7,7 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Check, Star, Sparkles, Target, ShieldCheck, Zap } from 'lucide-react';
+import { Check, Star, Sparkles, Target, ShieldCheck, Zap, Info, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 
@@ -83,7 +82,6 @@ const PLANS = [
 ];
 
 export default function MembershipPage() {
-  const heroImage = PlaceHolderImages.find(img => img.id === 'hero-apply');
   const [mounted, setMounted] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -192,7 +190,7 @@ export default function MembershipPage() {
               <p className="text-[14px] text-muted-foreground uppercase tracking-[0.2em] md:tracking-[0.3em] font-bold">Refined growth for your brand</p>
             </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 items-stretch">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 items-stretch mb-24 md:mb-32">
               {PLANS.map((plan, i) => (
                 <motion.div
                   key={i}
@@ -201,8 +199,8 @@ export default function MembershipPage() {
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.2 }}
                   className={cn(
-                    "relative flex flex-col p-8 md:p-10 rounded-[24px] md:rounded-[32px] border bg-white",
-                    mounted && "golden-glow-hover",
+                    "relative flex flex-col p-8 md:p-10 rounded-[24px] md:rounded-[32px] border bg-white transition-all duration-500",
+                    mounted && "hover:shadow-[0_0_30px_rgba(196,149,106,0.35)] hover:-translate-y-2",
                     plan.highlight 
                       ? "border-secondary/40 shadow-2xl md:scale-105 z-10 ring-1 ring-secondary/20" 
                       : "border-secondary/10 shadow-soft"
@@ -255,6 +253,39 @@ export default function MembershipPage() {
                 </motion.div>
               ))}
             </div>
+
+            {/* Platform Commission & Terms Section */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="max-w-4xl mx-auto"
+            >
+              <div className="bg-primary/5 rounded-[24px] md:rounded-[40px] border border-primary/10 p-8 md:p-16 shadow-soft relative overflow-hidden text-center md:text-left">
+                <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10">
+                  <div className="w-16 h-16 md:w-20 md:h-20 bg-white rounded-full flex items-center justify-center text-secondary shadow-sm shrink-0">
+                    <Info className="w-8 h-8 md:w-10 md:h-10" />
+                  </div>
+                  <div className="space-y-4 md:space-y-6">
+                    <h3 className="font-headline text-[28px] md:text-[36px] text-primary italic">Platform Commission & Terms</h3>
+                    <div className="w-12 h-1 bg-secondary rounded-full mx-auto md:mx-0"></div>
+                    <p className="text-muted-foreground leading-relaxed text-[16px] md:text-[18px] font-medium italic">
+                      InFaith Journey charges a 5% commission on confirmed bookings made through the platform. 
+                      This supports marketing, technology, client support, and vendor promotion. 
+                      A booking is confirmed once the vendor accepts the enquiry and the client deposit is received.
+                    </p>
+                    <div className="pt-4 md:pt-6">
+                      <Link 
+                        href="/terms" 
+                        className="inline-flex items-center gap-2 text-primary text-[12px] md:text-[14px] font-bold uppercase tracking-widest hover:text-secondary transition-colors"
+                      >
+                        Full Vendor Terms & Conditions <ArrowRight className="w-4 h-4" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </section>
 
