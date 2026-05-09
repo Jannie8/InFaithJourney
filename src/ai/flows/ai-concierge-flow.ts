@@ -36,12 +36,26 @@ const AIConciergeOutputSchema = z.object({
   recommendations: z.array(RecommendationSchema).optional().describe("A ranked list of vendor recommendations.")
 });
 
-export async function aiConciergeFlow(input: z.infer<typeof AIConciergeInputSchema>) {
-  const prompt = ai.definePrompt({
-    name: 'aiConciergePrompt',
-    input: { schema: AIConciergeInputSchema },
-    output: { schema: AIConciergeOutputSchema },
-    prompt: `You are the InFaith Journey AI Concierge, an expert wedding planning partner for high-end couples in South Africa.
+/**
+ * Define the concierge prompt at the top level for registration.
+ * Includes safety settings and model configuration as requested.
+ */
+const conciergePrompt = ai.definePrompt({
+  name: 'aiConciergePrompt',
+  input: { schema: AIConciergeInputSchema },
+  output: { schema: AIConciergeOutputSchema },
+  config: {
+    temperature: 0.7,
+    maxOutputTokens: 800,
+    safetySettings: [
+      { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_CIVIC_INTEGRITY', threshold: 'BLOCK_NONE' },
+    ],
+  },
+  prompt: `You are the InFaith Journey AI Concierge, an expert wedding planning partner for high-end couples in South Africa.
 Your tone is luxurious, encouraging, and deeply romantic.
 
 Identify and Extract:
@@ -62,83 +76,93 @@ Chat History:
 {{#each history}}
 - {{role}}: {{content}}
 {{/each}}`,
-  });
+});
 
-  const { output } = await prompt(input);
-  
-  // Real-world mock database for the prototype
-  const MOCK_DB = [
-    {
-      id: 'sunstone-manor',
-      name: 'Sunstone Manor',
-      location: 'Stellenbosch, WC',
-      rating: 5.0,
-      reviews: 24,
-      category: 'Venues',
-      imageUrl: "/790fD.png",
-      imageHint: 'wedding estate lights',
-      priceRange: 'From R85,000',
-      isFeatured: true
-    },
-    {
-      id: 'misty-vineyards',
-      name: 'Misty Vineyards',
-      location: 'Stellenbosch, WC',
-      rating: 5.0,
-      reviews: 85,
-      category: 'Venues',
-      imageUrl: "/AnzrV.png",
-      imageHint: 'wedding venue sunset',
-      priceRange: 'From R65,000',
-      isFeatured: false
-    },
-    {
-      id: 'evergold-photography',
-      name: 'Evergold Photography',
-      location: 'Johannesburg, GP',
-      rating: 4.9,
-      reviews: 42,
-      category: 'Photography & Videography',
-      imageUrl: "/9ARRK.png",
-      imageHint: 'wedding couple glow',
-      priceRange: 'From R18,000',
-      isFeatured: true
-    },
-    {
-      id: 'nearby-bridal',
-      name: 'Nearby Bridal',
-      location: 'Cape Town, WC',
-      rating: 4.8,
-      reviews: 18,
-      category: 'Fashion',
-      imageUrl: "/9ARRK.png",
-      imageHint: 'wedding dress warm',
-      priceRange: 'From R15,000',
-      isFeatured: true
+export async function aiConciergeFlow(input: z.infer<typeof AIConciergeInputSchema>) {
+  try {
+    const { output } = await conciergePrompt(input);
+    
+    if (!output) {
+      throw new Error("I'm having trouble thinking clearly right now.");
     }
-  ];
 
-  const lowerMsg = input.message.toLowerCase();
-  
-  // Filter logic: Simplified for prototype, but prioritizes 'isFeatured'
-  if (lowerMsg.includes('venue') || lowerMsg.includes('place') || lowerMsg.includes('looking for') || lowerMsg.includes('franschhoek') || lowerMsg.includes('stellenbosch')) {
-    output!.recommendations = MOCK_DB
-      .filter(v => v.category === 'Venues')
-      .map(v => ({
-        ...v,
-        whyItMatches: v.isFeatured 
-          ? "As one of our elite Featured venues, it offers priority service and the exact golden-hour aesthetic you're searching for."
-          : "A highly-rated venue that beautifully accommodates your group size and location preference."
-      }))
-      .sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
-  } else if (lowerMsg.includes('photo') || lowerMsg.includes('camera')) {
-    output!.recommendations = MOCK_DB
-      .filter(v => v.category === 'Photography & Videography')
-      .map(v => ({
-        ...v,
-        whyItMatches: "This studio is renowned for capturing the 'golden glow' in every frame, fitting your romantic vision."
-      }));
+    // Real-world mock database for the prototype
+    const MOCK_DB = [
+      {
+        id: 'sunstone-manor',
+        name: 'Sunstone Manor',
+        location: 'Stellenbosch, WC',
+        rating: 5.0,
+        reviews: 24,
+        category: 'Venues',
+        imageUrl: "/790fD.png",
+        imageHint: 'wedding estate lights',
+        priceRange: 'From R85,000',
+        isFeatured: true
+      },
+      {
+        id: 'misty-vineyards',
+        name: 'Misty Vineyards',
+        location: 'Stellenbosch, WC',
+        rating: 5.0,
+        reviews: 85,
+        category: 'Venues',
+        imageUrl: "/AnzrV.png",
+        imageHint: 'wedding venue sunset',
+        priceRange: 'From R65,000',
+        isFeatured: false
+      },
+      {
+        id: 'evergold-photography',
+        name: 'Evergold Photography',
+        location: 'Johannesburg, GP',
+        rating: 4.9,
+        reviews: 42,
+        category: 'Photography & Videography',
+        imageUrl: "/9ARRK.png",
+        imageHint: 'wedding couple glow',
+        priceRange: 'From R18,000',
+        isFeatured: true
+      },
+      {
+        id: 'nearby-bridal',
+        name: 'Nearby Bridal',
+        location: 'Cape Town, WC',
+        rating: 4.8,
+        reviews: 18,
+        category: 'Fashion',
+        imageUrl: "/9ARRK.png",
+        imageHint: 'wedding dress warm',
+        priceRange: 'From R15,000',
+        isFeatured: true
+      }
+    ];
+
+    const lowerMsg = input.message.toLowerCase();
+    
+    // Filter logic: Prioritizes 'isFeatured' for recommendation richness
+    if (lowerMsg.includes('venue') || lowerMsg.includes('place') || lowerMsg.includes('looking for') || lowerMsg.includes('franschhoek') || lowerMsg.includes('stellenbosch')) {
+      output.recommendations = MOCK_DB
+        .filter(v => v.category === 'Venues')
+        .map(v => ({
+          ...v,
+          whyItMatches: v.isFeatured 
+            ? "As one of our elite Featured venues, it offers priority service and the exact golden-hour aesthetic you're searching for."
+            : "A highly-rated venue that beautifully accommodates your group size and location preference."
+        }))
+        .sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
+    } else if (lowerMsg.includes('photo') || lowerMsg.includes('camera')) {
+      output.recommendations = MOCK_DB
+        .filter(v => v.category === 'Photography & Videography')
+        .map(v => ({
+          ...v,
+          whyItMatches: "This studio is renowned for capturing the 'golden glow' in every frame, fitting your romantic vision."
+        }));
+    }
+
+    return output;
+  } catch (error) {
+    console.error("AI Concierge Flow Error:", error);
+    throw error;
   }
-
-  return output!;
 }

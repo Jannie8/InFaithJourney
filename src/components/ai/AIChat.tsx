@@ -52,14 +52,30 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
 
     const userMsg = textToSend;
     setInput('');
+    
+    // Clear history if it gets too long for the prototype (e.g., > 10 messages)
+    const history = messages.length > 10 
+      ? messages.slice(-6).map(m => ({ role: m.role, content: m.content }))
+      : messages.map(m => ({ role: m.role, content: m.content }));
+
     setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
     setIsLoading(true);
 
     try {
-      const result = await aiConciergeFlow({ 
-        message: userMsg, 
-        history: messages.map(m => ({ role: m.role, content: m.content })) 
-      });
+      // Robust retry logic for transient errors
+      let result;
+      try {
+        result = await aiConciergeFlow({ 
+          message: userMsg, 
+          history: history 
+        });
+      } catch (retryErr) {
+        console.warn("Transient error, retrying flow...", retryErr);
+        result = await aiConciergeFlow({ 
+          message: userMsg, 
+          history: history 
+        });
+      }
       
       setMessages(prev => [...prev, { 
         role: 'ai', 
@@ -67,7 +83,11 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
         recommendations: result.recommendations 
       }]);
     } catch (error) {
-      setMessages(prev => [...prev, { role: 'ai', content: "I'm sorry, I encountered a slight glitch. Please try again." }]);
+      console.error("AI Chat Error:", error);
+      setMessages(prev => [...prev, { 
+        role: 'ai', 
+        content: "I'm having a small connection issue. Please try again in a moment." 
+      }]);
     } finally {
       setIsLoading(false);
     }
