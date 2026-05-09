@@ -20,6 +20,13 @@ interface AIChatProps {
   inline?: boolean;
 }
 
+const EXAMPLE_SEARCHES = [
+  "Luxury vineyard wedding in Stellenbosch under R350,000",
+  "Beach ceremony photographer in Cape Town",
+  "Elegant floral arch and decor for 80 guests",
+  "Destination wedding planner for international couples"
+];
+
 export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
   const [isOpen, setIsOpen] = useState(initialOpen);
   const [input, setInput] = useState('');
@@ -145,7 +152,7 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
 
       {/* Input Area */}
       <div className="shrink-0 p-6 border-t border-primary/10 bg-white/90 backdrop-blur-md">
-        <div className="flex items-center gap-3 relative mb-2">
+        <div className="flex items-center gap-3 relative mb-4">
           <button 
             onClick={handleSpeech}
             className={cn(
@@ -172,6 +179,23 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
             </button>
           </div>
         </div>
+
+        {/* Example searches chips */}
+        <div className="mb-4 space-y-2.5">
+          <p className="text-[9px] uppercase tracking-widest font-bold text-primary opacity-40 px-1">Example searches:</p>
+          <div className="flex flex-wrap gap-2">
+            {EXAMPLE_SEARCHES.map((example) => (
+              <button
+                key={example}
+                onClick={() => handleSend(example)}
+                className="text-[10px] px-3 py-1.5 rounded-full bg-primary/5 hover:bg-primary/10 text-primary/70 italic border border-primary/5 transition-all text-left leading-tight"
+              >
+                "{example}"
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="flex items-center justify-center gap-1.5 opacity-50">
           <Info className="w-3 h-3 text-primary" />
           <span className="text-[9px] uppercase tracking-widest font-bold text-primary">Concierge powered by Gemini</span>
