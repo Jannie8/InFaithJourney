@@ -45,12 +45,20 @@ export function Navbar({ transparent = false }: NavbarProps) {
   const { data: savedVendors } = useCollection(savedVendorsQuery);
   const likeCount = savedVendors?.length || 0;
 
+  // Prevent scrolling when mobile menu is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+  }, [isOpen]);
+
   useEffect(() => {
     setIsOpen(false);
   }, [pathname]);
 
   const isHome = pathname === '/';
-  // Start transparent on home, but become solid/blurred on scroll
   const shouldBeTransparent = transparent && isHome && !isScrolled;
 
   return (
@@ -67,7 +75,7 @@ export function Navbar({ transparent = false }: NavbarProps) {
         )}
       >
         <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
-          <Link href="/" className="z-[110]" aria-label="InFaith Journey Home">
+          <Link href="/" className="z-[9999]" aria-label="InFaith Journey Home">
             <Logo className={cn("w-[180px] md:w-[220px]")} />
           </Link>
 
@@ -136,40 +144,51 @@ export function Navbar({ transparent = false }: NavbarProps) {
           {/* Mobile Toggle */}
           <button 
             onClick={() => setIsOpen(!isOpen)} 
-            className={cn("lg:hidden p-2 z-[110]", shouldBeTransparent ? "text-white" : "text-[#5C3D2E]")}
+            className={cn(
+              "lg:hidden p-2 z-[9999] transition-colors duration-300", 
+              isOpen ? "text-[#5C3D2E]" : (shouldBeTransparent ? "text-white" : "text-[#5C3D2E]")
+            )}
             aria-expanded={isOpen}
           >
-            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
           </button>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu - Forced Solid Light Background */}
         <div 
           className={cn(
-            "fixed inset-0 flex flex-col items-center justify-center gap-8 transition-all duration-500 z-[105]",
-            isOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
+            "fixed inset-0 flex flex-col items-center justify-center gap-8 transition-all duration-500 z-[9998] shadow-2xl",
+            isOpen ? "translate-x-0 opacity-100 visible" : "translate-x-full opacity-0 invisible"
           )}
-          style={{ backgroundColor: '#F5EFE6' }}
+          style={{ backgroundColor: '#F8F5F0', opacity: 1 }}
         >
           {NAV_LINKS.map((link) => (
             <Link 
               key={link.name} 
               href={link.href} 
-              className="text-2xl font-headline italic text-[#2C1A0E] hover:text-[#C4956A]" 
+              className="text-2xl font-headline italic text-[#2C1A0E] hover:text-[#C4956A] transition-colors" 
               onClick={() => setIsOpen(false)}
             >
               {link.name}
             </Link>
           ))}
-          <Link href="/my-likes" className="text-[16px] font-bold tracking-widest text-[#5C3D2E] hover:text-[#C4956A]" onClick={() => setIsOpen(false)}>
+          <Link 
+            href="/my-likes" 
+            className="text-[16px] font-bold tracking-[0.2em] text-[#5C3D2E] hover:text-[#C4956A] transition-colors" 
+            onClick={() => setIsOpen(false)}
+          >
             MY LIKES ({likeCount})
           </Link>
-          <Link href="/dashboard" className="text-[16px] font-bold tracking-widest text-[#5C3D2E] hover:text-[#C4956A]" onClick={() => setIsOpen(false)}>
+          <Link 
+            href="/dashboard" 
+            className="text-[16px] font-bold tracking-[0.2em] text-[#5C3D2E] hover:text-[#C4956A] transition-colors" 
+            onClick={() => setIsOpen(false)}
+          >
             DASHBOARD
           </Link>
           <Button 
             asChild 
-            className="rounded-full px-12 h-12 text-[14px] bg-[#C4956A] text-white hover:bg-[#B38459]"
+            className="rounded-full px-12 h-14 text-[14px] font-bold tracking-[0.2em] bg-[#C4956A] text-white hover:bg-[#B38459] shadow-lg mt-4"
           >
             <Link href="/membership" onClick={() => setIsOpen(false)}>JOIN COLLECTIVE</Link>
           </Button>
