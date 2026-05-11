@@ -59,7 +59,8 @@ export function Navbar({ transparent = false }: NavbarProps) {
   }, [pathname]);
 
   const isHome = pathname === '/';
-  const shouldBeTransparent = transparent && isHome && !isScrolled;
+  // Nav should be solid if open, to avoid transparency issues during drawer slide
+  const shouldBeTransparent = transparent && isHome && !isScrolled && !isOpen;
 
   return (
     <>
@@ -141,7 +142,7 @@ export function Navbar({ transparent = false }: NavbarProps) {
             </Button>
           </div>
 
-          {/* Mobile Toggle */}
+          {/* Mobile Toggle - Ensure Visibility */}
           <button 
             onClick={() => setIsOpen(!isOpen)} 
             className={cn(
@@ -153,47 +154,47 @@ export function Navbar({ transparent = false }: NavbarProps) {
             {isOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
           </button>
         </div>
-
-        {/* Mobile Menu - Forced Solid Light Background */}
-        <div 
-          className={cn(
-            "fixed inset-0 flex flex-col items-center justify-center gap-8 transition-all duration-500 z-[9998] shadow-2xl",
-            isOpen ? "translate-x-0 opacity-100 visible" : "translate-x-full opacity-0 invisible"
-          )}
-          style={{ backgroundColor: '#F8F5F0', opacity: 1 }}
-        >
-          {NAV_LINKS.map((link) => (
-            <Link 
-              key={link.name} 
-              href={link.href} 
-              className="text-2xl font-headline italic text-[#2C1A0E] hover:text-[#C4956A] transition-colors" 
-              onClick={() => setIsOpen(false)}
-            >
-              {link.name}
-            </Link>
-          ))}
-          <Link 
-            href="/my-likes" 
-            className="text-[16px] font-bold tracking-[0.2em] text-[#5C3D2E] hover:text-[#C4956A] transition-colors" 
-            onClick={() => setIsOpen(false)}
-          >
-            MY LIKES ({likeCount})
-          </Link>
-          <Link 
-            href="/dashboard" 
-            className="text-[16px] font-bold tracking-[0.2em] text-[#5C3D2E] hover:text-[#C4956A] transition-colors" 
-            onClick={() => setIsOpen(false)}
-          >
-            DASHBOARD
-          </Link>
-          <Button 
-            asChild 
-            className="rounded-full px-12 h-14 text-[14px] font-bold tracking-[0.2em] bg-[#C4956A] text-white hover:bg-[#B38459] shadow-lg mt-4"
-          >
-            <Link href="/membership" onClick={() => setIsOpen(false)}>JOIN COLLECTIVE</Link>
-          </Button>
-        </div>
       </nav>
+
+      {/* Mobile Menu - Forced Solid Opaque Background */}
+      <div 
+        className={cn(
+          "fixed inset-0 flex flex-col items-center justify-center gap-8 transition-all duration-500 z-[9998] shadow-2xl bg-[#F8F5F0]",
+          isOpen ? "translate-x-0 visible" : "translate-x-full invisible"
+        )}
+        style={{ opacity: 1 }}
+      >
+        {NAV_LINKS.map((link) => (
+          <Link 
+            key={link.name} 
+            href={link.href} 
+            className="text-2xl font-headline italic text-[#2C1A0E] hover:text-[#C4956A] transition-colors" 
+            onClick={() => setIsOpen(false)}
+          >
+            {link.name}
+          </Link>
+        ))}
+        <Link 
+          href="/my-likes" 
+          className="text-[16px] font-bold tracking-[0.2em] text-[#5C3D2E] hover:text-[#C4956A] transition-colors" 
+          onClick={() => setIsOpen(false)}
+        >
+          MY LIKES ({likeCount})
+        </Link>
+        <Link 
+          href="/dashboard" 
+          className="text-[16px] font-bold tracking-[0.2em] text-[#5C3D2E] hover:text-[#C4956A] transition-colors" 
+          onClick={() => setIsOpen(false)}
+        >
+          DASHBOARD
+        </Link>
+        <Button 
+          asChild 
+          className="rounded-full px-12 h-14 text-[14px] font-bold tracking-[0.2em] bg-[#C4956A] text-white hover:bg-[#B38459] shadow-lg mt-4"
+        >
+          <Link href="/membership" onClick={() => setIsOpen(false)}>JOIN COLLECTIVE</Link>
+        </Button>
+      </div>
     </>
   );
 }
