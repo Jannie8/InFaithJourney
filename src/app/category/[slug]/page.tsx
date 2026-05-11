@@ -157,7 +157,7 @@ export default function CategoryBrowsePage({ params }: { params: Promise<{ slug:
           
           {/* Enhanced Category Filters Sidebar */}
           <aside className="lg:col-span-1">
-             <div className="lg:hidden mb-6">
+             <div className="lg:hidden mt-8 mb-6">
               <Button 
                 variant="outline" 
                 onClick={() => setIsFilterOpen(!isFilterOpen)}

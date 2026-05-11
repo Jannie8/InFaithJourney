@@ -64,7 +64,7 @@ export default function VendorsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 md:gap-12">
           
           <aside className="lg:col-span-1">
-             <div className="lg:hidden mb-6">
+             <div className="lg:hidden mt-8 mb-6">
               <Button 
                 variant="outline" 
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
