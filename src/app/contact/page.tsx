@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Mail, Phone, MapPin, Instagram, Facebook, Twitter } from 'lucide-react';
+import Link from 'next/link';
 
 export default function ContactPage() {
   return (
@@ -64,10 +65,20 @@ export default function ContactPage() {
                 <div className="pt-6 md:pt-8 border-t border-border">
                   <h3 className="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground mb-6">Follow Our Journey</h3>
                   <div className="flex gap-4">
-                    {[Instagram, Facebook, Twitter].map((Icon, i) => (
-                      <button key={i} className="w-10 h-10 md:w-12 md:h-12 rounded-full border border-border flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all shadow-sm">
-                        <Icon className="w-4.5 md:w-5 h-4.5 md:h-5" />
-                      </button>
+                    {[
+                      { Icon: Instagram, href: "https://www.instagram.com/infaith_journey?igsh=cm04dWswbTBraWdl" },
+                      { Icon: Facebook, href: "https://www.facebook.com/share/1DeLWDtkAg/" },
+                      { Icon: Twitter, href: "https://x.com/InFaithJourney" }
+                    ].map((social, i) => (
+                      <Link 
+                        key={i} 
+                        href={social.href} 
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-10 h-10 md:w-12 md:h-12 rounded-full border border-border flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all shadow-sm"
+                      >
+                        <social.Icon className="w-4.5 md:w-5 h-4.5 md:h-5" />
+                      </Link>
                     ))}
                   </div>
                 </div>

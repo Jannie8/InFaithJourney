@@ -20,11 +20,17 @@ export function Footer() {
             </p>
             <div className="flex items-center gap-4 md:gap-6">
               {[
-                { icon: Facebook, href: "#" },
-                { icon: Instagram, href: "#" },
-                { icon: Twitter, href: "#" }
+                { icon: Facebook, href: "https://www.facebook.com/share/1DeLWDtkAg/" },
+                { icon: Instagram, href: "https://www.instagram.com/infaith_journey?igsh=cm04dWswbTBraWdl" },
+                { icon: Twitter, href: "https://x.com/InFaithJourney" }
               ].map((social, i) => (
-                <Link key={i} href={social.href} className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-primary/20 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all shadow-sm golden-glow-premium group">
+                <Link 
+                  key={i} 
+                  href={social.href} 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-primary/20 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all shadow-sm golden-glow-premium group"
+                >
                   <social.icon className="w-5.5 h-5.5 md:w-6 md:h-6 group-hover:scale-110 transition-transform" />
                 </Link>
               ))}

@@ -12,6 +12,7 @@ import Image from 'next/image';
 import { Star, MapPin, Share2, Phone, Mail, Instagram, Facebook, CheckCircle2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 export default function VendorProfilePage() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -174,10 +175,20 @@ export default function VendorProfilePage() {
 
               {/* Social row */}
               <div className="flex justify-center gap-4 md:gap-6">
-                {[Instagram, Facebook, Mail].map((Icon, i) => (
-                  <button key={i} className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-primary/20 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all shadow-md">
-                    <Icon className="w-5 h-5" />
-                  </button>
+                {[
+                  { Icon: Instagram, href: "https://www.instagram.com/infaith_journey?igsh=cm04dWswbTBraWdl" },
+                  { Icon: Facebook, href: "https://www.facebook.com/share/1DeLWDtkAg/" },
+                  { Icon: Mail, href: "mailto:admin@infaithjourney.com" }
+                ].map((social, i) => (
+                  <Link 
+                    key={i} 
+                    href={social.href}
+                    target={social.href.startsWith('http') ? "_blank" : undefined}
+                    rel={social.href.startsWith('http') ? "noopener noreferrer" : undefined}
+                    className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-primary/20 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all shadow-md"
+                  >
+                    <social.Icon className="w-5 h-5" />
+                  </Link>
                 ))}
               </div>
             </div>
