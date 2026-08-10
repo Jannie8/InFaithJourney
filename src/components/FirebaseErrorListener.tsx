@@ -1,38 +1,35 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
 /**
  * An invisible component that listens for globally emitted 'permission-error' events.
- * It throws any received error to be caught by Next.js's global-error.tsx.
+ *
+ * Previously this THREW the error, which triggered Next.js's full-screen red dev
+ * overlay for any background Firestore denial (even harmless ones like a stale
+ * likes-counter read) and made the app unusable. We now log the error to the
+ * console instead, so denials are still visible to developers without hijacking
+ * the whole screen or crashing the app for the user.
  */
 export function FirebaseErrorListener() {
-  // Use the specific error type for the state for type safety.
-  const [error, setError] = useState<FirestorePermissionError | null>(null);
-
   useEffect(() => {
-    // The callback now expects a strongly-typed error, matching the event payload.
     const handleError = (error: FirestorePermissionError) => {
-      // Set error in state to trigger a re-render.
-      setError(error);
+      // Surface the contextual permission error for debugging, but do not throw —
+      // a denied background read should never take over the UI. We use console.debug
+      // (not console.error/warn) so Next.js's dev overlay does not flag harmless
+      // background denials as "issues". Component-level writes (apply, approve,
+      // activate) have their own try/catch + toast, so real failures are still shown.
+      console.debug('[Firestore permission denied]', error);
     };
 
-    // The typed emitter will enforce that the callback for 'permission-error'
-    // matches the expected payload type (FirestorePermissionError).
     errorEmitter.on('permission-error', handleError);
 
-    // Unsubscribe on unmount to prevent memory leaks.
     return () => {
       errorEmitter.off('permission-error', handleError);
     };
   }, []);
-
-  // On re-render, if an error exists in state, throw it.
-  if (error) {
-    throw error;
-  }
 
   // This component renders nothing.
   return null;

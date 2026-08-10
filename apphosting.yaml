@@ -5,3 +5,32 @@ runConfig:
   # Increase this value if you'd like to automatically spin up
   # more instances in response to increased traffic.
   maxInstances: 1
+
+# Environment variables and secrets for the production server.
+# - `value`  entries are plain text baked into the deploy (safe for public/non-secret data).
+# - `secret` entries reference a secret stored in Google Secret Manager (the value never
+#   appears in this file or in source control). Create it once with:
+#     firebase apphosting:secrets:set paystack-secret-key
+env:
+  # PayStack public key — safe to expose to the browser. Needed at build & runtime.
+  - variable: NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY
+    value: pk_live_c9ad98c008920e7169264dd665b485381bab4ee3
+    availability:
+      - BUILD
+      - RUNTIME
+
+  # Live subscription plan codes (product identifiers — not secret).
+  - variable: PAYSTACK_PLAN_STANDARD
+    value: PLN_1q2hu5rvs244gfe
+    availability:
+      - RUNTIME
+  - variable: PAYSTACK_PLAN_FEATURED
+    value: PLN_7bjdknlfks6fmta
+    availability:
+      - RUNTIME
+
+  # PayStack secret key — server only, stored in Secret Manager. Pulled at runtime.
+  - variable: PAYSTACK_SECRET_KEY
+    secret: paystack-secret-key
+    availability:
+      - RUNTIME

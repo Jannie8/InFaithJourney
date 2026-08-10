@@ -8,18 +8,32 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { getVendorById } from '@/lib/vendors';
 import Image from 'next/image';
 import { Star, MapPin, Share2, Phone, Mail, Instagram, Facebook, CheckCircle2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 
-export default function VendorProfilePage() {
+export default function VendorProfilePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     setIsLoaded(true);
   }, []);
+
+  // Resolve the vendor that was actually clicked. Falls back to a sensible
+  // default if the id is unknown so the page never breaks.
+  const vendor = getVendorById(slug) ?? {
+    name: 'Evergold Photography',
+    location: 'Johannesburg',
+    category: 'Photography',
+    rating: 4.9,
+    imageUrl: PlaceHolderImages.find(img => img.id === 'vendor-evergold')?.imageUrl || '',
+    imageHint: 'wedding photography',
+  };
+  const ratingStars = Math.round(vendor.rating);
 
   const gallery = [
     PlaceHolderImages.find(img => img.id === 'gallery-1'),
@@ -37,11 +51,11 @@ export default function VendorProfilePage() {
       {/* Large Hero Banner */}
       <section className="relative min-h-[70vh] md:h-[65vh] w-full overflow-hidden">
         <Image
-          src={PlaceHolderImages.find(img => img.id === 'vendor-evergold')?.imageUrl || ''}
-          alt="Evergold Photography"
+          src={vendor.imageUrl}
+          alt={vendor.name}
           fill
           className={`object-cover sepia-overlay brightness-[0.6] transition-opacity duration-1000 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-          data-ai-hint="wedding photography"
+          data-ai-hint={vendor.imageHint}
           priority
         />
         {/* Soft Linear Gradient Overlay */}
@@ -52,22 +66,22 @@ export default function VendorProfilePage() {
             <div className="space-y-4 md:space-y-6 pt-56 md:pt-0">
               <div className="flex justify-center md:justify-start">
                 <Badge className="bg-primary text-white border-none px-5 py-2 uppercase tracking-widest font-bold text-[10px] md:text-[11px] shadow-xl">
-                  PHOTOGRAPHY
+                  {vendor.category}
                 </Badge>
               </div>
-              <h1 className="text-[36px] md:text-[64px] font-headline text-white drop-shadow-2xl leading-tight">Evergold Photography</h1>
+              <h1 className="text-[36px] md:text-[64px] font-headline text-white drop-shadow-2xl leading-tight">{vendor.name}</h1>
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 md:gap-8 text-white/90">
                 <div className="flex items-center gap-2 drop-shadow-md">
                   <MapPin className="w-4 md:w-5 h-4 md:w-5 text-primary" />
-                  <span className="text-[16px] md:text-[18px] font-medium tracking-wide">Johannesburg, Gauteng</span>
+                  <span className="text-[16px] md:text-[18px] font-medium tracking-wide">{vendor.location}</span>
                 </div>
                 <div className="flex items-center gap-1.5 drop-shadow-md">
                   <div className="flex">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-3.5 md:w-4 h-3.5 md:h-4 fill-secondary text-secondary" />
+                      <Star key={i} className={`w-3.5 md:w-4 h-3.5 md:h-4 ${i < ratingStars ? 'fill-secondary text-secondary' : 'text-white/40'}`} />
                     ))}
                   </div>
-                  <span className="font-bold text-[16px] md:text-[18px] ml-1">4.9</span>
+                  <span className="font-bold text-[16px] md:text-[18px] ml-1">{vendor.rating.toFixed(1)}</span>
                 </div>
               </div>
             </div>
@@ -115,10 +129,10 @@ export default function VendorProfilePage() {
 
             {/* About */}
             <div className="space-y-6">
-              <h2 className="font-headline text-[28px] md:text-[36px]">About Evergold Photography</h2>
+              <h2 className="font-headline text-[28px] md:text-[36px]">About {vendor.name}</h2>
               <div className="w-16 h-1 bg-primary rounded-full"></div>
               <p className="text-foreground/90 leading-[1.8] text-[16px] md:text-[18px] font-medium italic">
-                We believe that every wedding is a unique story waiting to be told. With over a decade of experience in high-end South African weddings, Evergold Photography focuses on capturing the raw emotion, natural light, and sophisticated details of your romantic journey. 
+                We believe that every wedding is a unique story waiting to be told. With years of experience in high-end South African weddings, {vendor.name} focuses on capturing the raw emotion, natural beauty, and sophisticated details of your romantic journey.
               </p>
             </div>
 

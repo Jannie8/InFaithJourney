@@ -68,7 +68,38 @@ service cloud.firestore {
       allow get, list: if isOwner(userId) || isAdmin();
       allow create: if isOwner(userId);
       allow update: if isExistingOwner(userId);
-      allow delete: if false; 
+      allow delete: if false;
+    }
+
+    /**
+     * @description A user's own "saved"/liked vendors (the heart icon + nav counter).
+     * @path /users/{userId}/saved_vendors/{vendorId}
+     * @allow read, write: if the requester owns this user document.
+     * @principle Path-based ownership — only you can read/manage your own saved list.
+     */
+    match /users/{userId}/saved_vendors/{vendorId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    /**
+     * @description Vendor-initiated edit requests for their profile. Vendors propose
+     *   changes here; an admin reviews and either approves (the changes are then
+     *   applied to /vendorApplications/{appId}) or rejects.
+     * @path /vendorEditRequests/{requestId}
+     * @allow create: if the requester is signed in AND owns the vendorUid AND
+     *   submits with status == 'pending'. This prevents vendors from creating
+     *   pre-approved edits or impersonating others.
+     * @allow update, delete: admin only — vendors cannot retroactively edit their
+     *   own pending request (they should withdraw + resubmit if they need to).
+     * @principle Field-based ownership (vendorUid) with admin moderation.
+     */
+    match /vendorEditRequests/{requestId} {
+      allow get: if isOwner(resource.data.vendorUid) || isAdmin();
+      allow list: if isAdmin() || (isSignedIn() && request.query.limit <= 100);
+      allow create: if isSignedIn()
+                    && request.resource.data.vendorUid == request.auth.uid
+                    && request.resource.data.status == 'pending';
+      allow update, delete: if isAdmin();
     }
 
     /**

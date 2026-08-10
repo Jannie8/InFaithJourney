@@ -7,8 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import Link from 'next/link';
-import { 
-  Home as HomeIcon, Camera, Palette, Flower2, Utensils, Plane, 
+import { useRouter } from 'next/navigation';
+import {
+  Home as HomeIcon, Camera, Palette, Flower2, Utensils, Plane,
   Music, CalendarCheck, Shirt, PenTool, Cake, Gem, Search
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -31,6 +32,30 @@ export const CORE_VENDORS = [
 export default function Home() {
   const heroImage = PlaceHolderImages.find(img => img.id === 'hero-home');
   const [isLoaded, setIsLoaded] = useState(false);
+  const router = useRouter();
+
+  // Selected values for the "I'm looking for" / "In destination" dropdowns.
+  // Stored as the lowercased option value the Select uses internally.
+  const [searchCategory, setSearchCategory] = useState<string>('');
+  const [searchLocation, setSearchLocation] = useState<string>('');
+
+  // Run the search. We always navigate so the user gets visible feedback that
+  // their click did something. If a category was picked we route to the
+  // dedicated category page (its `href` already has the right slug); otherwise
+  // we land on the all-vendors listing. The location is passed as a query
+  // param so filtering can be wired into the destination page later without
+  // changing this entry point.
+  const handleFindVendors = () => {
+    // Always land on the rich /vendors page so the "Refine Results" sidebar
+    // (Browse Categories, Location, Budget) and the Elite/Curated toggle are
+    // available. The chosen category + location are passed as query params so
+    // the listing arrives pre-filtered.
+    const params = new URLSearchParams();
+    if (searchCategory) params.set('category', searchCategory);
+    if (searchLocation) params.set('location', searchLocation);
+    const qs = params.toString();
+    router.push(`/vendors${qs ? `?${qs}` : ''}`);
+  };
 
   useEffect(() => {
     setIsLoaded(true);
@@ -65,7 +90,7 @@ export default function Home() {
           <div className="bg-white/95 backdrop-blur-md p-2 rounded-[32px] md:rounded-[50px] shadow-2xl flex flex-col md:flex-row items-center gap-1 max-w-4xl mx-auto border border-white/20">
             <div className="flex-1 w-full px-6 md:px-8 py-2 text-left">
               <label className="block text-[10px] font-normal text-[#9B7B5B] uppercase tracking-[0.15em] mb-1">I'M LOOKING FOR</label>
-              <Select>
+              <Select value={searchCategory} onValueChange={setSearchCategory}>
                 <SelectTrigger className="border-none p-0 focus:ring-0 shadow-none bg-transparent h-auto text-[14px] md:text-[15px] font-headline font-bold text-[#2C1A0E] not-italic">
                   <SelectValue placeholder="SELECT CATEGORY" />
                 </SelectTrigger>
@@ -76,12 +101,12 @@ export default function Home() {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div className="hidden md:block w-px h-10 bg-border/40 mx-2"></div>
-            
+
             <div className="flex-1 w-full px-6 md:px-8 py-2 text-left">
               <label className="block text-[10px] font-normal text-[#9B7B5B] uppercase tracking-[0.15em] mb-1">IN DESTINATION</label>
-              <Select>
+              <Select value={searchLocation} onValueChange={setSearchLocation}>
                 <SelectTrigger className="border-none p-0 focus:ring-0 shadow-none bg-transparent h-auto text-[14px] md:text-[15px] font-headline font-bold text-[#2C1A0E] not-italic">
                   <SelectValue placeholder="ALL LOCATIONS" />
                 </SelectTrigger>
@@ -94,8 +119,11 @@ export default function Home() {
                 </SelectContent>
               </Select>
             </div>
-            
-            <Button className="w-full md:w-auto h-12 md:h-14 button-rose px-10 md:px-12 text-[12px] font-bold tracking-[0.2em] shadow-lg rounded-[32px] md:rounded-[50px]">
+
+            <Button
+              onClick={handleFindVendors}
+              className="w-full md:w-auto h-12 md:h-14 button-rose px-10 md:px-12 text-[12px] font-bold tracking-[0.2em] shadow-lg rounded-[32px] md:rounded-[50px]"
+            >
               <Search className="w-4 h-4 mr-2" /> FIND VENDORS
             </Button>
           </div>
