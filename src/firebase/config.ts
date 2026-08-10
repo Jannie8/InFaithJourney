@@ -1,8 +1,9 @@
 export const firebaseConfig = {
-  "projectId": "studio-2474367430-9a561",
-  "appId": "1:392786987548:web:96ea19cb3d315fc31fedd9",
-  "apiKey": "AIzaSyAWTaqa1Cfq28rtyBDRTKNwtHYzsi780WQ",
-  "authDomain": "studio-2474367430-9a561.firebaseapp.com",
-  "measurementId": "",
-  "messagingSenderId": "392786987548"
+  "apiKey": "AIzaSyDAJGl6Sku_DUXGozZqGcYLbZKVEoPCdF8",
+  "authDomain": "infaithjourney-90d96.firebaseapp.com",
+  "projectId": "infaithjourney-90d96",
+  "storageBucket": "infaithjourney-90d96.firebasestorage.app",
+  "messagingSenderId": "390734989552",
+  "appId": "1:390734989552:web:8bf6797e71031ae3371a35",
+  "measurementId": "G-DBWPSTVJQJ"
 };
