@@ -37,10 +37,44 @@ const CATEGORIES = [
   'Planning & Coordination', 'Fashion', 'Stationery', 'Wedding Cakes', 'Jewelry'
 ];
 
+const PLAN_OPTIONS = [
+  {
+    id: 'free',
+    name: 'Free Listing',
+    price: 'Free',
+    period: '',
+    description: 'Get discovered by local couples.',
+    benefits: ['Business name', '1 category', 'Location', 'Short description'],
+  },
+  {
+    id: 'standard',
+    name: 'Standard Vendor',
+    price: 'R499',
+    period: '/ month',
+    description: 'Start receiving direct inquiries.',
+    benefits: ['Full Editorial Profile', 'Verified Vendor Badge', 'Direct Client Inquiry Form', 'Search Priority', 'Standard Listing'],
+  },
+  {
+    id: 'featured',
+    name: 'Featured Vendor',
+    price: 'R1,199',
+    period: '/ month',
+    description: 'Maximum exposure for elite brands.',
+    benefits: ['Full Editorial Profile', 'Verified Vendor Badge', 'Direct Client Inquiry Form', 'Homepage Priority Placement', 'Social Media Highlights'],
+  },
+] as const;
+
+type PlanId = (typeof PLAN_OPTIONS)[number]['id'];
+
+function isPlanId(value: string): value is PlanId {
+  return PLAN_OPTIONS.some(plan => plan.id === value);
+}
+
 function ApplyForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialPlan = searchParams.get('plan') || 'standard';
+  const requestedPlan = searchParams.get('plan') || 'standard';
+  const initialPlan: PlanId = isPlanId(requestedPlan) ? requestedPlan : 'standard';
   const { user, isUserLoading } = useUser();
   const db = useFirestore();
   const app = useFirebaseApp();
@@ -71,6 +105,7 @@ function ApplyForm() {
     coverImageUrl: '',
     portfolioImageUrls: [] as string[]
   });
+  const selectedPlan = PLAN_OPTIONS.find(plan => plan.id === formData.selectedPlan) ?? PLAN_OPTIONS[1];
 
   // Check for existing pending applications
   useEffect(() => {
@@ -462,31 +497,58 @@ function ApplyForm() {
             >
               <div className="space-y-2 text-center md:text-left">
                 <h2 className="font-headline text-[28px] md:text-[32px] italic">Final Confirmation</h2>
-                <p className="text-[14px] md:text-[15px] text-muted-foreground italic font-medium">Review your commitment to excellence.</p>
+                <p className="text-[14px] md:text-[15px] text-muted-foreground italic font-medium">Choose your listing plan and review your application.</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4" role="radiogroup" aria-label="Vendor membership plan">
+                {PLAN_OPTIONS.map((plan) => {
+                  const isSelected = formData.selectedPlan === plan.id;
+                  return (
+                    <button
+                      key={plan.id}
+                      type="button"
+                      role="radio"
+                      aria-checked={isSelected}
+                      onClick={() => setFormData(prev => ({ ...prev, selectedPlan: plan.id }))}
+                      className={cn(
+                        "relative rounded-2xl border p-5 text-left transition-all",
+                        isSelected
+                          ? "border-secondary bg-secondary/10 shadow-md ring-1 ring-secondary"
+                          : "border-primary/10 bg-white/50 hover:border-secondary/40 hover:bg-white"
+                      )}
+                    >
+                      {isSelected && (
+                        <CheckCircle2 className="absolute right-4 top-4 h-5 w-5 text-secondary" />
+                      )}
+                      <p className="pr-7 font-headline text-lg italic text-primary">{plan.name}</p>
+                      <p className="mt-3 text-2xl font-bold text-primary">
+                        {plan.price}{plan.period && <span className="text-xs font-medium text-muted-foreground"> {plan.period}</span>}
+                      </p>
+                      <p className="mt-3 text-xs italic leading-relaxed text-muted-foreground">{plan.description}</p>
+                    </button>
+                  );
+                })}
               </div>
 
               <div className="bg-primary/5 rounded-[24px] md:rounded-3xl p-6 md:p-10 border border-primary/10 space-y-6 md:space-y-8 golden-glow-premium">
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-primary/10 pb-6 text-center sm:text-left">
                   <div>
                     <p className="text-[9px] md:text-[10px] md:text-[11px] font-bold uppercase tracking-[0.2em] text-secondary mb-1">Selected Plan</p>
-                    <h3 className="font-headline text-xl md:text-2xl italic uppercase tracking-wider">{formData.selectedPlan} Vendor</h3>
+                    <h3 className="font-headline text-xl md:text-2xl italic uppercase tracking-wider">{selectedPlan.name}</h3>
                   </div>
                   <div className="text-center sm:text-right">
                     <p className="text-[9px] md:text-[10px] md:text-[11px] font-bold uppercase tracking-[0.2em] text-secondary mb-1">Investment</p>
-                    <h3 className="text-xl md:text-2xl font-bold">{formData.selectedPlan === 'standard' ? 'R499' : 'R1,199'} <span className="text-[12px] md:text-[13px] md:text-sm font-medium opacity-60">/ month</span></h3>
+                    <h3 className="text-xl md:text-2xl font-bold">
+                      {selectedPlan.price}
+                      {selectedPlan.period && <span className="text-[12px] md:text-[13px] md:text-sm font-medium opacity-60"> {selectedPlan.period}</span>}
+                    </h3>
                   </div>
                 </div>
 
                 <div className="space-y-4">
                   <p className="text-[10px] md:text-[11px] md:text-[12px] font-bold uppercase tracking-widest opacity-60">Tier Benefits:</p>
                   <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-                    {[
-                      "Full Editorial Profile",
-                      "Verified Vendor Badge",
-                      "Direct Client Inquiry Form",
-                      formData.selectedPlan === 'featured' ? "Homepage Priority Placement" : "Search Priority",
-                      formData.selectedPlan === 'featured' ? "Social Media Highlights" : "Standard Listing"
-                    ].map((f, i) => (
+                    {selectedPlan.benefits.map((f, i) => (
                       <li key={i} className="flex items-center gap-3 text-[13px] md:text-[14px] italic font-medium">
                         <CheckCircle2 className="w-4 h-4 text-secondary shrink-0" /> {f}
                       </li>
