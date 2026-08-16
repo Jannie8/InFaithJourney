@@ -406,7 +406,7 @@ export default function DashboardPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="h-12 rounded-xl border-border bg-background" 
-                    placeholder="name@business.com" 
+                    placeholder="example@email.com"
                     required
                   />
                 </div>
@@ -418,7 +418,7 @@ export default function DashboardPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="h-12 rounded-xl border-border bg-background pr-12" 
-                      placeholder="••••••••" 
+                      placeholder="Password"
                       required
                     />
                     <button 
