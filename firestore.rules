@@ -106,14 +106,26 @@ service cloud.firestore {
      * @description Applications submitted by vendors for marketplace entry.
      * @path /vendorApplications/{applicationId}
      * @allow create: if authenticated.
-     * @allow get, update: if submitter or admin.
-     * @principle Field-based ownership (submitterUid) for applications.
+     * @allow get: if submitter or admin.
+     * @allow update: admins may review; submitters may directly maintain profile
+     *   fields without changing ownership, plan, or moderation state.
+     * @principle Field-based ownership with field-level protection for decisions.
      */
     match /vendorApplications/{applicationId} {
       allow get: if isOwner(resource.data.submitterUid) || isAdmin();
       allow list: if isAdmin() || (isSignedIn() && request.query.limit <= 100); // Admin can list all, users should query by UID
       allow create: if isSignedIn() && request.resource.data.submitterUid == request.auth.uid;
-      allow update: if (isExistingOwner(resource.data.submitterUid) && resource.data.applicationStatus == 'pending') || isAdmin();
+      allow update: if isAdmin()
+                    || (isExistingOwner(resource.data.submitterUid)
+                        && request.resource.data.submitterUid == resource.data.submitterUid
+                        && request.resource.data.applicationStatus == resource.data.applicationStatus
+                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+                          'businessName', 'ownerName', 'email', 'phoneNumber',
+                          'websiteUrl', 'instagramHandle', 'location', 'category',
+                          'description', 'yearsInBusiness', 'pricingRange',
+                          'servicesOffered', 'logoUrl', 'coverImageUrl',
+                          'portfolioImageUrls', 'updatedAt'
+                        ]));
       allow delete: if isAdmin();
     }
 

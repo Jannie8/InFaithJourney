@@ -35,3 +35,13 @@ env:
     secret: paystack-secret-key
     availability:
       - RUNTIME
+
+  # Resend API key and verified sender used for vendor approval notifications.
+  - variable: RESEND_API_KEY
+    secret: resend-api-key
+    availability:
+      - RUNTIME
+  - variable: APPROVAL_EMAIL_FROM
+    value: InFaith Journey <vendors@infaithjourney.com>
+    availability:
+      - RUNTIME
