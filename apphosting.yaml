@@ -42,6 +42,6 @@ env:
     availability:
       - RUNTIME
   - variable: APPROVAL_EMAIL_FROM
-    value: InFaith Journey <vendors@infaithjourney.com>
+    value: InFaith Journey <admin@infaithjourney.com>
     availability:
       - RUNTIME
