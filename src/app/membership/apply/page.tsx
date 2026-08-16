@@ -317,31 +317,31 @@ function ApplyForm() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                 <div className="space-y-2">
                   <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Business Name</Label>
-                  <Input name="businessName" value={formData.businessName} onChange={handleChange} placeholder="The Golden Studio" required className="h-12 md:h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
+                  <Input name="businessName" value={formData.businessName} onChange={handleChange} placeholder="e.g. Your Business Name" required className="h-12 md:h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
                 </div>
                 <div className="space-y-2">
                   <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Owner Name</Label>
-                  <Input name="ownerName" value={formData.ownerName} onChange={handleChange} placeholder="Ricardo de Jager" required className="h-12 md:h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
+                  <Input name="ownerName" value={formData.ownerName} onChange={handleChange} placeholder="e.g. Your Full Name" required className="h-12 md:h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
                 </div>
                 <div className="space-y-2">
                   <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Email Address</Label>
-                  <Input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="ricardo@infaith.com" required className="h-12 md:h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
+                  <Input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="example@email.com" required className="h-12 md:h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
                 </div>
                 <div className="space-y-2">
                   <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Phone Number</Label>
-                  <Input name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} placeholder="+27 78 442 0278" required className="h-12 md:h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
+                  <Input name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} placeholder="e.g. +27 12 345 6789" required className="h-12 md:h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
                 </div>
                 <div className="space-y-2">
                   <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Website URL</Label>
-                  <Input name="websiteUrl" value={formData.websiteUrl} onChange={handleChange} placeholder="https://..." className="h-12 md:h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
+                  <Input name="websiteUrl" value={formData.websiteUrl} onChange={handleChange} placeholder="e.g. https://yourbusiness.com" className="h-12 md:h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
                 </div>
                 <div className="space-y-2">
                   <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Instagram Handle</Label>
-                  <Input name="instagramHandle" value={formData.instagramHandle} onChange={handleChange} placeholder="@yourbrand" className="h-12 md:h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
+                  <Input name="instagramHandle" value={formData.instagramHandle} onChange={handleChange} placeholder="e.g. @yourbusiness" className="h-12 md:h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
                 </div>
                 <div className="space-y-2 md:col-span-2">
                   <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Primary Location</Label>
-                  <Input name="location" value={formData.location} onChange={handleChange} placeholder="Cape Town, South Africa" required className="h-12 md:h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
+                  <Input name="location" value={formData.location} onChange={handleChange} placeholder="e.g. City, Province" required className="h-12 md:h-14 rounded-2xl bg-white/50 border-primary/10 focus:ring-secondary/30" />
                 </div>
               </div>
             </motion.div>
@@ -388,11 +388,11 @@ function ApplyForm() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                   <div className="space-y-2">
                     <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Years in Business</Label>
-                    <Input type="number" name="yearsInBusiness" value={formData.yearsInBusiness} onChange={handleChange} placeholder="5" className="h-12 md:h-14 rounded-2xl bg-white/50 border-primary/10" />
+                    <Input type="number" name="yearsInBusiness" value={formData.yearsInBusiness} onChange={handleChange} placeholder="e.g. 5" className="h-12 md:h-14 rounded-2xl bg-white/50 border-primary/10" />
                   </div>
                   <div className="space-y-2">
                     <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Pricing Range</Label>
-                    <Input name="pricingRange" value={formData.pricingRange} onChange={handleChange} placeholder="From R15,000" className="h-12 md:h-14 rounded-2xl bg-white/50 border-primary/10" />
+                    <Input name="pricingRange" value={formData.pricingRange} onChange={handleChange} placeholder="e.g. From R5,000" className="h-12 md:h-14 rounded-2xl bg-white/50 border-primary/10" />
                   </div>
                 </div>
 

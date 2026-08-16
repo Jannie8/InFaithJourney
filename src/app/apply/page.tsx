@@ -103,11 +103,11 @@ export default function ApplyPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                   <div className="space-y-2 md:space-y-3">
                     <Label className="uppercase text-[11px] md:text-[13px] tracking-widest font-bold text-foreground/70">Full Name</Label>
-                    <Input className="h-12 md:h-14 rounded-xl px-6 border-primary/20 bg-background/50 text-[15px] md:text-[16px]" placeholder="John Doe" />
+                    <Input className="h-12 md:h-14 rounded-xl px-6 border-primary/20 bg-background/50 text-[15px] md:text-[16px]" placeholder="e.g. Your Full Name" />
                   </div>
                   <div className="space-y-2 md:space-y-3">
                     <Label className="uppercase text-[11px] md:text-[13px] tracking-widest font-bold text-foreground/70">Email Address</Label>
-                    <Input type="email" className="h-12 md:h-14 rounded-xl px-6 border-primary/20 bg-background/50 text-[15px] md:text-[16px]" placeholder="john@example.com" />
+                    <Input type="email" className="h-12 md:h-14 rounded-xl px-6 border-primary/20 bg-background/50 text-[15px] md:text-[16px]" placeholder="example@email.com" />
                   </div>
                 </div>
               </div>
@@ -130,7 +130,7 @@ export default function ApplyPage() {
                   </div>
                   <div className="space-y-2 md:space-y-3">
                     <Label className="uppercase text-[11px] md:text-[13px] tracking-widest font-bold text-foreground/70">Business Name</Label>
-                    <Input className="h-12 md:h-14 rounded-xl px-6 border-primary/20 bg-background/50 text-[15px] md:text-[16px]" placeholder="Your Luxury Brand" />
+                    <Input className="h-12 md:h-14 rounded-xl px-6 border-primary/20 bg-background/50 text-[15px] md:text-[16px]" placeholder="e.g. Your Business Name" />
                   </div>
                   <div className="space-y-2 md:space-y-3 md:col-span-2">
                     <Label className="uppercase text-[11px] md:text-[13px] tracking-widest font-bold text-foreground/70">Short Description</Label>
