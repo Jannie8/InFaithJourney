@@ -15,7 +15,7 @@ import {
   useUser, useFirestore, useMemoFirebase, useCollection, useDoc,
 } from '@/firebase';
 import {
-  collection, query, where, doc, updateDoc, serverTimestamp,
+  collection, query, where, doc,
 } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 
@@ -50,20 +50,26 @@ export default function AdminDashboardPage() {
     : null;
 
   const decide = async (id: string, decision: 'approved' | 'rejected') => {
-    if (!db) return;
+    if (!user) return;
     try {
       setBusyId(id);
-      await updateDoc(doc(db, 'vendorApplications', id), {
-        applicationStatus: decision,
-        reviewedAt: serverTimestamp(),
-        reviewedBy: user?.uid ?? null,
+      const token = await user.getIdToken();
+      const response = await fetch(`/api/admin/vendor-applications/${encodeURIComponent(id)}/decision`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ decision }),
       });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Could not review the application.');
       toast({
         title: decision === 'approved' ? 'Application Approved' : 'Application Rejected',
         description:
           decision === 'approved'
-            ? 'The vendor can now activate their membership.'
+            ? result.emailSent
+              ? 'The vendor was emailed a direct link to activate their chosen plan.'
+              : result.emailError || 'Approved, but the notification email was not sent.'
             : 'The applicant has been marked as not approved.',
+        variant: decision === 'approved' && !result.emailSent ? 'destructive' : 'default',
       });
     } catch (e: any) {
       console.error(e);

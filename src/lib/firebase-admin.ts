@@ -7,6 +7,7 @@
 
 import { getApps, initializeApp, applicationDefault, App } from 'firebase-admin/app';
 import { getFirestore, Firestore } from 'firebase-admin/firestore';
+import { getAuth, Auth } from 'firebase-admin/auth';
 
 let cachedApp: App | null = null;
 
@@ -28,4 +29,9 @@ function getAdminApp(): App {
 /** Returns the Admin Firestore instance (bypasses security rules — server only). */
 export function getAdminDb(): Firestore {
   return getFirestore(getAdminApp());
+}
+
+/** Returns the Admin Auth instance for verifying server-side ID tokens. */
+export function getAdminAuth(): Auth {
+  return getAuth(getAdminApp());
 }
