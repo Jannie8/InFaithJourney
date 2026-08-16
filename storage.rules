@@ -1,0 +1,19 @@
+/**
+ * Vendor application media is private to the applicant who uploaded it.
+ * Firebase Storage rules cannot make the resulting download URL private once
+ * its token is shared, so application URLs must remain in protected Firestore
+ * documents until an application is approved.
+ */
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /applications/{userId}/{mediaType}/{fileName} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow create, update: if request.auth != null
+                            && request.auth.uid == userId
+                            && mediaType in ['logo', 'cover', 'portfolio']
+                            && request.resource.size < 10 * 1024 * 1024
+                            && request.resource.contentType.matches('image/.*');
+    }
+  }
+}
