@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useUser, useFirestore, useFirebaseApp } from '@/firebase';
-import { collection, addDoc, serverTimestamp, query, where, getDocs, limit } from 'firebase/firestore';
+import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -227,17 +227,18 @@ function ApplyForm() {
 
     setIsSubmitting(true);
     try {
-      await addDoc(collection(db, 'vendorApplications'), {
-        ...formData,
-        submitterUid: user.uid,
-        applicationStatus: 'pending',
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
+      const token = await user.getIdToken();
+      const response = await fetch('/api/vendor-applications', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
       });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Could not submit the application.');
       router.push('/membership/success');
-    } catch (error) {
+    } catch (error: any) {
       console.error("Submission failed", error);
-      toast({ title: "Submission Failed", description: "There was an error saving your application.", variant: "destructive" });
+      toast({ title: "Submission Failed", description: error?.message || "There was an error saving your application.", variant: "destructive" });
     } finally {
       setIsSubmitting(false);
     }

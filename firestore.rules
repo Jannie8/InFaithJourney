@@ -114,7 +114,9 @@ service cloud.firestore {
     match /vendorApplications/{applicationId} {
       allow get: if isOwner(resource.data.submitterUid) || isAdmin();
       allow list: if isAdmin() || (isSignedIn() && request.query.limit <= 100); // Admin can list all, users should query by UID
-      allow create: if isSignedIn() && request.resource.data.submitterUid == request.auth.uid;
+      // Applications are created by the authenticated server endpoint so every
+      // successful submission also triggers an administrator notification.
+      allow create: if false;
       allow update: if isAdmin()
                     || (isExistingOwner(resource.data.submitterUid)
                         && request.resource.data.submitterUid == resource.data.submitterUid

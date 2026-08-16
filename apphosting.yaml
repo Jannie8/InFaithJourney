@@ -36,7 +36,7 @@ env:
     availability:
       - RUNTIME
 
-  # Resend API key and verified sender used for vendor approval notifications.
+  # Resend API key and verified sender used for application notifications.
   - variable: RESEND_API_KEY
     secret: resend-api-key
     availability:
