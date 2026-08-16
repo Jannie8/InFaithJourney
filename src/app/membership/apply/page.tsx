@@ -113,6 +113,17 @@ function ApplyForm() {
     const files = e.target.files;
     if (!files || files.length === 0 || !user) return;
 
+    const invalidFile = Array.from(files).find(file => !file.type.startsWith('image/') || file.size >= 10 * 1024 * 1024);
+    if (invalidFile) {
+      toast({
+        title: "Invalid Image",
+        description: "Please upload image files smaller than 10 MB each.",
+        variant: "destructive",
+      });
+      e.target.value = '';
+      return;
+    }
+
     setIsUploading(true);
     try {
       const uploadPromises = Array.from(files).map(async (file) => {
@@ -135,9 +146,10 @@ function ApplyForm() {
       }
     } catch (error) {
       console.error("Upload error", error);
-      toast({ title: "Upload Failed", description: "Could not upload media. Please try again.", variant: "destructive" });
+      toast({ title: "Upload Failed", description: "Could not upload the image. Check your connection and try again.", variant: "destructive" });
     } finally {
       setIsUploading(false);
+      e.target.value = '';
     }
   };
 
@@ -149,6 +161,10 @@ function ApplyForm() {
     }
     if (step === 2 && (!formData.category || !formData.description)) {
       toast({ title: "Missing Details", description: "Category and description are required.", variant: "destructive" });
+      return;
+    }
+    if (step === 3 && (!formData.logoUrl || !formData.coverImageUrl || formData.portfolioImageUrls.length === 0)) {
+      toast({ title: "Media Required", description: "Please upload a logo, cover banner, and at least one portfolio image.", variant: "destructive" });
       return;
     }
     setStep(prev => Math.min(prev + 1, 4));
@@ -375,9 +391,9 @@ function ApplyForm() {
               <div className="space-y-8 md:space-y-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
                   <div className="space-y-3">
-                    <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Brand Logo</Label>
+                    <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Brand Logo <span className="text-destructive">*</span></Label>
                     <div className="relative group">
-                      <Input type="file" onChange={(e) => handleFileUpload(e, 'logo')} className="hidden" id="logo-upload" accept="image/*" />
+                      <Input type="file" onChange={(e) => handleFileUpload(e, 'logo')} className="hidden" id="logo-upload" accept="image/*" aria-required="true" />
                       <label htmlFor="logo-upload" className="border-2 border-dashed border-primary/10 rounded-2xl p-6 md:p-8 text-center bg-white/20 hover:bg-primary/5 transition-all cursor-pointer block group-hover:border-secondary/40">
                         {formData.logoUrl ? (
                           <div className="relative w-16 md:w-20 h-16 md:h-20 mx-auto">
@@ -393,9 +409,9 @@ function ApplyForm() {
                     </div>
                   </div>
                   <div className="space-y-3">
-                    <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Cover Banner</Label>
+                    <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Cover Banner <span className="text-destructive">*</span></Label>
                     <div className="relative group">
-                      <Input type="file" onChange={(e) => handleFileUpload(e, 'cover')} className="hidden" id="cover-upload" accept="image/*" />
+                      <Input type="file" onChange={(e) => handleFileUpload(e, 'cover')} className="hidden" id="cover-upload" accept="image/*" aria-required="true" />
                       <label htmlFor="cover-upload" className="border-2 border-dashed border-primary/10 rounded-2xl p-6 md:p-8 text-center bg-white/20 hover:bg-primary/5 transition-all cursor-pointer block group-hover:border-secondary/40">
                         {formData.coverImageUrl ? (
                           <div className="relative h-16 md:h-20 w-full">
@@ -413,13 +429,13 @@ function ApplyForm() {
                 </div>
 
                 <div className="space-y-3">
-                  <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Portfolio Images ({formData.portfolioImageUrls.length} added)</Label>
+                  <Label className="uppercase text-[10px] md:text-[11px] font-bold tracking-widest opacity-70">Portfolio Images <span className="text-destructive">*</span> ({formData.portfolioImageUrls.length} added)</Label>
                   <div className="relative group">
-                    <Input type="file" multiple onChange={(e) => handleFileUpload(e, 'portfolio')} className="hidden" id="portfolio-upload" accept="image/*" />
+                    <Input type="file" multiple onChange={(e) => handleFileUpload(e, 'portfolio')} className="hidden" id="portfolio-upload" accept="image/*" aria-required="true" />
                     <label htmlFor="portfolio-upload" className="border-2 border-dashed border-primary/10 rounded-[24px] md:rounded-[32px] p-10 md:p-16 text-center bg-white/20 hover:bg-primary/5 transition-all cursor-pointer block group-hover:border-secondary/40">
                       <ImageIcon className="w-10 md:w-12 h-10 md:h-12 text-primary/30 mx-auto mb-4 md:mb-6 group-hover:scale-110 transition-transform" />
                       <p className="font-headline text-xl md:text-2xl italic mb-1 md:mb-2 text-primary">Add your finest work</p>
-                      <p className="text-muted-foreground italic text-[12px] md:text-[13px] md:text-sm">Select multiple high-resolution JPEG or PNG files.</p>
+                      <p className="text-muted-foreground italic text-[12px] md:text-[13px] md:text-sm">At least one image is required. Maximum 10 MB per file.</p>
                     </label>
                   </div>
                   {formData.portfolioImageUrls.length > 0 && (
