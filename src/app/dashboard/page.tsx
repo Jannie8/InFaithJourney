@@ -16,15 +16,16 @@ import {
   PieChart, CreditCard, Edit3, Loader2, CheckCircle,
   Phone, MapPin, Globe, Instagram, Tag, Calendar,
   Banknote, FileText, ImageIcon, AlertCircle,
-  ShieldCheck, XCircle, ClipboardCheck, Clock,
+  ShieldCheck, XCircle, ClipboardCheck, Upload, Trash2,
 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import Link from 'next/link';
-import { useUser, useAuth, useFirestore, useMemoFirebase, useCollection, useDoc } from '@/firebase';
+import { useUser, useAuth, useFirestore, useFirebaseApp, useMemoFirebase, useCollection, useDoc } from '@/firebase';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import {
-  collection, query, where, doc, setDoc, addDoc, updateDoc, serverTimestamp,
+  collection, query, where, doc, setDoc, updateDoc, serverTimestamp,
 } from 'firebase/firestore';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
@@ -32,6 +33,8 @@ export default function DashboardPage() {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
   const db = useFirestore();
+  const firebaseApp = useFirebaseApp();
+  const storage = getStorage(firebaseApp);
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -120,22 +123,6 @@ export default function DashboardPage() {
   const { data: adminRole } = useDoc<any>(adminRoleRef);
   const isAdmin = !!adminRole;
 
-  // The vendor's own pending edit request (if any). We only allow one at a time
-  // so the admin queue stays tidy and the vendor isn't confused by overlapping versions.
-  const myPendingEditQuery = useMemoFirebase(
-    () =>
-      user && db
-        ? query(
-            collection(db, 'vendorEditRequests'),
-            where('vendorUid', '==', user.uid),
-            where('status', '==', 'pending')
-          )
-        : null,
-    [user, db]
-  );
-  const { data: myPendingEdits } = useCollection<any>(myPendingEditQuery);
-  const myPendingEdit = (myPendingEdits && myPendingEdits.length > 0) ? myPendingEdits[0] : null;
-
   // Admin queues — only fetched when the signed-in user is an admin (avoids
   // permission errors for everyone else, since list rules require admin).
   const adminApplicationsQuery = useMemoFirebase(
@@ -147,19 +134,11 @@ export default function DashboardPage() {
   );
   const { data: adminPendingApps } = useCollection<any>(adminApplicationsQuery);
 
-  const adminEditsQuery = useMemoFirebase(
-    () =>
-      isAdmin && db
-        ? query(collection(db, 'vendorEditRequests'), where('status', '==', 'pending'))
-        : null,
-    [isAdmin, db]
-  );
-  const { data: adminPendingEdits } = useCollection<any>(adminEditsQuery);
-
-  // Edit-form UI state for "Request Edit" on the My Profile tab.
+  // Vendors can edit their own approved profile directly.
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<Record<string, any>>({});
   const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [isUploadingEdit, setIsUploadingEdit] = useState(false);
   const [reviewingId, setReviewingId] = useState<string | null>(null);
 
   // Editable text fields — pull from the application as the source of truth.
@@ -183,39 +162,72 @@ export default function DashboardPage() {
     // Prefill the form with current values so the vendor only changes what they want.
     const initial: Record<string, any> = {};
     editableFields.forEach((f) => { initial[f.key] = application[f.key] ?? ''; });
+    initial.logoUrl = application.logoUrl ?? '';
+    initial.coverImageUrl = application.coverImageUrl ?? '';
+    initial.portfolioImageUrls = [...(application.portfolioImageUrls ?? [])];
+    setActiveTab('My Profile');
     setEditForm(initial);
     setIsEditing(true);
+    setTimeout(() => document.getElementById('profile-edit-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0);
   };
 
-  const submitEditRequest = async () => {
+  const handleEditImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+    type: 'logo' | 'cover' | 'portfolio'
+  ) => {
+    const files = event.target.files;
+    if (!files?.length || !user) return;
+    const invalid = Array.from(files).find(file => !file.type.startsWith('image/') || file.size >= 10 * 1024 * 1024);
+    if (invalid) {
+      toast({ title: 'Invalid image', description: 'Use image files smaller than 10 MB.', variant: 'destructive' });
+      event.target.value = '';
+      return;
+    }
+    try {
+      setIsUploadingEdit(true);
+      const urls = await Promise.all(Array.from(files).map(async file => {
+        const fileRef = ref(storage, `applications/${user.uid}/${type}/${Date.now()}-${file.name}`);
+        await uploadBytes(fileRef, file);
+        return getDownloadURL(fileRef);
+      }));
+      setEditForm(current => type === 'portfolio'
+        ? { ...current, portfolioImageUrls: [...(current.portfolioImageUrls ?? []), ...urls] }
+        : { ...current, [type === 'logo' ? 'logoUrl' : 'coverImageUrl']: urls[0] });
+    } catch (error: any) {
+      toast({ title: 'Upload failed', description: error?.message ?? 'Please try again.', variant: 'destructive' });
+    } finally {
+      setIsUploadingEdit(false);
+      event.target.value = '';
+    }
+  };
+
+  const saveProfileEdits = async () => {
     if (!user || !db || !application) return;
-    // Compute the diff — only include fields the vendor actually changed.
     const changes: Record<string, any> = {};
     editableFields.forEach((f) => {
       const newVal = (editForm[f.key] ?? '').trim();
       const oldVal = (application[f.key] ?? '').toString().trim();
       if (newVal !== oldVal) changes[f.key] = newVal;
     });
+    ['logoUrl', 'coverImageUrl', 'portfolioImageUrls'].forEach(key => {
+      if (JSON.stringify(editForm[key] ?? (key === 'portfolioImageUrls' ? [] : '')) !== JSON.stringify(application[key] ?? (key === 'portfolioImageUrls' ? [] : ''))) {
+        changes[key] = editForm[key];
+      }
+    });
     if (Object.keys(changes).length === 0) {
-      toast({ title: 'No changes to submit', description: 'Update at least one field first.' });
+      toast({ title: 'No changes to save', description: 'Update at least one field first.' });
       return;
     }
     try {
       setIsSavingEdit(true);
-      await addDoc(collection(db, 'vendorEditRequests'), {
-        vendorUid: user.uid,
-        applicationId: application.id,
-        status: 'pending',
-        changes,
-        createdAt: serverTimestamp(),
+      await updateDoc(doc(db, 'vendorApplications', application.id), {
+        ...changes,
+        updatedAt: serverTimestamp(),
       });
-      toast({
-        title: 'Edit request submitted',
-        description: 'An admin will review your changes shortly.',
-      });
+      toast({ title: 'Profile updated', description: 'Your changes are now live.' });
       setIsEditing(false);
     } catch (e: any) {
-      toast({ title: 'Could not submit', description: e?.message ?? 'Try again.', variant: 'destructive' });
+      toast({ title: 'Could not save changes', description: e?.message ?? 'Try again.', variant: 'destructive' });
     } finally {
       setIsSavingEdit(false);
     }
@@ -243,37 +255,6 @@ export default function DashboardPage() {
               : result.emailError || 'Approved, but the notification email was not sent.'
             : 'The applicant has been marked as not approved.',
         variant: decision === 'approved' && !result.emailSent ? 'destructive' : 'default',
-      });
-    } catch (e: any) {
-      toast({ title: 'Action Failed', description: e?.message, variant: 'destructive' });
-    } finally {
-      setReviewingId(null);
-    }
-  };
-
-  // Admin actions: approve/decline an edit request. Approval applies the diff to
-  // the underlying vendorApplication so it's the source of truth going forward.
-  const decideEditRequest = async (request: any, decision: 'approved' | 'rejected') => {
-    if (!db) return;
-    try {
-      setReviewingId(request.id);
-      if (decision === 'approved' && request.applicationId && request.changes) {
-        await updateDoc(doc(db, 'vendorApplications', request.applicationId), {
-          ...request.changes,
-          updatedAt: serverTimestamp(),
-        });
-      }
-      await updateDoc(doc(db, 'vendorEditRequests', request.id), {
-        status: decision,
-        reviewedAt: serverTimestamp(),
-        reviewedBy: user?.uid ?? null,
-      });
-      toast({
-        title: decision === 'approved' ? 'Edit Approved' : 'Edit Declined',
-        description:
-          decision === 'approved'
-            ? "The vendor's profile has been updated."
-            : 'The edit request was declined.',
       });
     } catch (e: any) {
       toast({ title: 'Action Failed', description: e?.message, variant: 'destructive' });
@@ -525,14 +506,18 @@ export default function DashboardPage() {
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-border text-center md:text-left">
                 <div className="space-y-2">
                   <h1 className="font-headline text-[32px] md:text-[42px] leading-tight text-foreground">Command Center</h1>
-                  <p className="text-[14px] md:text-[15px] text-muted-foreground italic font-medium">Evergold Photography — Johannesburg, GP</p>
+                  <p className="text-[14px] md:text-[15px] text-muted-foreground italic font-medium">
+                    {application ? `${application.businessName || 'Your business'}${application.location ? ` — ${application.location}` : ''}` : 'Manage your vendor account'}
+                  </p>
                 </div>
-                <div className="flex justify-center md:justify-end">
-                  <Button className="h-12 px-8 button-rose text-[12px] md:text-[13px] font-bold tracking-widest uppercase">
-                    <Edit3 className="w-4 h-4 mr-2" />
-                    Edit Listing
-                  </Button>
-                </div>
+                {application && appStatus === 'approved' && (
+                  <div className="flex justify-center md:justify-end">
+                    <Button onClick={openEditForm} className="h-12 px-8 button-rose text-[12px] md:text-[13px] font-bold tracking-widest uppercase">
+                      <Edit3 className="w-4 h-4 mr-2" />
+                      Edit Profile
+                    </Button>
+                  </div>
+                )}
               </div>
 
               {/* Stats Grid */}
@@ -890,110 +875,80 @@ export default function DashboardPage() {
                         </Card>
                       )}
 
-                      {/* Edit request UI — vendors propose changes; admin reviews. */}
-                      {myPendingEdit ? (
-                        <Card className="rounded-[24px] border border-amber-200 bg-amber-50/40">
-                          <CardContent className="p-5 md:p-6 flex items-start gap-3">
-                            <Clock className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
-                            <div className="flex-1">
-                              <h4 className="text-[14px] font-bold mb-1">Edit request pending review</h4>
-                              <p className="text-[12px] text-muted-foreground italic">
-                                You've submitted changes to your profile. An admin will review them shortly — we'll
-                                update your profile once approved.
-                              </p>
-                              {myPendingEdit.changes && (
-                                <ul className="mt-3 space-y-1 text-[12px]">
-                                  {Object.keys(myPendingEdit.changes).map((k) => {
-                                    const label = editableFields.find((f) => f.key === k)?.label ?? k;
-                                    return <li key={k} className="text-muted-foreground">· {label}</li>;
-                                  })}
-                                </ul>
-                              )}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ) : isEditing ? (
-                        <Card className="rounded-[24px] border border-primary/10 shadow-soft">
+                      {isEditing && (
+                        <Card id="profile-edit-form" className="rounded-[24px] border border-primary/10 shadow-soft scroll-mt-36">
                           <CardContent className="p-6 md:p-8 space-y-6">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
                                 <Edit3 className="w-5 h-5 text-primary" />
-                                <h3 className="font-headline text-[20px]">Request Profile Edit</h3>
+                                <h3 className="font-headline text-[20px]">Edit Profile</h3>
                               </div>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setIsEditing(false)}
-                                disabled={isSavingEdit}
-                                className="text-[11px] uppercase tracking-widest"
-                              >
+                              <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)} disabled={isSavingEdit || isUploadingEdit} className="text-[11px] uppercase tracking-widest">
                                 Cancel
                               </Button>
                             </div>
                             <p className="text-[13px] text-muted-foreground italic">
-                              Update what you'd like to change. Submit when ready — an admin reviews edits before they
-                              take effect. Image edits aren't supported in this form yet; contact the team for those.
+                              Update your business details and photos. Your saved changes will appear immediately.
                             </p>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                              {editableFields.map((f) => (
-                                <div key={f.key} className={f.multiline ? 'md:col-span-2 space-y-2' : 'space-y-2'}>
-                                  <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
-                                    {f.label}
-                                  </Label>
-                                  {f.multiline ? (
-                                    <Textarea
-                                      value={editForm[f.key] ?? ''}
-                                      onChange={(e) => setEditForm({ ...editForm, [f.key]: e.target.value })}
-                                      className="min-h-[100px] rounded-xl"
-                                      placeholder={`Update ${f.label.toLowerCase()}…`}
-                                    />
+                              {editableFields.map((field) => (
+                                <div key={field.key} className={field.multiline ? 'md:col-span-2 space-y-2' : 'space-y-2'}>
+                                  <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{field.label}</Label>
+                                  {field.multiline ? (
+                                    <Textarea value={editForm[field.key] ?? ''} onChange={(event) => setEditForm({ ...editForm, [field.key]: event.target.value })} className="min-h-[100px] rounded-xl" />
                                   ) : (
-                                    <Input
-                                      value={editForm[f.key] ?? ''}
-                                      onChange={(e) => setEditForm({ ...editForm, [f.key]: e.target.value })}
-                                      className="rounded-xl"
-                                      placeholder={`Update ${f.label.toLowerCase()}…`}
-                                    />
+                                    <Input value={editForm[field.key] ?? ''} onChange={(event) => setEditForm({ ...editForm, [field.key]: event.target.value })} className="rounded-xl" />
                                   )}
                                 </div>
                               ))}
                             </div>
+
+                            <div className="space-y-4 border-t border-primary/10 pt-6">
+                              <div className="flex items-center gap-3">
+                                <ImageIcon className="w-5 h-5 text-primary" />
+                                <h4 className="font-headline text-[18px]">Profile Photos</h4>
+                              </div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                {(['logo', 'cover'] as const).map(type => {
+                                  const urlKey = type === 'logo' ? 'logoUrl' : 'coverImageUrl';
+                                  return (
+                                    <div key={type} className="space-y-3">
+                                      <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{type === 'logo' ? 'Logo' : 'Cover image'}</Label>
+                                      {editForm[urlKey] && <img src={editForm[urlKey]} alt={type} className="w-full h-36 object-cover rounded-xl border border-border" />}
+                                      <div className="flex gap-2">
+                                        <Button asChild type="button" variant="outline" className="rounded-full text-[10px] uppercase tracking-widest">
+                                          <label className="cursor-pointer"><Upload className="w-4 h-4 mr-2" /> Replace<input type="file" accept="image/*" className="sr-only" onChange={event => handleEditImageUpload(event, type)} /></label>
+                                        </Button>
+                                        {editForm[urlKey] && <Button type="button" variant="ghost" size="sm" onClick={() => setEditForm({ ...editForm, [urlKey]: '' })} className="text-red-500"><Trash2 className="w-4 h-4" /></Button>}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                              <div className="space-y-3">
+                                <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Portfolio</Label>
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                  {(editForm.portfolioImageUrls ?? []).map((url: string, index: number) => (
+                                    <div key={`${url}-${index}`} className="relative">
+                                      <img src={url} alt={`Portfolio ${index + 1}`} className="w-full h-28 object-cover rounded-xl border border-border" />
+                                      <Button type="button" size="icon" variant="destructive" onClick={() => setEditForm({ ...editForm, portfolioImageUrls: editForm.portfolioImageUrls.filter((_: string, itemIndex: number) => itemIndex !== index) })} className="absolute right-2 top-2 h-7 w-7 rounded-full">
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                      </Button>
+                                    </div>
+                                  ))}
+                                </div>
+                                <Button asChild type="button" variant="outline" className="rounded-full text-[10px] uppercase tracking-widest">
+                                  <label className="cursor-pointer"><Upload className="w-4 h-4 mr-2" /> Add photos<input type="file" accept="image/*" multiple className="sr-only" onChange={event => handleEditImageUpload(event, 'portfolio')} /></label>
+                                </Button>
+                              </div>
+                            </div>
+
                             <div className="flex justify-end gap-3 pt-2">
-                              <Button
-                                variant="outline"
-                                onClick={() => setIsEditing(false)}
-                                disabled={isSavingEdit}
-                                className="rounded-full h-10 px-5 text-[11px] uppercase tracking-widest"
-                              >
-                                Cancel
-                              </Button>
-                              <Button
-                                onClick={submitEditRequest}
-                                disabled={isSavingEdit}
-                                className="rounded-full h-10 px-5 button-rose text-[11px] uppercase tracking-widest"
-                              >
-                                {isSavingEdit ? (
-                                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Submitting...</>
-                                ) : (
-                                  'Submit for Review'
-                                )}
+                              <Button variant="outline" onClick={() => setIsEditing(false)} disabled={isSavingEdit || isUploadingEdit} className="rounded-full h-10 px-5 text-[11px] uppercase tracking-widest">Cancel</Button>
+                              <Button onClick={saveProfileEdits} disabled={isSavingEdit || isUploadingEdit} className="rounded-full h-10 px-5 button-rose text-[11px] uppercase tracking-widest">
+                                {(isSavingEdit || isUploadingEdit) ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> {isUploadingEdit ? 'Uploading...' : 'Saving...'}</> : 'Save Changes'}
                               </Button>
                             </div>
-                          </CardContent>
-                        </Card>
-                      ) : (
-                        <Card className="rounded-[24px] border border-dashed border-primary/20 bg-primary/5">
-                          <CardContent className="p-5 md:p-6 flex flex-col md:flex-row items-start md:items-center gap-4">
-                            <Edit3 className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-                            <p className="text-[13px] text-muted-foreground italic flex-1">
-                              Need to update your profile? Submit a request and an admin will review it.
-                            </p>
-                            <Button
-                              onClick={openEditForm}
-                              className="button-rose rounded-full h-10 px-5 text-[11px] uppercase tracking-widest"
-                            >
-                              <Edit3 className="w-4 h-4 mr-2" /> Request Edit
-                            </Button>
                           </CardContent>
                         </Card>
                       )}
@@ -1064,79 +1019,6 @@ export default function DashboardPage() {
                     </CardContent>
                   </Card>
 
-                  {/* Pending Edit Requests */}
-                  <Card className="rounded-[24px] md:rounded-[32px] border border-primary/10 shadow-soft">
-                    <CardContent className="p-6 md:p-8 space-y-6">
-                      <div className="flex items-center justify-between border-b border-primary/10 pb-4">
-                        <div className="flex items-center gap-3">
-                          <Edit3 className="w-5 h-5 text-primary" />
-                          <h2 className="font-headline text-[22px] md:text-[26px]">Pending Profile Edits</h2>
-                        </div>
-                        <Badge variant="secondary" className="text-[10px] font-bold uppercase tracking-widest bg-primary/5 text-primary border-primary/10">
-                          {adminPendingEdits?.length ?? 0}
-                        </Badge>
-                      </div>
-                      {!adminPendingEdits ? (
-                        <div className="py-8 flex justify-center"><Loader2 className="w-6 h-6 text-primary animate-spin" /></div>
-                      ) : adminPendingEdits.length === 0 ? (
-                        <p className="py-6 text-center text-muted-foreground italic font-medium">
-                          No edit requests waiting.
-                        </p>
-                      ) : (
-                        <div className="space-y-4">
-                          {[...adminPendingEdits]
-                            .sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0))
-                            .map((req) => (
-                              <div key={req.id} className="p-4 md:p-5 rounded-2xl border border-primary/10 space-y-3">
-                                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
-                                  <div className="flex-1 min-w-0">
-                                    <h4 className="font-bold text-[14px] mb-1">Requested by vendor {req.vendorUid?.slice(0, 8)}…</h4>
-                                    <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
-                                      Application ID: {req.applicationId?.slice(0, 12)}…
-                                    </p>
-                                  </div>
-                                  <div className="flex gap-2 shrink-0">
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      disabled={reviewingId === req.id}
-                                      onClick={() => decideEditRequest(req, 'rejected')}
-                                      className="h-9 rounded-full border-red-100 text-red-500 hover:bg-red-50 hover:text-red-600 text-[10px]"
-                                    >
-                                      {reviewingId === req.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <><XCircle className="w-4 h-4 mr-1.5" /> Decline</>}
-                                    </Button>
-                                    <Button
-                                      size="sm"
-                                      disabled={reviewingId === req.id}
-                                      onClick={() => decideEditRequest(req, 'approved')}
-                                      className="h-9 rounded-full button-rose text-[10px]"
-                                    >
-                                      {reviewingId === req.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <><CheckCircle className="w-4 h-4 mr-1.5" /> Approve</>}
-                                    </Button>
-                                  </div>
-                                </div>
-                                {req.changes && Object.keys(req.changes).length > 0 && (
-                                  <div className="pt-2 border-t border-primary/10 space-y-2">
-                                    <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Proposed changes</p>
-                                    <ul className="space-y-1.5">
-                                      {Object.entries(req.changes).map(([k, v]) => {
-                                        const label = editableFields.find((f) => f.key === k)?.label ?? k;
-                                        return (
-                                          <li key={k} className="text-[12px]">
-                                            <span className="font-bold">{label}:</span>{' '}
-                                            <span className="text-foreground/80 italic">"{String(v)}"</span>
-                                          </li>
-                                        );
-                                      })}
-                                    </ul>
-                                  </div>
-                                )}
-                              </div>
-                            ))}
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
                 </div>
               )}
             </div>
