@@ -23,7 +23,7 @@ import Link from 'next/link';
 import { useUser, useAuth, useFirestore, useFirebaseApp, useMemoFirebase, useCollection, useDoc } from '@/firebase';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import {
-  collection, query, where, doc, setDoc, updateDoc, serverTimestamp,
+  collection, query, where, doc, updateDoc, serverTimestamp,
 } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { cn } from '@/lib/utils';
@@ -267,13 +267,14 @@ export default function DashboardPage() {
   const handleActivate = async (tier: 'standard' | 'featured') => {
     try {
       setIsPaying(tier);
+      if (!user || !application) throw new Error('Sign in and wait for your approved application to load.');
+      const token = await user.getIdToken();
       const res = await fetch('/api/paystack/initialize', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tier,
-          email: user?.email || 'vendor-test@infaithjourney.com',
-          uid: user?.uid || null,
+          applicationId: application.id,
         }),
       });
       const data = await res.json();
@@ -291,29 +292,22 @@ export default function DashboardPage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('paystack') !== 'return') return;
+    // Firebase restores authentication asynchronously after the full-page PayStack
+    // redirect. Do not consume and clear the callback until the user is available.
+    if (isUserLoading || !user) return;
     const reference = params.get('reference') || params.get('trxref');
     if (!reference) return;
 
     (async () => {
       try {
-        const res = await fetch(`/api/paystack/verify?reference=${encodeURIComponent(reference)}`);
+        const token = await user.getIdToken();
+        const res = await fetch('/api/paystack/verify', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reference }),
+        });
         const data = await res.json();
-        if (data.success) {
-          // Record the membership on the vendor's own record (rules allow owner writes).
-          if (user && db) {
-            await setDoc(
-              doc(db, 'vendors', user.uid),
-              {
-                membershipStatus: 'active',
-                membershipTier: data.tier ?? approvedTier,
-                paystackReference: data.reference ?? reference,
-                email: user.email ?? null,
-                submitterUid: user.uid,
-                updatedAt: serverTimestamp(),
-              },
-              { merge: true }
-            );
-          }
+        if (res.ok && data.success) {
           setActiveTab('Subscription & Billing');
           toast({ title: 'Membership Active', description: 'Your payment was confirmed. Welcome aboard!' });
         } else {
@@ -326,7 +320,7 @@ export default function DashboardPage() {
         window.history.replaceState({}, '', '/dashboard');
       }
     })();
-  }, [toast, user, db, approvedTier]);
+  }, [toast, user, isUserLoading]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
