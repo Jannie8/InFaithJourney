@@ -1,8 +1,8 @@
 "use client";
 
-import { FormEvent, Suspense, useEffect, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from 'firebase/auth';
 import { Eye, EyeOff, Loader2, UserPlus } from 'lucide-react';
 import { Navbar } from '@/components/layout/Navbar';
@@ -14,27 +14,22 @@ import { Label } from '@/components/ui/label';
 import { useAuth, useUser } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 
-function safeDestination(value: string | null) {
-  return value?.startsWith('/') && !value.startsWith('//') ? value : '/membership/apply';
-}
-
 function SignUpForm() {
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { toast } = useToast();
-  const destination = safeDestination(searchParams.get('next'));
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!isUserLoading && user && !isSubmitting) router.replace(destination);
-  }, [destination, isSubmitting, isUserLoading, router, user]);
+    if (!isUserLoading && user && !isSubmitting) router.replace('/');
+  }, [isSubmitting, isUserLoading, router, user]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -54,8 +49,8 @@ function SignUpForm() {
         updateProfile(credential.user, { displayName: name.trim() }),
         sendEmailVerification(credential.user),
       ]);
-      toast({ title: 'Account Created', description: 'Welcome! You can now complete your vendor application.' });
-      router.replace(destination);
+      toast({ title: 'Account Created', description: 'Welcome to InFaith Journey!' });
+      router.replace('/');
     } catch (error: any) {
       const message = error?.code === 'auth/email-already-in-use'
         ? 'An account already exists for this email. Please sign in instead.'
@@ -81,7 +76,7 @@ function SignUpForm() {
             </div>
             <CardTitle className="font-headline text-[28px] leading-tight md:text-[32px]">Create Vendor Account</CardTitle>
             <CardDescription className="text-[14px] italic md:text-[15px]">
-              Create your login, then continue directly to your vendor application.
+              Create your login to join InFaith Journey.
             </CardDescription>
           </CardHeader>
           <CardContent className="px-6 pb-10 md:px-10 md:pb-12">
@@ -105,7 +100,12 @@ function SignUpForm() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="signup-confirm-password" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Confirm Password</Label>
-                <Input id="signup-confirm-password" type={showPassword ? 'text' : 'password'} value={confirmPassword} onChange={event => setConfirmPassword(event.target.value)} required minLength={6} autoComplete="new-password" className="h-12 rounded-xl" />
+                <div className="relative">
+                  <Input id="signup-confirm-password" type={showConfirmPassword ? 'text' : 'password'} value={confirmPassword} onChange={event => setConfirmPassword(event.target.value)} required minLength={6} autoComplete="new-password" className="h-12 rounded-xl pr-12" />
+                  <button type="button" onClick={() => setShowConfirmPassword(current => !current)} aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary">
+                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
               <Button type="submit" disabled={isSubmitting} className="button-rose h-12 w-full font-bold tracking-widest md:h-14">
                 {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : 'CREATE ACCOUNT'}
@@ -123,9 +123,5 @@ function SignUpForm() {
 }
 
 export default function SignUpPage() {
-  return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center watercolor-bg"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>}>
-      <SignUpForm />
-    </Suspense>
-  );
+  return <SignUpForm />;
 }
