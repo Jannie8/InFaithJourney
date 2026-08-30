@@ -11,6 +11,15 @@ import { getAuth, Auth } from 'firebase-admin/auth';
 
 let cachedApp: App | null = null;
 
+// App Hosting supplies a project ID automatically, but `next dev` does not. The
+// Admin Auth SDK still needs the project ID to validate the token's audience even
+// though Firebase publishes the signing certificates publicly.
+const projectId =
+  process.env.GCLOUD_PROJECT ||
+  process.env.GOOGLE_CLOUD_PROJECT ||
+  process.env.FIREBASE_PROJECT_ID ||
+  'infaithjourney-90d96';
+
 function getAdminApp(): App {
   if (cachedApp) return cachedApp;
 
@@ -22,6 +31,7 @@ function getAdminApp(): App {
 
   cachedApp = initializeApp({
     credential: applicationDefault(),
+    projectId,
   });
   return cachedApp;
 }
