@@ -131,8 +131,7 @@ function ApplyForm() {
         title: "Account Required",
         description: "Please sign in or create an account to start your vendor application.",
       });
-      const applicationPath = `/membership/apply?plan=${encodeURIComponent(initialPlan)}`;
-      router.replace(`/signup?next=${encodeURIComponent(applicationPath)}`);
+      router.replace('/signup');
     }
   }, [initialPlan, user, isUserLoading, router, toast]);
 
