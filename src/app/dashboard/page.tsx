@@ -416,7 +416,7 @@ export default function DashboardPage() {
 
               <div className="text-center">
                 <p className="text-[13px] md:text-[14px] text-muted-foreground font-medium">
-                  New here? <Link href="/membership" className="text-primary font-bold hover:underline decoration-primary decoration-2 underline-offset-4">Apply as a Vendor</Link>
+                  New here? <Link href="/signup" className="text-primary font-bold hover:underline decoration-primary decoration-2 underline-offset-4">Create an account</Link>
                 </p>
               </div>
             </CardContent>

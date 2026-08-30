@@ -131,9 +131,10 @@ function ApplyForm() {
         title: "Account Required",
         description: "Please sign in or create an account to start your vendor application.",
       });
-      router.push('/dashboard');
+      const applicationPath = `/membership/apply?plan=${encodeURIComponent(initialPlan)}`;
+      router.replace(`/signup?next=${encodeURIComponent(applicationPath)}`);
     }
-  }, [user, isUserLoading, router, toast]);
+  }, [initialPlan, user, isUserLoading, router, toast]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
