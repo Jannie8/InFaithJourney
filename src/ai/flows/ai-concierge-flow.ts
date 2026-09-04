@@ -1,5 +1,3 @@
-'use server';
-
 /**
  * @fileOverview AI Wedding Concierge Flow (Finalized Phase 2)
  * 
@@ -7,33 +5,19 @@
  */
 
 import { ai } from '@/ai/genkit';
+import { ELITE_VENDORS } from '@/lib/vendors';
 import { z } from 'genkit';
 
-const AIConciergeInputSchema = z.object({
-  message: z.string(),
+export const AIConciergeInputSchema = z.object({
+  message: z.string().trim().min(1).max(1_000),
   history: z.array(z.object({
     role: z.enum(['ai', 'user']),
-    content: z.string()
-  })).optional()
+    content: z.string().trim().min(1).max(2_000)
+  })).max(12).optional()
 });
 
-const RecommendationSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  location: z.string(),
-  rating: z.number(),
-  reviews: z.number(),
-  category: z.string(),
-  imageUrl: z.string(),
-  imageHint: z.string(),
-  priceRange: z.string().describe("Estimated starting price or range"),
-  whyItMatches: z.string().describe("Contextual reasoning for match"),
-  isFeatured: z.boolean().optional().describe("Whether this is a premium vendor.")
-});
-
-const AIConciergeOutputSchema = z.object({
+export const AIConciergeOutputSchema = z.object({
   response: z.string().describe("A warm, romantic response to the user's message."),
-  recommendations: z.array(RecommendationSchema).optional().describe("A ranked list of vendor recommendations.")
 });
 
 /**
@@ -47,13 +31,6 @@ const conciergePrompt = ai.definePrompt({
   config: {
     temperature: 0.7,
     maxOutputTokens: 800,
-    safetySettings: [
-      { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
-      { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
-      { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
-      { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
-      { category: 'HARM_CATEGORY_CIVIC_INTEGRITY', threshold: 'BLOCK_NONE' },
-    ],
   },
   prompt: `You are the InFaith Journey AI Concierge, an expert wedding planning partner for high-end couples in South Africa.
 Your tone is luxurious, encouraging, and deeply romantic.
@@ -66,10 +43,10 @@ Identify and Extract:
 
 Guidelines:
 1. Always be romantic and encouraging.
-2. If the user asks for recommendations, provide 3-5 vendors.
-3. CRITICAL: PRIORITIZE Featured vendors in the ranking.
-4. If no exact matches exist, suggest best alternatives with reasoning.
-5. In the "whyItMatches" field, mention specific user needs (e.g., "Fits your 100-guest requirement perfectly").
+2. Answer general wedding-planning questions naturally; do not force a vendor recommendation into every reply.
+3. Ask one useful follow-up question when important details are missing.
+4. Never invent a vendor, price, availability, booking, or factual claim. Vendor cards are selected separately from the marketplace data available to the application.
+5. Keep responses focused and conversational, normally under 180 words.
 
 User Input: {{{message}}}
 Chat History: 
@@ -79,102 +56,40 @@ Chat History:
 });
 
 export async function aiConciergeFlow(input: z.infer<typeof AIConciergeInputSchema>) {
-  try {
-    const { output } = await conciergePrompt(input);
+  const validatedInput = AIConciergeInputSchema.parse(input);
+  const { output } = await conciergePrompt(validatedInput);
     
-    if (!output) {
-      return {
-        response: "I'm having a little moment of reflection. Could you tell me more about your wedding vision?",
-        recommendations: []
-      };
-    }
-
-    // Real-world mock database for the prototype
-    const MOCK_DB = [
-      {
-        id: 'sunstone-manor',
-        name: 'Sunstone Manor',
-        location: 'Stellenbosch, WC',
-        rating: 5.0,
-        reviews: 24,
-        category: 'Venues',
-        imageUrl: "/790fD.png",
-        imageHint: 'wedding estate lights',
-        priceRange: 'From R85,000',
-        isFeatured: true
-      },
-      {
-        id: 'misty-vineyards',
-        name: 'Misty Vineyards',
-        location: 'Stellenbosch, WC',
-        rating: 5.0,
-        reviews: 85,
-        category: 'Venues',
-        imageUrl: "/AnzrV.png",
-        imageHint: 'wedding venue sunset',
-        priceRange: 'From R65,000',
-        isFeatured: false
-      },
-      {
-        id: 'evergold-photography',
-        name: 'Evergold Photography',
-        location: 'Johannesburg, GP',
-        rating: 4.9,
-        reviews: 42,
-        category: 'Photography & Videography',
-        imageUrl: "/9ARRK.png",
-        imageHint: 'wedding couple glow',
-        priceRange: 'From R18,000',
-        isFeatured: true
-      },
-      {
-        id: 'nearby-bridal',
-        name: 'Nearby Bridal',
-        location: 'Cape Town, WC',
-        rating: 4.8,
-        reviews: 18,
-        category: 'Fashion',
-        imageUrl: "/9ARRK.png",
-        imageHint: 'wedding dress warm',
-        priceRange: 'From R15,000',
-        isFeatured: true
-      }
-    ];
-
-    const lowerMsg = input.message.toLowerCase();
-    const recommendations = [];
-    
-    // Filter logic: Prioritizes 'isFeatured' for recommendation richness
-    if (lowerMsg.includes('venue') || lowerMsg.includes('place') || lowerMsg.includes('looking for') || lowerMsg.includes('franschhoek') || lowerMsg.includes('stellenbosch')) {
-      const matches = MOCK_DB
-        .filter(v => v.category === 'Venues')
-        .map(v => ({
-          ...v,
-          whyItMatches: v.isFeatured 
-            ? "As one of our elite Featured venues, it offers priority service and the exact golden-hour aesthetic you're searching for."
-            : "A highly-rated venue that beautifully accommodates your group size and location preference."
-        }))
-        .sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
-      output.recommendations = matches;
-    } else if (lowerMsg.includes('photo') || lowerMsg.includes('camera')) {
-      const matches = MOCK_DB
-        .filter(v => v.category === 'Photography & Videography')
-        .map(v => ({
-          ...v,
-          whyItMatches: "This studio is renowned for capturing the 'golden glow' in every frame, fitting your romantic vision."
-        }));
-      output.recommendations = matches;
-    }
-
-    return {
-      response: output.response || "That sounds like a beautiful vision. Here are a few experts who can bring it to life.",
-      recommendations: output.recommendations || []
-    };
-  } catch (error) {
-    console.error("AI Concierge Flow Error:", error);
-    return {
-      response: "I'm having a small connection issue. Please try again in a moment.",
-      recommendations: []
-    };
+  if (!output) {
+    throw new Error('Gemini returned an empty concierge response.');
   }
+
+  const lowerMessage = validatedInput.message.toLowerCase();
+  const requestedCategory = lowerMessage.includes('venue') || lowerMessage.includes('place')
+    ? 'Venues'
+    : lowerMessage.includes('photo') || lowerMessage.includes('camera')
+      ? 'Photography'
+      : lowerMessage.includes('dress') || lowerMessage.includes('bridal') || lowerMessage.includes('fashion')
+        ? 'Fashion'
+        : lowerMessage.includes('flower') || lowerMessage.includes('decor')
+          ? 'Flowers'
+          : null;
+
+  // Recommendation cards come from the same canonical catalogue as the rest of
+  // the site; Gemini writes the conversation but never fabricates vendor data.
+  const recommendations = requestedCategory
+    ? ELITE_VENDORS
+        .filter(vendor => vendor.category === requestedCategory)
+        .slice(0, 3)
+        .map(vendor => ({
+          ...vendor,
+          priceRange: `From R${vendor.price.toLocaleString('en-ZA')}k`,
+          whyItMatches: `${vendor.name} matches your interest in ${requestedCategory.toLowerCase()} and is based in ${vendor.location}.`,
+          isFeatured: true,
+        }))
+    : [];
+
+  return {
+    response: output.response || "That sounds like a beautiful vision. Tell me a little more about what you have in mind.",
+    recommendations
+  };
 }
