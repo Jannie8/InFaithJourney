@@ -45,3 +45,9 @@ env:
     value: InFaith Journey <admin@infaithjourney.com>
     availability:
       - RUNTIME
+
+  # Gemini API key used by the AI wedding concierge.
+  - variable: GEMINI_API_KEY
+    secret: gemini-api-key
+    availability:
+      - RUNTIME

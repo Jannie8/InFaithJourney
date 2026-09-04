@@ -131,7 +131,7 @@ function ApplyForm() {
         title: "Account Required",
         description: "Please sign in or create an account to start your vendor application.",
       });
-      router.push('/dashboard');
+      router.replace('/signup');
     }
   }, [user, isUserLoading, router, toast]);
 
