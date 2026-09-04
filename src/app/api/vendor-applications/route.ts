@@ -62,44 +62,54 @@ export async function POST(req: NextRequest) {
       updatedAt: FieldValue.serverTimestamp(),
     });
 
-    // Admin recipients come from roles_admin. Prefer an email stored on the role
-    // document, otherwise resolve the role document ID as a Firebase Auth UID.
-    const roles = await db.collection('roles_admin').get();
-    const recipientResults = await Promise.all(roles.docs.map(async role => {
-      const roleEmail = role.data().email;
-      if (typeof roleEmail === 'string' && roleEmail.trim()) return roleEmail.trim();
-      try {
-        return (await getAdminAuth().getUser(role.id)).email ?? null;
-      } catch (error) {
-        console.error(`Could not resolve email for admin ${role.id}:`, error);
-        return null;
-      }
-    }));
-    const recipients = [...new Set(recipientResults.filter((email): email is string => !!email))];
+    // The application is already safely persisted at this point. Notifications are
+    // best-effort: an email/provider/role lookup failure must never tell the vendor
+    // their submission failed (or encourage a duplicate submission).
+    let emailsSent = 0;
+    let notificationRecipientCount = 0;
+    try {
+      // Admin recipients come from roles_admin. Prefer an email stored on the role
+      // document, otherwise resolve the role document ID as a Firebase Auth UID.
+      const roles = await db.collection('roles_admin').get();
+      const recipientResults = await Promise.all(roles.docs.map(async role => {
+        const roleEmail = role.data().email;
+        if (typeof roleEmail === 'string' && roleEmail.trim()) return roleEmail.trim();
+        try {
+          return (await getAdminAuth().getUser(role.id)).email ?? null;
+        } catch (error) {
+          console.error(`Could not resolve email for admin ${role.id}:`, error);
+          return null;
+        }
+      }));
+      const recipients = [...new Set(recipientResults.filter((email): email is string => !!email))];
+      notificationRecipientCount = recipients.length;
 
-    const deliveries = await Promise.allSettled(recipients.map(to => sendAdminApplicationEmail({
-      to,
-      businessName: String(body.businessName),
-      ownerName: String(body.ownerName),
-      category: String(body.category),
-      selectedPlan: String(body.selectedPlan),
-      reviewUrl: `${req.nextUrl.origin}/admin`,
-    })));
-    const emailsSent = deliveries.filter(result => result.status === 'fulfilled').length;
-    const emailsFailed = deliveries.length - emailsSent;
-    await applicationRef.update({
-      adminNotificationAttemptedAt: FieldValue.serverTimestamp(),
-      adminNotificationRecipientCount: recipients.length,
-      adminNotificationSentCount: emailsSent,
-      ...(emailsFailed > 0 || recipients.length === 0
-        ? { adminNotificationError: recipients.length === 0 ? 'No admin email addresses were found.' : `${emailsFailed} admin email(s) failed.` }
-        : {}),
-    });
+      const deliveries = await Promise.allSettled(recipients.map(to => sendAdminApplicationEmail({
+        to,
+        businessName: String(body.businessName),
+        ownerName: String(body.ownerName),
+        category: String(body.category),
+        selectedPlan: String(body.selectedPlan),
+        reviewUrl: `${req.nextUrl.origin}/admin`,
+      })));
+      emailsSent = deliveries.filter(result => result.status === 'fulfilled').length;
+      const emailsFailed = deliveries.length - emailsSent;
+      await applicationRef.update({
+        adminNotificationAttemptedAt: FieldValue.serverTimestamp(),
+        adminNotificationRecipientCount: recipients.length,
+        adminNotificationSentCount: emailsSent,
+        ...(emailsFailed > 0 || recipients.length === 0
+          ? { adminNotificationError: recipients.length === 0 ? 'No admin email addresses were found.' : `${emailsFailed} admin email(s) failed.` }
+          : {}),
+      });
+    } catch (notificationError) {
+      console.error(`Application ${applicationRef.id} was saved, but admin notification failed:`, notificationError);
+    }
 
     return NextResponse.json({
       applicationId: applicationRef.id,
       adminNotificationSent: emailsSent > 0,
-      adminNotificationRecipientCount: emailsSent,
+      adminNotificationRecipientCount: notificationRecipientCount,
     }, { status: 201 });
   } catch (error) {
     console.error('Vendor application submission failed:', error);
