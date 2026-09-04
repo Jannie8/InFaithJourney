@@ -80,12 +80,40 @@ async function generateConciergeReply(input: z.infer<typeof AIConciergeInputSche
   return reply;
 }
 
+function createFallbackReply(message: string) {
+  const lowerMessage = message.toLowerCase();
+  if (/\b(hi|hello|hey|good morning|good afternoon)\b/.test(lowerMessage)) {
+    return "Hello, and welcome! I'd love to help shape your celebration. Where are you dreaming of getting married, and roughly how many guests will join you?";
+  }
+  if (lowerMessage.includes('venue') || lowerMessage.includes('vineyard') || lowerMessage.includes('stellenbosch')) {
+    return "A Stellenbosch vineyard celebration sounds exquisite. With a budget of up to R350,000, begin by deciding your guest count and whether that total must include accommodation, catering, décor, and photography. I’ve also selected relevant venue options from our catalogue below. How many guests are you planning for?";
+  }
+  if (lowerMessage.includes('photo') || lowerMessage.includes('camera')) {
+    return "Beautiful photography begins with choosing a visual style—editorial, documentary, fine-art, or warm and romantic. I’ve selected a photographer from our catalogue below. Would you like help creating a shortlist of questions to ask before booking?";
+  }
+  if (lowerMessage.includes('budget') || /\bR\s?\d/i.test(message)) {
+    return "Let’s shape a graceful plan around your budget. A useful starting point is to prioritise the venue and catering, then reserve room for photography, attire, flowers, entertainment, and a contingency fund. What budget, location, and guest count are you working with?";
+  }
+  return "That sounds like a lovely place to begin. Tell me your preferred location, guest count, approximate budget, and the atmosphere you want your wedding to have, and I’ll help you turn it into a clear plan.";
+}
+
 export async function aiConciergeFlow(input: z.infer<typeof AIConciergeInputSchema>) {
   const validatedInput = AIConciergeInputSchema.parse(input);
-  const response = await generateConciergeReply(validatedInput);
+  let response: string;
+  let usingFallback = false;
+  try {
+    response = await generateConciergeReply(validatedInput);
+  } catch (error) {
+    usingFallback = true;
+    console.warn(
+      'Gemini concierge unavailable; using local fallback:',
+      error instanceof Error ? error.message : error
+    );
+    response = createFallbackReply(validatedInput.message);
+  }
 
   const lowerMessage = validatedInput.message.toLowerCase();
-  const requestedCategory = lowerMessage.includes('venue') || lowerMessage.includes('place')
+  const requestedCategory = lowerMessage.includes('venue') || lowerMessage.includes('place') || lowerMessage.includes('vineyard')
     ? 'Venues'
     : lowerMessage.includes('photo') || lowerMessage.includes('camera')
       ? 'Photography'
@@ -111,6 +139,7 @@ export async function aiConciergeFlow(input: z.infer<typeof AIConciergeInputSche
 
   return {
     response,
-    recommendations
+    recommendations,
+    usingFallback,
   };
 }

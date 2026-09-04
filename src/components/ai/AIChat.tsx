@@ -222,6 +222,7 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
     <>
       <button
         onClick={() => setIsOpen(true)}
+        suppressHydrationWarning
         className={cn(
           "fixed bottom-8 right-8 w-16 h-16 rounded-full button-rose shadow-2xl z-[150] flex items-center justify-center transition-all hover:scale-110 ai-floating-pulse",
           isOpen && "scale-0 opacity-0 pointer-events-none"
