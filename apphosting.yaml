@@ -40,3 +40,5 @@ env:
     value: InFaith Journey <admin@infaithjourney.com>
     availability:
       - RUNTIME
+  - variable: GEMINI_API_KEY
+    secret: gemini-api-key
