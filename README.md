@@ -42,3 +42,16 @@ provider. Add a domain owned by InFaith Journey in Resend instead, then copy the
 DNS records supplied by Resend into that domain's Squarespace DNS settings. Once
 Resend reports the domain as verified, make sure `APPROVAL_EMAIL_FROM` in
 `apphosting.yaml` uses an address on that verified domain.
+
+### Configure the AI concierge
+
+Create a Gemini API key in Google AI Studio, then store it as an App Hosting
+secret and grant the backend access:
+
+```bash
+firebase apphosting:secrets:set gemini-api-key
+firebase apphosting:secrets:grantaccess gemini-api-key --backend infaithjourney
+```
+
+The AI concierge cannot contact Gemini until this secret is configured. Keep the
+key server-side; never expose it through a `NEXT_PUBLIC_*` environment variable.
