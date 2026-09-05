@@ -133,7 +133,7 @@ function ApplyForm() {
       });
       router.replace('/signup');
     }
-  }, [user, isUserLoading, router, toast]);
+  }, [initialPlan, user, isUserLoading, router, toast]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
