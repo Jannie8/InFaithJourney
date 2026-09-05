@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
@@ -42,6 +42,7 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState('Overview');
   const [isPaying, setIsPaying] = useState<null | 'standard' | 'featured'>(null);
   const [isOpeningPortal, setIsOpeningPortal] = useState(false);
+  const reconciliationAttempted = useRef(false);
 
   // Open PayStack's hosted billing portal where the customer can update their card,
   // view past invoices, or cancel their subscription. We mint a fresh link on each
@@ -111,6 +112,26 @@ export default function DashboardPage() {
   const appStatus: string | null = application?.applicationStatus ?? null;
   const approvedTier: 'standard' | 'featured' =
     application?.selectedPlan === 'featured' ? 'featured' : 'standard';
+
+  // Recover memberships whose PayStack payment succeeded but whose browser
+  // callback was interrupted. PayStack remains the source of truth.
+  useEffect(() => {
+    if (!user || appStatus !== 'approved' || isMembershipActive || reconciliationAttempted.current) return;
+    reconciliationAttempted.current = true;
+    user.getIdToken()
+      .then(token => fetch('/api/paystack/reconcile', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      }))
+      .then(response => response.ok ? response.json() : null)
+      .then(result => {
+        if (result?.active) {
+          setActiveTab('Subscription & Billing');
+          toast({ title: 'Membership Active', description: 'We found your successful PayStack subscription.' });
+        }
+      })
+      .catch(error => console.warn('Subscription reconciliation unavailable:', error));
+  }, [appStatus, isMembershipActive, toast, user]);
 
   // Admin role detection — drives the conditional "Admin" tab in the sidebar.
   const adminRoleRef = useMemoFirebase(
@@ -308,14 +329,15 @@ export default function DashboardPage() {
           setActiveTab('Subscription & Billing');
           toast({ title: 'Membership Active', description: 'Your payment was confirmed. Welcome aboard!' });
         } else {
-          toast({ title: 'Payment Not Completed', description: 'We could not confirm your payment.', variant: 'destructive' });
+          throw new Error(data.error || 'We could not confirm your payment.');
         }
       } catch (e: any) {
         toast({ title: 'Verification Error', description: e.message, variant: 'destructive' });
-      } finally {
-        // Clean the URL so a refresh doesn't re-trigger verification.
-        window.history.replaceState({}, '', '/dashboard');
+        // Keep the PayStack reference in the URL so refreshing can safely retry.
+        return;
       }
+      // Only consume the callback after the server has persisted activation.
+      window.history.replaceState({}, '', '/dashboard');
     })();
   }, [toast, user, isUserLoading]);
 

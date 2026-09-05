@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { initializeSubscription, type VendorTier } from '@/lib/paystack';
 import { getAdminAuth, getAdminDb } from '@/lib/firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 
 // This route runs on the server only — the secret key never reaches the browser.
 export const runtime = 'nodejs';
@@ -26,7 +27,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'An approved application is required.' }, { status: 400 });
     }
 
-    const application = await getAdminDb().collection('vendorApplications').doc(applicationId).get();
+    const db = getAdminDb();
+    const application = await db.collection('vendorApplications').doc(applicationId).get();
     const applicationData = application.data();
     if (
       !application.exists ||
@@ -47,6 +49,18 @@ export async function POST(req: NextRequest) {
       callbackUrl,
       metadata: { uid: user.uid, applicationId },
     });
+
+    // Create the email-linked vendor record before payment. PayStack webhooks can
+    // now activate it even if the browser callback is interrupted or fails.
+    await db.collection('vendors').doc(user.uid).set({
+      membershipStatus: 'pending_payment',
+      membershipTier: tier,
+      paystackReference: result.reference,
+      email,
+      submitterUid: user.uid,
+      applicationId,
+      updatedAt: FieldValue.serverTimestamp(),
+    }, { merge: true });
 
     return NextResponse.json(result);
   } catch (err: any) {
