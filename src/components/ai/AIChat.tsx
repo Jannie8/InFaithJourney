@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sparkles, X, Mic, Send, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { aiConciergeFlow } from '@/ai/flows/ai-concierge-flow';
 import { VendorCard } from '@/components/vendors/VendorCard';
 
 interface Message {
@@ -62,20 +61,13 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
     setIsLoading(true);
 
     try {
-      // Robust retry logic for transient errors
-      let result;
-      try {
-        result = await aiConciergeFlow({ 
-          message: userMsg, 
-          history: history 
-        });
-      } catch (retryErr) {
-        console.warn("Transient error, retrying flow...", retryErr);
-        result = await aiConciergeFlow({ 
-          message: userMsg, 
-          history: history 
-        });
-      }
+      const response = await fetch('/api/ai/concierge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMsg, history }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'The concierge request failed.');
       
       setMessages(prev => [...prev, { 
         role: 'ai', 
@@ -86,7 +78,7 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
       console.error("AI Chat Error:", error);
       setMessages(prev => [...prev, { 
         role: 'ai', 
-        content: "I'm having a small connection issue. Please try again in a moment." 
+        content: "I couldn't reach the concierge service just now. Please try again in a moment."
       }]);
     } finally {
       setIsLoading(false);
@@ -230,6 +222,7 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
     <>
       <button
         onClick={() => setIsOpen(true)}
+        suppressHydrationWarning
         className={cn(
           "fixed bottom-8 right-8 w-16 h-16 rounded-full button-rose shadow-2xl z-[150] flex items-center justify-center transition-all hover:scale-110 ai-floating-pulse",
           isOpen && "scale-0 opacity-0 pointer-events-none"

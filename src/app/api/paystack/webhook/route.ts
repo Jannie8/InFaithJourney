@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyWebhookSignature } from '@/lib/paystack';
+import { TIER_AMOUNTS, verifyWebhookSignature, type VendorTier } from '@/lib/paystack';
 import { getAdminDb } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 
@@ -35,6 +35,61 @@ async function updateVendorByEmail(
   return snap.size;
 }
 
+async function updateVendorByReference(
+  reference: string | undefined,
+  data: Record<string, unknown>
+): Promise<number> {
+  if (!reference) return 0;
+  const db = getAdminDb();
+  const snap = await db.collection('vendors').where('paystackReference', '==', reference).get();
+  if (snap.empty) return 0;
+
+  const batch = db.batch();
+  snap.forEach(docSnap => batch.set(
+    docSnap.ref,
+    { ...data, updatedAt: FieldValue.serverTimestamp() },
+    { merge: true }
+  ));
+  await batch.commit();
+  return snap.size;
+}
+
+async function activateVendorFromCharge(data: any): Promise<boolean> {
+  const uid = data?.metadata?.uid;
+  const applicationId = data?.metadata?.applicationId;
+  const tier = data?.metadata?.tier as VendorTier | undefined;
+  if (
+    typeof uid !== 'string' ||
+    typeof applicationId !== 'string' ||
+    (tier !== 'standard' && tier !== 'featured') ||
+    data?.amount !== TIER_AMOUNTS[tier] ||
+    data?.currency !== 'ZAR'
+  ) return false;
+
+  const db = getAdminDb();
+  const application = await db.collection('vendorApplications').doc(applicationId).get();
+  const applicationData = application.data();
+  if (
+    !application.exists ||
+    applicationData?.submitterUid !== uid ||
+    applicationData?.applicationStatus !== 'approved' ||
+    applicationData?.selectedPlan !== tier
+  ) return false;
+
+  await db.collection('vendors').doc(uid).set({
+    membershipStatus: 'active',
+    membershipTier: tier,
+    applicationId,
+    email: data?.customer?.email ?? null,
+    submitterUid: uid,
+    paystackReference: data?.reference ?? null,
+    lastPaymentReference: data?.reference ?? null,
+    lastPaymentAt: FieldValue.serverTimestamp(),
+    updatedAt: FieldValue.serverTimestamp(),
+  }, { merge: true });
+  return true;
+}
+
 export async function POST(req: NextRequest) {
   // 1. Read the RAW body — the signature is computed over the exact bytes sent.
   const rawBody = await req.text();
@@ -68,13 +123,17 @@ export async function POST(req: NextRequest) {
   try {
     switch (type) {
       // A payment succeeded — initial charge OR a monthly renewal. Keep membership active.
-      case 'charge.success':
-        await updateVendorByEmail(email, {
-          membershipStatus: 'active',
-          lastPaymentAt: FieldValue.serverTimestamp(),
-          lastPaymentReference: data?.reference ?? null,
-        });
+      case 'charge.success': {
+        const activatedByMetadata = await activateVendorFromCharge(data);
+        if (!activatedByMetadata) {
+          await updateVendorByReference(data?.reference, {
+            membershipStatus: 'active',
+            lastPaymentAt: FieldValue.serverTimestamp(),
+            lastPaymentReference: data?.reference ?? null,
+          });
+        }
         break;
+      }
 
       // A subscription was created — record its codes so it can be managed later.
       case 'subscription.create':

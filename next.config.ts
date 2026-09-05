@@ -34,6 +34,14 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'firebasestorage.googleapis.com',
+        port: '',
+        // Firebase encodes object-path slashes as %2F, so restrict access at the
+        // bucket's object endpoint rather than trying to match decoded folders.
+        pathname: '/v0/b/infaithjourney-90d96.firebasestorage.app/o/**',
+      },
     ],
   },
 };
