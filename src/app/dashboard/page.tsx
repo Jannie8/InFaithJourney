@@ -23,11 +23,22 @@ import Link from 'next/link';
 import { useUser, useAuth, useFirestore, useFirebaseApp, useMemoFirebase, useCollection, useDoc } from '@/firebase';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import {
-  collection, query, where, doc, updateDoc, serverTimestamp,
+  collection, query, where, doc, setDoc, updateDoc, serverTimestamp, writeBatch,
 } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+
+function categorySlugFor(category: string) {
+  return category.toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .replace('photography-and-videography', 'photography-videography')
+    .replace('flowers-and-decor', 'flowers-decor')
+    .replace('music-and-entertainment', 'music-entertainment')
+    .replace('planning-and-coordination', 'planning-coordination');
+}
 
 export default function DashboardPage() {
   const { user, isUserLoading } = useUser();
@@ -307,7 +318,11 @@ export default function DashboardPage() {
       await uploadBytes(fileRef, file);
       const logoUrl = await getDownloadURL(fileRef);
       await updateDoc(doc(db, 'vendorApplications', application.id), { logoUrl, updatedAt: serverTimestamp() });
-      if (vendorDocRef) await setDoc(vendorDocRef, { logoUrl, updatedAt: serverTimestamp() }, { merge: true });
+      if (vendorDocRef) await setDoc(vendorDocRef, {
+        logoUrl,
+        ...(!application.coverImageUrl && !vendorDoc?.coverImageUrl ? { imageUrl: logoUrl } : {}),
+        updatedAt: serverTimestamp(),
+      }, { merge: true });
       toast({ title: 'Profile picture updated', description: 'Your new picture is now visible on your vendor profile.' });
     } catch (error: any) {
       toast({ title: 'Upload failed', description: error?.message ?? 'Please try again.', variant: 'destructive' });
@@ -336,10 +351,26 @@ export default function DashboardPage() {
     }
     try {
       setIsSavingEdit(true);
-      await updateDoc(doc(db, 'vendorApplications', application.id), {
+      const batch = writeBatch(db);
+      batch.update(doc(db, 'vendorApplications', application.id), {
         ...changes,
         updatedAt: serverTimestamp(),
       });
+      if (vendorDocRef) {
+        const updatedProfile = { ...application, ...changes };
+        batch.set(vendorDocRef, {
+          ...changes,
+          ...(changes.businessName !== undefined ? { name: updatedProfile.businessName } : {}),
+          ...(changes.category !== undefined ? { categorySlug: categorySlugFor(updatedProfile.category || 'Vendors') } : {}),
+          ...(
+            changes.coverImageUrl !== undefined || changes.logoUrl !== undefined
+              ? { imageUrl: updatedProfile.coverImageUrl || updatedProfile.logoUrl || '/wedding.png' }
+              : {}
+          ),
+          updatedAt: serverTimestamp(),
+        }, { merge: true });
+      }
+      await batch.commit();
       toast({ title: 'Profile updated', description: 'Your changes are now live.' });
       setIsEditing(false);
     } catch (e: any) {
