@@ -8,24 +8,44 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { getVendorById } from '@/lib/vendors';
+import { getVendorById, vendorFromFirestore } from '@/lib/vendors';
 import Image from 'next/image';
 import { Star, MapPin, Share2, Phone, Mail, Instagram, Facebook, CheckCircle2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
+import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
 
 export default function VendorProfilePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
   const [isLoaded, setIsLoaded] = useState(false);
+  const db = useFirestore();
+  const liveVendorRef = useMemoFirebase(() => db ? doc(db, 'vendors', slug) : null, [db, slug]);
+  const { data: liveVendor } = useDoc<any>(liveVendorRef);
 
   useEffect(() => {
     setIsLoaded(true);
   }, []);
 
+  useEffect(() => {
+    if (liveVendor?.listingStatus !== 'active') return;
+    const key = `vendor-view:${slug}`;
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, '1');
+    fetch('/api/vendor-analytics/view', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ vendorId: slug }),
+    }).catch(() => sessionStorage.removeItem(key));
+  }, [liveVendor?.listingStatus, slug]);
+
   // Resolve the vendor that was actually clicked. Falls back to a sensible
   // default if the id is unknown so the page never breaks.
-  const vendor = getVendorById(slug) ?? {
+  const staticVendor = getVendorById(slug);
+  const vendor = liveVendor?.listingStatus === 'active'
+    ? { ...liveVendor, ...vendorFromFirestore(slug, liveVendor) }
+    : staticVendor ?? {
     name: 'Evergold Photography',
     location: 'Johannesburg',
     category: 'Photography',
@@ -64,6 +84,11 @@ export default function VendorProfilePage({ params }: { params: Promise<{ slug: 
         <div className="absolute bottom-10 md:bottom-16 left-0 w-full px-6">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center md:items-end justify-between gap-8 md:gap-10 text-center md:text-left">
             <div className="space-y-4 md:space-y-6 pt-56 md:pt-0">
+              {'logoUrl' in vendor && typeof vendor.logoUrl === 'string' && vendor.logoUrl && (
+                <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-4 border-white shadow-xl mx-auto md:mx-0 bg-white">
+                  <Image src={vendor.logoUrl} alt={`${vendor.name} profile picture`} fill className="object-cover" sizes="96px" />
+                </div>
+              )}
               <div className="flex justify-center md:justify-start">
                 <Badge className="bg-primary text-white border-none px-5 py-2 uppercase tracking-widest font-bold text-[10px] md:text-[11px] shadow-xl">
                   {vendor.category}
@@ -132,7 +157,9 @@ export default function VendorProfilePage({ params }: { params: Promise<{ slug: 
               <h2 className="font-headline text-[28px] md:text-[36px]">About {vendor.name}</h2>
               <div className="w-16 h-1 bg-primary rounded-full"></div>
               <p className="text-foreground/90 leading-[1.8] text-[16px] md:text-[18px] font-medium italic">
-                We believe that every wedding is a unique story waiting to be told. With years of experience in high-end South African weddings, {vendor.name} focuses on capturing the raw emotion, natural beauty, and sophisticated details of your romantic journey.
+                {'description' in vendor && vendor.description
+                  ? vendor.description
+                  : `We believe that every wedding is a unique story waiting to be told. ${vendor.name} focuses on the natural beauty and sophisticated details of your romantic journey.`}
               </p>
             </div>
 

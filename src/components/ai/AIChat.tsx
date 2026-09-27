@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sparkles, X, Mic, Send, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { aiConciergeFlow } from '@/ai/flows/ai-concierge-flow';
 import { VendorCard } from '@/components/vendors/VendorCard';
 
 interface Message {
@@ -62,20 +61,13 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
     setIsLoading(true);
 
     try {
-      // Robust retry logic for transient errors
-      let result;
-      try {
-        result = await aiConciergeFlow({ 
-          message: userMsg, 
-          history: history 
-        });
-      } catch (retryErr) {
-        console.warn("Transient error, retrying flow...", retryErr);
-        result = await aiConciergeFlow({ 
-          message: userMsg, 
-          history: history 
-        });
-      }
+      const response = await fetch('/api/ai/concierge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMsg, history }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'The concierge request failed.');
       
       setMessages(prev => [...prev, { 
         role: 'ai', 
@@ -86,7 +78,7 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
       console.error("AI Chat Error:", error);
       setMessages(prev => [...prev, { 
         role: 'ai', 
-        content: "I'm having a small connection issue. Please try again in a moment." 
+        content: "I couldn't reach the concierge service just now. Please try again in a moment."
       }]);
     } finally {
       setIsLoading(false);
@@ -113,7 +105,7 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
       "relative border border-primary/20 rounded-[32px] shadow-2xl flex flex-col overflow-hidden pointer-events-auto bg-card",
       inline 
         ? "w-full h-full border-none shadow-none rounded-none" 
-        : "w-[94vw] max-w-[420px] h-[82vh] aspect-[1/1.55]",
+        : "w-[96vw] max-w-[680px] h-[88vh] max-h-[860px]",
       !inline && "animate-in zoom-in-95 slide-in-from-bottom-10 duration-500"
     )}>
       {/* Header */}
@@ -134,12 +126,12 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
         )}
       </div>
 
-      <ScrollArea className="flex-1 px-6 pt-6" ref={scrollRef}>
+      <ScrollArea className="flex-1 px-5 md:px-8 pt-6" ref={scrollRef}>
         <div className="space-y-6 pb-6">
           {messages.map((msg, i) => (
             <div key={i} className={cn("flex flex-col gap-3", msg.role === 'user' ? "items-end" : "items-start")}>
               <div className={cn(
-                "max-w-[88%] p-4 rounded-[20px] text-[15px] font-medium leading-relaxed shadow-sm",
+                "max-w-[88%] md:max-w-[78%] p-4 md:p-5 rounded-[20px] text-[15px] md:text-[16px] font-medium leading-relaxed shadow-sm",
                 msg.role === 'user' 
                   ? "bg-primary text-white rounded-tr-none" 
                   : "bg-white border border-primary/10 text-foreground rounded-tl-none"
@@ -171,8 +163,28 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
       </ScrollArea>
 
       {/* Input Area */}
-      <div className="shrink-0 p-6 border-t border-primary/10 bg-white/90 backdrop-blur-md">
-        <div className="flex items-center gap-3 relative mb-4">
+      <div className="shrink-0 p-5 md:p-6 border-t border-primary/10 bg-white/90 backdrop-blur-md">
+        {/* Horizontally scrollable prompt suggestions stay compact and leave more
+            vertical room for the conversation. */}
+        <div className="mb-4 space-y-2.5">
+          <p className="text-[9px] uppercase tracking-widest font-bold text-primary opacity-50 px-1">Try an example</p>
+          <div
+            className="flex flex-nowrap gap-2.5 overflow-x-auto overscroll-x-contain pb-2 snap-x snap-mandatory"
+            aria-label="Example searches"
+          >
+            {EXAMPLE_SEARCHES.map((example) => (
+              <button
+                key={example}
+                onClick={() => handleSend(example)}
+                className="shrink-0 snap-start whitespace-nowrap text-[10px] md:text-[11px] px-4 py-2 rounded-full bg-primary/5 hover:bg-primary/10 text-primary/75 italic border border-primary/10 transition-all text-left leading-tight"
+              >
+                {example}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 relative mb-3">
           <button 
             onClick={handleSpeech}
             className={cn(
@@ -200,22 +212,6 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
           </div>
         </div>
 
-        {/* Example searches chips */}
-        <div className="mb-4 space-y-2.5">
-          <p className="text-[9px] uppercase tracking-widest font-bold text-primary opacity-40 px-1">Example searches:</p>
-          <div className="flex flex-wrap gap-2">
-            {EXAMPLE_SEARCHES.map((example) => (
-              <button
-                key={example}
-                onClick={() => handleSend(example)}
-                className="text-[10px] px-3 py-1.5 rounded-full bg-primary/5 hover:bg-primary/10 text-primary/70 italic border border-primary/5 transition-all text-left leading-tight"
-              >
-                "{example}"
-              </button>
-            ))}
-          </div>
-        </div>
-
         <div className="flex items-center justify-center gap-1.5 opacity-50">
           <Info className="w-3 h-3 text-primary" />
           <span className="text-[9px] uppercase tracking-widest font-bold text-primary">Concierge powered by Gemini</span>
@@ -230,6 +226,7 @@ export function AIChat({ initialOpen = false, inline = false }: AIChatProps) {
     <>
       <button
         onClick={() => setIsOpen(true)}
+        suppressHydrationWarning
         className={cn(
           "fixed bottom-8 right-8 w-16 h-16 rounded-full button-rose shadow-2xl z-[150] flex items-center justify-center transition-all hover:scale-110 ai-floating-pulse",
           isOpen && "scale-0 opacity-0 pointer-events-none"
