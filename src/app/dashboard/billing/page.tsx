@@ -84,6 +84,7 @@ export default function BillingPage() {
   const [isCancelling, setIsCancelling] = useState(false);
   const [isOpeningPortal, setIsOpeningPortal] = useState(false);
   const [confirmingCancel, setConfirmingCancel] = useState(false);
+  const [changingPlan, setChangingPlan] = useState<'standard' | 'featured' | null>(null);
 
   const billingEmail = user?.email ?? vendorDoc?.email ?? null;
 
@@ -93,20 +94,22 @@ export default function BillingPage() {
     setIsLoadingSub(true);
     setIsLoadingInvoices(true);
     try {
+      const token = await user?.getIdToken();
+      if (!token) throw new Error('Please sign in again to load billing details.');
       const [subRes, invRes] = await Promise.all([
         fetch('/api/paystack/subscription', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: billingEmail }),
+          headers: { Authorization: `Bearer ${token}` },
         }),
         fetch('/api/paystack/invoices', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: billingEmail }),
+          headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
       const subData = await subRes.json();
       const invData = await invRes.json();
+      if (!subRes.ok) throw new Error(subData?.error ?? 'Could not load subscription.');
+      if (!invRes.ok) throw new Error(invData?.error ?? 'Could not load payment history.');
       setSubscription(subData?.subscription ?? null);
       setInvoices(Array.isArray(invData?.invoices) ? invData.invoices : []);
     } catch (e: any) {
@@ -121,6 +124,25 @@ export default function BillingPage() {
     }
   };
 
+  const changePlan = async (tier: 'standard' | 'featured') => {
+    if (!user || tier === (subscription?.tier ?? vendorDoc?.membershipTier)) return;
+    try {
+      setChangingPlan(tier);
+      const token = await user.getIdToken();
+      const res = await fetch('/api/paystack/initialize', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tier, applicationId: vendorDoc?.applicationId, changePlan: true }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data?.authorizationUrl) throw new Error(data?.error ?? 'Could not change plan.');
+      window.location.assign(data.authorizationUrl);
+    } catch (e: any) {
+      toast({ title: 'Could not change plan', description: e?.message ?? 'Please try again.', variant: 'destructive' });
+      setChangingPlan(null);
+    }
+  };
+
   useEffect(() => {
     if (billingEmail) loadAll();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -130,10 +152,11 @@ export default function BillingPage() {
     if (!billingEmail) return;
     try {
       setIsOpeningPortal(true);
+      const token = await user?.getIdToken();
+      if (!token) throw new Error('Please sign in again.');
       const res = await fetch('/api/paystack/manage', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: billingEmail }),
+        headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
       if (!res.ok || !data?.link) {
@@ -295,6 +318,13 @@ export default function BillingPage() {
                   Your membership is marked active in our records. Your billing details from PayStack
                   haven't synced yet — give it a minute, then click Refresh.
                 </p>
+                <div className="flex flex-wrap gap-3 pt-3">
+                  {(['standard', 'featured'] as const).map(tier => (
+                    <Button key={tier} size="sm" variant={vendorDoc?.membershipTier === tier ? 'outline' : 'default'} disabled={vendorDoc?.membershipTier === tier || changingPlan !== null} onClick={() => changePlan(tier)} className="rounded-full capitalize">
+                      {changingPlan === tier ? <Loader2 className="w-4 h-4 animate-spin" /> : `${tier === 'featured' ? 'Featured · R1,199' : 'Standard · R499'} / month`}
+                    </Button>
+                  ))}
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -422,6 +452,45 @@ export default function BillingPage() {
                     })}
                   </ul>
                 )}
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-[24px] md:rounded-[28px] shadow-soft border border-primary/10 mb-8">
+              <CardContent className="p-6 md:p-8 space-y-5">
+                <div>
+                  <h2 className="font-headline text-[20px] md:text-[24px]">Choose your plan</h2>
+                  <p className="text-[13px] text-muted-foreground italic mt-1">
+                    Upgrade or downgrade securely. Your current plan stays active until the new payment succeeds.
+                  </p>
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  {([
+                    { tier: 'standard' as const, name: 'Standard Vendor', price: 'R499 / month', detail: 'A complete listing with direct inquiries.' },
+                    { tier: 'featured' as const, name: 'Featured Vendor', price: 'R1,199 / month', detail: 'Priority placement, social links, and maximum visibility.' },
+                  ]).map(plan => {
+                    const current = plan.tier === (subscription?.tier ?? vendorDoc?.membershipTier);
+                    return (
+                      <div key={plan.tier} className={`rounded-2xl border p-5 ${current ? 'border-emerald-300 bg-emerald-50/50' : 'border-primary/10'}`}>
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <h3 className="font-headline text-[20px]">{plan.name}</h3>
+                            <p className="text-[13px] font-bold mt-1">{plan.price}</p>
+                          </div>
+                          {current && <Badge className="bg-emerald-600">Current</Badge>}
+                        </div>
+                        <p className="text-[12px] text-muted-foreground mt-3 min-h-9">{plan.detail}</p>
+                        <Button
+                          onClick={() => changePlan(plan.tier)}
+                          disabled={current || changingPlan !== null}
+                          variant={current ? 'outline' : 'default'}
+                          className="w-full rounded-full mt-4"
+                        >
+                          {changingPlan === plan.tier ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Opening checkout...</> : current ? 'Current plan' : plan.tier === 'featured' ? 'Upgrade' : 'Downgrade'}
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
               </CardContent>
             </Card>
 

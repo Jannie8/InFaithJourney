@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { FieldValue } from 'firebase-admin/firestore';
-import { TIER_AMOUNTS, verifyTransaction, type VendorTier } from '@/lib/paystack';
+import { TIER_AMOUNTS, disableSubscription, getCustomerSubscription, verifyTransaction, type VendorTier } from '@/lib/paystack';
 import { getAdminAuth, getAdminDb } from '@/lib/firebase-admin';
 
 // Server only — confirms the payment with PayStack using the secret key.
@@ -42,10 +42,18 @@ export async function POST(req: NextRequest) {
     if (
       !application.exists ||
       applicationData?.submitterUid !== user.uid ||
-      applicationData?.applicationStatus !== 'approved' ||
-      applicationData?.selectedPlan !== tier
+      applicationData?.applicationStatus !== 'approved'
     ) {
       return NextResponse.json({ error: 'The approved application could not be confirmed.' }, { status: 403 });
+    }
+
+    const previousSubscriptionCode = result.metadata?.previousSubscriptionCode;
+    if (result.metadata?.changePlan && typeof previousSubscriptionCode === 'string') {
+      const previous = await getCustomerSubscription(user.email!, previousSubscriptionCode);
+      if (previous?.emailToken && previous.subscriptionCode !== result.reference) {
+        await disableSubscription(previous.subscriptionCode, previous.emailToken);
+      }
+      await application.ref.update({ selectedPlan: tier, updatedAt: FieldValue.serverTimestamp() });
     }
 
     // Finalize on the server so the return is not lost while Firebase restores the

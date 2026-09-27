@@ -79,7 +79,7 @@ export default function VendorProfilePage({ params }: { params: Promise<{ slug: 
     : [];
   const phoneNumber = 'phoneNumber' in vendor && typeof vendor.phoneNumber === 'string' ? vendor.phoneNumber : '';
   const instagramHandle = 'instagramHandle' in vendor && typeof vendor.instagramHandle === 'string' ? vendor.instagramHandle : '';
-  const instagramUrl = instagramHandle
+  const instagramUrl = vendor.membershipTier === 'featured' && instagramHandle
     ? instagramHandle.startsWith('http') ? instagramHandle : `https://instagram.com/${instagramHandle.replace(/^@/, '')}`
     : '';
   const websiteUrl = 'websiteUrl' in vendor && typeof vendor.websiteUrl === 'string' && vendor.websiteUrl
