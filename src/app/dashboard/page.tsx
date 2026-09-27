@@ -170,39 +170,6 @@ export default function DashboardPage() {
       .catch(error => console.warn('Vendor listing sync unavailable:', error));
   }, [appStatus, application, user, vendorDoc?.listingStatus]);
 
-  // Recover memberships whose PayStack payment succeeded but whose browser
-  // callback was interrupted. PayStack remains the source of truth.
-  useEffect(() => {
-    if (!user || appStatus !== 'approved' || isMembershipActive || reconciliationAttempted.current) return;
-    reconciliationAttempted.current = true;
-    user.getIdToken()
-      .then(token => fetch('/api/paystack/reconcile', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-      }))
-      .then(response => response.ok ? response.json() : null)
-      .then(result => {
-        if (result?.active) {
-          setActiveTab('Subscription & Billing');
-          toast({ title: 'Membership Active', description: 'We found your successful PayStack subscription.' });
-        }
-      })
-      .catch(error => console.warn('Subscription reconciliation unavailable:', error));
-  }, [appStatus, isMembershipActive, toast, user]);
-
-  // Backfill listings approved before automatic publication was introduced.
-  useEffect(() => {
-    if (!user || !application || appStatus !== 'approved' || vendorDoc?.listingStatus === 'active' || listingSyncAttempted.current) return;
-    listingSyncAttempted.current = true;
-    user.getIdToken()
-      .then(token => fetch('/api/vendor-listing/sync', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ applicationId: application.id }),
-      }))
-      .catch(error => console.warn('Vendor listing sync unavailable:', error));
-  }, [appStatus, application, user, vendorDoc?.listingStatus]);
-
   // Admin role detection — drives the conditional "Admin" tab in the sidebar.
   const adminRoleRef = useMemoFirebase(
     () => (user && db ? doc(db, 'roles_admin', user.uid) : null),
@@ -610,7 +577,7 @@ export default function DashboardPage() {
             </aside>
 
             {/* Content Area */}
-            <div className="flex-1 space-y-8 md:space-y-10">
+            <div className="flex-1 min-w-0 max-w-full space-y-8 md:space-y-10">
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-border text-center md:text-left">
                 <div className="space-y-2">
                   <h1 className="font-headline text-[32px] md:text-[42px] leading-tight text-foreground">Command Center</h1>
@@ -1096,13 +1063,13 @@ export default function DashboardPage() {
 
               {/* Analytics Tab */}
               {activeTab === 'Analytics' && (
-                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="min-w-0 max-w-full space-y-8 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                     <div>
                       <h2 className="font-headline text-[26px] md:text-[32px]">Performance Analytics</h2>
                       <p className="text-[13px] md:text-[14px] text-muted-foreground italic mt-1">Understand how couples discover and engage with your listing.</p>
                     </div>
-                    <div className="inline-flex rounded-full border border-primary/10 bg-card p-1 self-start">
+                    <div className="grid grid-cols-3 rounded-full border border-primary/10 bg-card p-1 self-start w-full sm:w-auto">
                       {([7, 30, 90] as const).map(range => (
                         <button key={range} onClick={() => setAnalyticsRange(range)} className={cn('px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-colors', analyticsRange === range ? 'bg-primary text-white' : 'text-muted-foreground hover:text-primary')}>
                           {range} days
@@ -1137,13 +1104,16 @@ export default function DashboardPage() {
                         </div>
                         <Badge variant="outline">{dailyViewData.reduce((sum, day) => sum + day.value, 0)} views</Badge>
                       </div>
-                      <div className="overflow-x-auto pb-2">
-                        <div className="h-52 flex items-end gap-2 min-w-max border-b border-primary/10 px-1">
+                      <div className="w-full min-w-0 overflow-hidden pb-2">
+                        <div
+                          className="h-52 w-full flex items-end border-b border-primary/10 px-1"
+                          style={{ gap: analyticsRange === 90 ? '2px' : analyticsRange === 30 ? '5px' : '12px' }}
+                        >
                           {dailyViewData.map((day, index) => (
-                            <div key={day.key} className="w-7 md:w-9 h-full flex flex-col justify-end items-center gap-2 group" title={`${day.key}: ${day.value} views`}>
+                            <div key={day.key} className="flex-1 min-w-0 h-full flex flex-col justify-end items-center gap-2 group" title={`${day.key}: ${day.value} views`}>
                               <span className="text-[9px] font-bold text-primary opacity-0 group-hover:opacity-100">{day.value}</span>
                               <div className="w-full rounded-t-md bg-primary/70 min-h-[3px] transition-all group-hover:bg-secondary" style={{ height: `${Math.max(2, (day.value / maxDailyViews) * 82)}%` }} />
-                              {(analyticsRange <= 7 || index % Math.ceil(analyticsRange / 8) === 0) && <span className="text-[8px] text-muted-foreground whitespace-nowrap">{day.label}</span>}
+                              {(analyticsRange <= 7 || index % Math.ceil(analyticsRange / 6) === 0) && <span className="text-[8px] text-muted-foreground whitespace-nowrap -rotate-45 origin-center mt-1">{day.label}</span>}
                             </div>
                           ))}
                         </div>
