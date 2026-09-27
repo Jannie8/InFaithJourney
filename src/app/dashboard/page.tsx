@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
@@ -23,7 +23,7 @@ import Link from 'next/link';
 import { useUser, useAuth, useFirestore, useFirebaseApp, useMemoFirebase, useCollection, useDoc } from '@/firebase';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import {
-  collection, query, where, doc, setDoc, updateDoc, serverTimestamp,
+  collection, query, where, doc, updateDoc, serverTimestamp,
 } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { cn } from '@/lib/utils';
@@ -39,10 +39,10 @@ export default function DashboardPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isSimulating, setIsSimulating] = useState(false);
   const [activeTab, setActiveTab] = useState('Overview');
   const [isPaying, setIsPaying] = useState<null | 'standard' | 'featured'>(null);
   const [isOpeningPortal, setIsOpeningPortal] = useState(false);
+  const reconciliationAttempted = useRef(false);
 
   // Open PayStack's hosted billing portal where the customer can update their card,
   // view past invoices, or cancel their subscription. We mint a fresh link on each
@@ -81,8 +81,6 @@ export default function DashboardPage() {
     }
   };
 
-  const isLoggedIn = user || isSimulating;
-
   // This vendor's most recent application (drives the approval gate).
   const applicationQuery = useMemoFirebase(
     () =>
@@ -114,6 +112,26 @@ export default function DashboardPage() {
   const appStatus: string | null = application?.applicationStatus ?? null;
   const approvedTier: 'standard' | 'featured' =
     application?.selectedPlan === 'featured' ? 'featured' : 'standard';
+
+  // Recover memberships whose PayStack payment succeeded but whose browser
+  // callback was interrupted. PayStack remains the source of truth.
+  useEffect(() => {
+    if (!user || appStatus !== 'approved' || isMembershipActive || reconciliationAttempted.current) return;
+    reconciliationAttempted.current = true;
+    user.getIdToken()
+      .then(token => fetch('/api/paystack/reconcile', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      }))
+      .then(response => response.ok ? response.json() : null)
+      .then(result => {
+        if (result?.active) {
+          setActiveTab('Subscription & Billing');
+          toast({ title: 'Membership Active', description: 'We found your successful PayStack subscription.' });
+        }
+      })
+      .catch(error => console.warn('Subscription reconciliation unavailable:', error));
+  }, [appStatus, isMembershipActive, toast, user]);
 
   // Admin role detection — drives the conditional "Admin" tab in the sidebar.
   const adminRoleRef = useMemoFirebase(
@@ -267,13 +285,14 @@ export default function DashboardPage() {
   const handleActivate = async (tier: 'standard' | 'featured') => {
     try {
       setIsPaying(tier);
+      if (!user || !application) throw new Error('Sign in and wait for your approved application to load.');
+      const token = await user.getIdToken();
       const res = await fetch('/api/paystack/initialize', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tier,
-          email: user?.email || 'vendor-test@infaithjourney.com',
-          uid: user?.uid || null,
+          applicationId: application.id,
         }),
       });
       const data = await res.json();
@@ -291,42 +310,36 @@ export default function DashboardPage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('paystack') !== 'return') return;
+    // Firebase restores authentication asynchronously after the full-page PayStack
+    // redirect. Do not consume and clear the callback until the user is available.
+    if (isUserLoading || !user) return;
     const reference = params.get('reference') || params.get('trxref');
     if (!reference) return;
 
     (async () => {
       try {
-        const res = await fetch(`/api/paystack/verify?reference=${encodeURIComponent(reference)}`);
+        const token = await user.getIdToken();
+        const res = await fetch('/api/paystack/verify', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reference }),
+        });
         const data = await res.json();
-        if (data.success) {
-          // Record the membership on the vendor's own record (rules allow owner writes).
-          if (user && db) {
-            await setDoc(
-              doc(db, 'vendors', user.uid),
-              {
-                membershipStatus: 'active',
-                membershipTier: data.tier ?? approvedTier,
-                paystackReference: data.reference ?? reference,
-                email: user.email ?? null,
-                submitterUid: user.uid,
-                updatedAt: serverTimestamp(),
-              },
-              { merge: true }
-            );
-          }
+        if (res.ok && data.success) {
           setActiveTab('Subscription & Billing');
           toast({ title: 'Membership Active', description: 'Your payment was confirmed. Welcome aboard!' });
         } else {
-          toast({ title: 'Payment Not Completed', description: 'We could not confirm your payment.', variant: 'destructive' });
+          throw new Error(data.error || 'We could not confirm your payment.');
         }
       } catch (e: any) {
         toast({ title: 'Verification Error', description: e.message, variant: 'destructive' });
-      } finally {
-        // Clean the URL so a refresh doesn't re-trigger verification.
-        window.history.replaceState({}, '', '/dashboard');
+        // Keep the PayStack reference in the URL so refreshing can safely retry.
+        return;
       }
+      // Only consume the callback after the server has persisted activation.
+      window.history.replaceState({}, '', '/dashboard');
     })();
-  }, [toast, user, db, approvedTier]);
+  }, [toast, user, isUserLoading]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -334,24 +347,16 @@ export default function DashboardPage() {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (error: any) {
       console.error("Login failed", error);
-      if (!email || !password) {
-        setIsSimulating(true);
-      } else {
-        toast({
-          title: "Authentication Failed",
-          description: "Invalid email or password. Please check your credentials and try again.",
-          variant: "destructive"
-        });
-      }
+      toast({
+        title: "Authentication Failed",
+        description: "Invalid email or password. Please check your credentials and try again.",
+        variant: "destructive"
+      });
     }
   };
 
   const handleLogout = () => {
-    if (isSimulating) {
-      setIsSimulating(false);
-    } else {
-      signOut(auth);
-    }
+    signOut(auth);
   };
 
   const sidebarItems = [
@@ -374,7 +379,7 @@ export default function DashboardPage() {
     );
   }
 
-  if (!isLoggedIn) {
+  if (!user) {
     return (
       <div className="flex flex-col min-h-screen watercolor-bg">
         <Navbar />
@@ -431,21 +436,9 @@ export default function DashboardPage() {
                 </Button>
               </form>
 
-              <div className="relative py-2">
-                <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border"></span></div>
-                <div className="relative flex justify-center text-[10px] md:text-[11px] uppercase tracking-widest"><span className="bg-card px-4 text-muted-foreground font-bold">OR</span></div>
-              </div>
-
-              <div className="text-center space-y-4">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setIsSimulating(true)}
-                  className="w-full h-12 md:h-14 rounded-xl border-border text-foreground hover:bg-muted font-bold tracking-widest text-[12px] md:text-[13px] uppercase"
-                >
-                  Demo Access
-                </Button>
+              <div className="text-center">
                 <p className="text-[13px] md:text-[14px] text-muted-foreground font-medium">
-                  New here? <Link href="/membership" className="text-primary font-bold hover:underline decoration-primary decoration-2 underline-offset-4">Apply as a Vendor</Link>
+                  New here? <Link href="/signup" className="text-primary font-bold hover:underline decoration-primary decoration-2 underline-offset-4">Create an account</Link>
                 </p>
               </div>
             </CardContent>
@@ -617,12 +610,12 @@ export default function DashboardPage() {
                       </div>
                     </div>
                   ) : !user ? (
-                    /* 2. Demo / not really signed in */
+                    /* 2. Authentication session unavailable */
                     <div className="bg-card p-8 rounded-[24px] border border-border shadow-soft text-center space-y-3">
                       <CreditCard className="w-10 h-10 text-primary mx-auto" />
                       <h2 className="font-headline text-[22px]">Sign in to manage membership</h2>
                       <p className="text-muted-foreground italic font-medium">
-                        You're in demo mode. Sign in with your vendor account to see your application and activate membership.
+                        Sign in with your vendor account to see your application and activate membership.
                       </p>
                     </div>
                   ) : !application ? (
@@ -701,7 +694,7 @@ export default function DashboardPage() {
                         <User className="w-10 h-10 text-primary mx-auto" />
                         <h3 className="font-headline text-[20px]">Sign in to view your profile</h3>
                         <p className="text-muted-foreground italic font-medium text-[13px]">
-                          You're in demo mode. Sign in with your vendor account to see your business details.
+                          Sign in with your vendor account to see your business details.
                         </p>
                       </CardContent>
                     </Card>
