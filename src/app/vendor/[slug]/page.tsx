@@ -14,8 +14,8 @@ import { Star, MapPin, Share2, Phone, Mail, Instagram, CheckCircle2, Globe, Bank
 import { Badge } from '@/components/ui/badge';
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
-import { useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
-import { addDoc, collection, doc, serverTimestamp } from 'firebase/firestore';
+import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 
 export default function VendorProfilePage({ params }: { params: Promise<{ slug: string }> }) {
@@ -25,7 +25,6 @@ export default function VendorProfilePage({ params }: { params: Promise<{ slug: 
   const [isSendingInquiry, setIsSendingInquiry] = useState(false);
   const [inquiry, setInquiry] = useState({ name: '', email: '', weddingDate: '', message: '' });
   const db = useFirestore();
-  const { user } = useUser();
   const { toast } = useToast();
   const liveVendorRef = useMemoFirebase(() => db ? doc(db, 'vendors', slug) : null, [db, slug]);
   const { data: liveVendor } = useDoc<any>(liveVendorRef);
@@ -111,19 +110,26 @@ export default function VendorProfilePage({ params }: { params: Promise<{ slug: 
     if (!db) return;
     try {
       setIsSendingInquiry(true);
-      await addDoc(collection(db, 'inquiries'), {
-        vendorId: slug,
-        vendorName: vendor.name,
-        userProfileId: user?.uid ?? null,
-        name: inquiry.name.trim(),
-        email: inquiry.email.trim(),
-        weddingDate: inquiry.weddingDate,
-        message: inquiry.message.trim(),
-        status: 'new',
-        createdAt: serverTimestamp(),
+      const response = await fetch('/api/vendor-inquiries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          vendorId: slug,
+          name: inquiry.name.trim(),
+          email: inquiry.email.trim(),
+          weddingDate: inquiry.weddingDate,
+          message: inquiry.message.trim(),
+        }),
       });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Could not send your inquiry.');
       setInquiry({ name: '', email: '', weddingDate: '', message: '' });
-      toast({ title: 'Inquiry sent', description: `${vendor.name} can now respond to your request.` });
+      toast({
+        title: 'Inquiry sent',
+        description: result.emailSent
+          ? `${vendor.name} has been notified by email.`
+          : `Your inquiry was saved for ${vendor.name}, but their email notification is temporarily delayed.`,
+      });
     } catch (error: any) {
       toast({ title: 'Inquiry not sent', description: error?.message || 'Please try again.', variant: 'destructive' });
     } finally {
