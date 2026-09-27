@@ -18,7 +18,9 @@ import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import Link from 'next/link';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { getCuratedByCategorySlug } from '@/lib/vendors';
+import { getCuratedByCategorySlug, vendorFromFirestore } from '@/lib/vendors';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
 
 const CATEGORY_MAP: Record<string, { name: string; title: string; imageId: string; description: string }> = {
   'venues': {
@@ -121,6 +123,9 @@ export default function CategoryBrowsePage({ params }: { params: Promise<{ slug:
   const [isLoaded, setIsLoaded] = useState(false);
   const [budget, setBudget] = useState([0, 300]);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+  const db = useFirestore();
+  const liveVendorsQuery = useMemoFirebase(() => db ? collection(db, 'vendors') : null, [db]);
+  const { data: liveVendorDocs } = useCollection<any>(liveVendorsQuery);
 
   // Seed the location filter from the homepage search (?location=cape-town).
   useEffect(() => {
@@ -147,7 +152,12 @@ export default function CategoryBrowsePage({ params }: { params: Promise<{ slug:
 
   // Use the shared curated vendors for this category so clicking a card opens
   // the correct vendor profile (the same vendors shown on the Vendors page).
-  const listings = useMemo(() => getCuratedByCategorySlug(slug), [slug]);
+  const listings = useMemo(() => [
+    ...getCuratedByCategorySlug(slug),
+    ...(liveVendorDocs ?? [])
+      .filter(vendor => vendor.membershipStatus === 'active' && vendor.categorySlug === slug)
+      .map(vendor => vendorFromFirestore(vendor.id, vendor)),
+  ], [liveVendorDocs, slug]);
 
   const filtered = useMemo(() => {
     return listings.filter(v => {
