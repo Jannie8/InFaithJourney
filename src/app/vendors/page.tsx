@@ -18,7 +18,9 @@ import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import Link from 'next/link';
 import { CORE_VENDORS } from '@/app/page';
-import { ELITE_VENDORS, CURATED_VENDORS } from '@/lib/vendors';
+import { ELITE_VENDORS, CURATED_VENDORS, vendorFromFirestore } from '@/lib/vendors';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
 
 const FILTER_LOCATIONS = ['Cape Town', 'Stellenbosch', 'Franschhoek', 'Johannesburg', 'Pretoria'];
 
@@ -42,6 +44,12 @@ function VendorsPageInner() {
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [viewMode, setViewMode] = useState<'elite' | 'curated'>('elite');
+  const db = useFirestore();
+  const liveVendorsQuery = useMemoFirebase(() => db ? collection(db, 'vendors') : null, [db]);
+  const { data: liveVendorDocs } = useCollection<any>(liveVendorsQuery);
+  const liveVendors = useMemo(() => (liveVendorDocs ?? [])
+    .filter(vendor => vendor.listingStatus === 'active')
+    .map(vendor => vendorFromFirestore(vendor.id, vendor)), [liveVendorDocs]);
 
   // Seed the filters from whatever was submitted on the homepage search bar
   // (?location=cape-town, ?category=venues). This is what makes the homepage
@@ -85,7 +93,10 @@ function VendorsPageInner() {
   // filters (category / location / budget / search) then apply on top of it,
   // and the two collections never mix.
   const displayed = useMemo(() => {
-    const source = viewMode === 'curated' ? CURATED_VENDORS : ELITE_VENDORS;
+    const dynamic = liveVendors.filter(vendor =>
+      viewMode === 'elite' ? vendor.membershipTier === 'featured' : vendor.membershipTier !== 'featured'
+    );
+    const source = [...(viewMode === 'curated' ? CURATED_VENDORS : ELITE_VENDORS), ...dynamic];
     const base = source.filter(v => {
       // Category
       if (selectedCategory && v.category !== selectedCategory) return false;
@@ -104,7 +115,7 @@ function VendorsPageInner() {
     return [...base].sort((a, b) =>
       viewMode === 'curated' ? b.reviews - a.reviews : b.rating - a.rating
     );
-  }, [viewMode, selectedCategory, selectedLocations, budget, searchText]);
+  }, [viewMode, selectedCategory, selectedLocations, budget, searchText, liveVendors]);
 
   const hasActiveFilters =
     selectedCategory !== '' ||
