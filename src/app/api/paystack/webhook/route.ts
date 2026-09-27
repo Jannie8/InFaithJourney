@@ -153,7 +153,7 @@ export async function POST(req: NextRequest) {
       // Subscription cancelled or will not renew — membership lapses.
       case 'subscription.disable':
       case 'subscription.not_renew':
-        await updateVendorByEmail(email, { membershipStatus: 'inactive' });
+        await updateVendorByEmail(email, { membershipStatus: 'inactive', listingStatus: 'inactive' });
         break;
 
       default:

@@ -42,7 +42,9 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState('Overview');
   const [isPaying, setIsPaying] = useState<null | 'standard' | 'featured'>(null);
   const [isOpeningPortal, setIsOpeningPortal] = useState(false);
+  const [isCancellingMembership, setIsCancellingMembership] = useState(false);
   const reconciliationAttempted = useRef(false);
+  const listingSyncAttempted = useRef(false);
 
   // Open PayStack's hosted billing portal where the customer can update their card,
   // view past invoices, or cancel their subscription. We mint a fresh link on each
@@ -132,6 +134,19 @@ export default function DashboardPage() {
       })
       .catch(error => console.warn('Subscription reconciliation unavailable:', error));
   }, [appStatus, isMembershipActive, toast, user]);
+
+  // Backfill listings approved before automatic publication was introduced.
+  useEffect(() => {
+    if (!user || !application || appStatus !== 'approved' || vendorDoc?.listingStatus === 'active' || listingSyncAttempted.current) return;
+    listingSyncAttempted.current = true;
+    user.getIdToken()
+      .then(token => fetch('/api/vendor-listing/sync', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ applicationId: application.id }),
+      }))
+      .catch(error => console.warn('Vendor listing sync unavailable:', error));
+  }, [appStatus, application, user, vendorDoc?.listingStatus]);
 
   // Admin role detection — drives the conditional "Admin" tab in the sidebar.
   const adminRoleRef = useMemoFirebase(
@@ -303,6 +318,27 @@ export default function DashboardPage() {
       console.error(err);
       toast({ title: 'Payment Error', description: err.message, variant: 'destructive' });
       setIsPaying(null);
+    }
+  };
+
+  const cancelMembership = async () => {
+    if (!user || !application) return;
+    if (!window.confirm('Cancel this application and remove your vendor listing? Any active PayStack subscription will also be cancelled.')) return;
+    try {
+      setIsCancellingMembership(true);
+      const token = await user.getIdToken();
+      const response = await fetch('/api/paystack/cancel', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ applicationId: application.id }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Could not cancel the membership.');
+      toast({ title: 'Membership Cancelled', description: 'Your application and public vendor listing have been removed.' });
+    } catch (error: any) {
+      toast({ title: 'Cancellation Failed', description: error?.message || 'Please try again.', variant: 'destructive' });
+    } finally {
+      setIsCancellingMembership(false);
     }
   };
 
@@ -607,6 +643,14 @@ export default function DashboardPage() {
                         <p className="mt-3 text-[11px] uppercase tracking-widest text-muted-foreground">
                           Update card · View invoices · Cancel subscription
                         </p>
+                        <Button
+                          variant="ghost"
+                          onClick={cancelMembership}
+                          disabled={isCancellingMembership}
+                          className="mt-4 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                        >
+                          {isCancellingMembership ? <Loader2 className="w-4 h-4 animate-spin" /> : <><XCircle className="w-4 h-4 mr-2" />Cancel Membership</>}
+                        </Button>
                       </div>
                     </div>
                   ) : !user ? (
@@ -639,12 +683,12 @@ export default function DashboardPage() {
                         Ricardo and the team are reviewing your application. You'll be able to activate your membership here as soon as it's approved.
                       </p>
                     </div>
-                  ) : appStatus === 'rejected' ? (
+                  ) : appStatus === 'rejected' || appStatus === 'cancelled' ? (
                     /* 5. Rejected */
                     <div className="bg-card p-8 rounded-[24px] border border-rose-200 shadow-soft text-center space-y-3">
-                      <h2 className="font-headline text-[22px]">Application Not Approved</h2>
+                      <h2 className="font-headline text-[22px]">{appStatus === 'cancelled' ? 'Application Cancelled' : 'Application Not Approved'}</h2>
                       <p className="text-muted-foreground italic font-medium">
-                        Unfortunately your application wasn't approved at this time. Please contact the team for details.
+                        {appStatus === 'cancelled' ? 'Your vendor listing is no longer active. You may submit a new application whenever you are ready.' : "Unfortunately your application wasn't approved at this time. Please contact the team for details."}
                       </p>
                     </div>
                   ) : (
@@ -676,6 +720,14 @@ export default function DashboardPage() {
                               ) : (
                                 <>Activate Membership</>
                               )}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={cancelMembership}
+                              disabled={isCancellingMembership || isPaying !== null}
+                              className="w-full h-12 border-rose-200 text-rose-600 hover:bg-rose-50"
+                            >
+                              {isCancellingMembership ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Cancel Application'}
                             </Button>
                           </CardContent>
                         </Card>
@@ -748,7 +800,9 @@ export default function DashboardPage() {
                                       ? 'Approved · Awaiting Activation'
                                       : appStatus === 'pending'
                                         ? 'Application Pending'
-                                        : 'Application Rejected'}
+                                        : appStatus === 'cancelled'
+                                          ? 'Application Cancelled'
+                                          : 'Application Rejected'}
                                 </Badge>
                                 <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-widest">
                                   {approvedTier === 'featured' ? 'Featured · R1,199' : 'Standard · R499'}
