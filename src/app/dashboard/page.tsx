@@ -23,7 +23,7 @@ import Link from 'next/link';
 import { useUser, useAuth, useFirestore, useFirebaseApp, useMemoFirebase, useCollection, useDoc } from '@/firebase';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import {
-  collection, query, where, doc, setDoc, updateDoc, serverTimestamp,
+  collection, query, where, doc, updateDoc, serverTimestamp,
 } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { cn } from '@/lib/utils';
