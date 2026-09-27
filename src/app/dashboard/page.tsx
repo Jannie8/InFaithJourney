@@ -169,9 +169,10 @@ export default function DashboardPage() {
       .catch(error => console.warn('Subscription reconciliation unavailable:', error));
   }, [appStatus, isMembershipActive, toast, user]);
 
-  // Backfill listings approved before automatic publication was introduced.
+  // Keep the canonical public listing aligned with the application. This also
+  // repairs older listings whose photos were edited before live sync existed.
   useEffect(() => {
-    if (!user || !application || appStatus !== 'approved' || vendorDoc?.listingStatus === 'active' || listingSyncAttempted.current) return;
+    if (!user || !application || appStatus !== 'approved' || listingSyncAttempted.current) return;
     listingSyncAttempted.current = true;
     user.getIdToken()
       .then(token => fetch('/api/vendor-listing/sync', {
@@ -180,7 +181,7 @@ export default function DashboardPage() {
         body: JSON.stringify({ applicationId: application.id }),
       }))
       .catch(error => console.warn('Vendor listing sync unavailable:', error));
-  }, [appStatus, application, user, vendorDoc?.listingStatus]);
+  }, [appStatus, application, user]);
 
   // Admin role detection — drives the conditional "Admin" tab in the sidebar.
   const adminRoleRef = useMemoFirebase(
