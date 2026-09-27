@@ -55,14 +55,19 @@ export default function VendorProfilePage({ params }: { params: Promise<{ slug: 
   };
   const ratingStars = Math.round(vendor.rating);
 
-  const gallery = [
-    PlaceHolderImages.find(img => img.id === 'gallery-1'),
-    PlaceHolderImages.find(img => img.id === 'gallery-2'),
-    PlaceHolderImages.find(img => img.id === 'gallery-3'),
-    PlaceHolderImages.find(img => img.id === 'gallery-4'),
-    PlaceHolderImages.find(img => img.id === 'gallery-5'),
-    PlaceHolderImages.find(img => img.id === 'gallery-6'),
-  ];
+  const submittedGallery = 'portfolioImageUrls' in vendor && Array.isArray(vendor.portfolioImageUrls)
+    ? vendor.portfolioImageUrls.filter((url: unknown): url is string => typeof url === 'string' && url.length > 0)
+    : [];
+  const gallery = submittedGallery.length > 0
+    ? submittedGallery.map((imageUrl: string) => ({ imageUrl }))
+    : [
+        PlaceHolderImages.find(img => img.id === 'gallery-1'),
+        PlaceHolderImages.find(img => img.id === 'gallery-2'),
+        PlaceHolderImages.find(img => img.id === 'gallery-3'),
+        PlaceHolderImages.find(img => img.id === 'gallery-4'),
+        PlaceHolderImages.find(img => img.id === 'gallery-5'),
+        PlaceHolderImages.find(img => img.id === 'gallery-6'),
+      ];
 
   return (
     <div className="flex flex-col min-h-screen">
