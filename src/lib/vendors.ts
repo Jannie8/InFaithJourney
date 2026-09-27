@@ -13,6 +13,40 @@ export interface Vendor {
   imageHint: string;
 }
 
+const CATEGORY_NAMES_BY_SLUG: Record<string, string> = {
+  venues: 'Venues',
+  'photography-videography': 'Photography',
+  beauty: 'Beauty',
+  'flowers-decor': 'Flowers',
+  catering: 'Catering',
+  'honeymoon-destinations': 'Travel',
+  'music-entertainment': 'Music',
+  'planning-coordination': 'Planning',
+  fashion: 'Fashion',
+  stationery: 'Stationery',
+  'wedding-cakes': 'Cakes',
+  jewelry: 'Jewelry',
+};
+
+/** Convert a public Firestore vendor document into the shared card shape. */
+export function vendorFromFirestore(id: string, data: Record<string, any>): Vendor & { membershipTier?: string } {
+  const categorySlug = data.categorySlug || 'vendors';
+  const parsedPrice = Number(String(data.pricingRange ?? '').replace(/[^0-9.]/g, ''));
+  return {
+    id,
+    name: data.name || data.businessName || 'Unnamed Business',
+    location: data.location || 'South Africa',
+    price: Number.isFinite(parsedPrice) && parsedPrice > 0 ? parsedPrice / (parsedPrice > 1_000 ? 1_000 : 1) : 100,
+    rating: typeof data.rating === 'number' ? data.rating : 5,
+    reviews: typeof data.reviews === 'number' ? data.reviews : 0,
+    category: CATEGORY_NAMES_BY_SLUG[categorySlug] || data.category || 'Vendors',
+    categorySlug,
+    imageUrl: data.imageUrl || data.coverImageUrl || data.logoUrl || '/wedding.png',
+    imageHint: data.imageHint || `${data.category || 'wedding'} vendor`,
+    membershipTier: data.membershipTier,
+  };
+}
+
 // The canonical category list. `name` must match the labels used in
 // CORE_VENDORS (homepage) so sidebar filtering lines up; `slug` matches the
 // /category/[slug] route segments.
