@@ -51,10 +51,8 @@ export default function AdminDashboardPage() {
       : null,
     [isAdmin, db]
   );
-  const approvedQuery = useMemoFirebase(
-    () => isAdmin && db
-      ? query(collection(db, 'vendorApplications'), where('applicationStatus', '==', 'approved'))
-      : null,
+  const applicationHistoryQuery = useMemoFirebase(
+    () => isAdmin && db ? collection(db, 'vendorApplications') : null,
     [isAdmin, db]
   );
   const vendorsQuery = useMemoFirebase(
@@ -63,7 +61,7 @@ export default function AdminDashboardPage() {
   );
 
   const { data: pendingRaw, isLoading: isQueueLoading } = useCollection<any>(pendingQuery);
-  const { data: approvedRaw, isLoading: isApprovedLoading } = useCollection<any>(approvedQuery);
+  const { data: applicationHistoryRaw, isLoading: isApprovedLoading } = useCollection<any>(applicationHistoryQuery);
   const { data: membershipsRaw, isLoading: isMembershipLoading } = useCollection<any>(vendorsQuery);
 
   const pending = pendingRaw
@@ -73,14 +71,23 @@ export default function AdminDashboardPage() {
     () => new Map((membershipsRaw ?? []).map(membership => [membership.id, membership])),
     [membershipsRaw]
   );
+  const approvedHistory = useMemo(
+    () => (applicationHistoryRaw ?? []).filter(application =>
+      application.applicationStatus === 'approved'
+      || application.applicationStatus === 'cancelled'
+      || application.previouslyApproved === true
+      || application.approvedAt != null
+    ),
+    [applicationHistoryRaw]
+  );
   const vendors = useMemo(() => {
     const term = vendorSearch.trim().toLowerCase();
-    return (approvedRaw ?? [])
+    return approvedHistory
       .map(application => ({ ...application, membership: membershipByUid.get(application.submitterUid) }))
       .filter(vendor => !term || [vendor.businessName, vendor.ownerName, vendor.email, vendor.category, vendor.location]
         .some(value => String(value ?? '').toLowerCase().includes(term)))
       .sort((a, b) => String(a.businessName ?? '').localeCompare(String(b.businessName ?? '')));
-  }, [approvedRaw, membershipByUid, vendorSearch]);
+  }, [approvedHistory, membershipByUid, vendorSearch]);
 
   const decide = async (id: string, decision: 'approved' | 'rejected') => {
     if (!user) return;
@@ -132,10 +139,10 @@ export default function AdminDashboardPage() {
   }
 
   const pendingCount = pending.length;
-  const activeCount = (approvedRaw ?? []).filter(app => membershipByUid.get(app.submitterUid)?.membershipStatus === 'active').length;
+  const activeCount = (membershipsRaw ?? []).filter(membership => membership.membershipStatus === 'active').length;
   const stats = [
     { label: 'Pending Applications', value: String(pendingCount), icon: ClipboardCheck, color: 'text-amber-500', bg: 'bg-amber-50' },
-    { label: 'Approved Vendors', value: String(approvedRaw?.length ?? 0), icon: Users, color: 'text-primary', bg: 'bg-primary/5' },
+    { label: 'Approved Vendors', value: String(approvedHistory.length), icon: Users, color: 'text-primary', bg: 'bg-primary/5' },
     { label: 'Active Memberships', value: String(activeCount), icon: CheckCircle, color: 'text-emerald-500', bg: 'bg-emerald-50' },
     { label: 'Review Required', value: String(pendingCount), icon: AlertCircle, color: 'text-rose-500', bg: 'bg-rose-50' },
   ];
@@ -193,7 +200,7 @@ export default function AdminDashboardPage() {
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 mb-8 pb-5 border-b border-primary/10">
               <div>
                 <h2 className="font-headline text-[24px] md:text-[32px]">Vendor Management</h2>
-                <p className="text-sm text-muted-foreground mt-1">View approved vendors, their membership state, profiles, and media.</p>
+                <p className="text-sm text-muted-foreground mt-1">View every previously approved vendor, including active and cancelled memberships.</p>
               </div>
               <div className="relative w-full md:w-80">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
