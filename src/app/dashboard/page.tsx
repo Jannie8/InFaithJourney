@@ -1110,10 +1110,14 @@ export default function DashboardPage() {
                           style={{ gap: analyticsRange === 90 ? '2px' : analyticsRange === 30 ? '5px' : '12px' }}
                         >
                           {dailyViewData.map((day, index) => (
-                            <div key={day.key} className="flex-1 min-w-0 h-full flex flex-col justify-end items-center gap-2 group" title={`${day.key}: ${day.value} views`}>
-                              <span className="text-[9px] font-bold text-primary opacity-0 group-hover:opacity-100">{day.value}</span>
-                              <div className="w-full rounded-t-md bg-primary/70 min-h-[3px] transition-all group-hover:bg-secondary" style={{ height: `${Math.max(2, (day.value / maxDailyViews) * 82)}%` }} />
-                              {(analyticsRange <= 7 || index % Math.ceil(analyticsRange / 6) === 0) && <span className="text-[8px] text-muted-foreground whitespace-nowrap -rotate-45 origin-center mt-1">{day.label}</span>}
+                            <div key={day.key} className="group flex h-full min-w-0 flex-1 flex-col items-center" title={`${day.key}: ${day.value} views`}>
+                              <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-end gap-2">
+                                <span className="text-[9px] font-bold text-primary opacity-0 group-hover:opacity-100">{day.value}</span>
+                                <div className="w-full rounded-t-md bg-primary/70 min-h-[3px] transition-all group-hover:bg-secondary" style={{ height: `${Math.max(2, (day.value / maxDailyViews) * 82)}%` }} />
+                              </div>
+                              <div className="relative h-7 w-full shrink-0">
+                                {(analyticsRange <= 7 || index % Math.ceil(analyticsRange / 6) === 0) && <span className="absolute left-1/2 top-2 -translate-x-1/2 -rotate-45 origin-center text-[8px] text-muted-foreground whitespace-nowrap">{day.label}</span>}
+                              </div>
                             </div>
                           ))}
                         </div>
