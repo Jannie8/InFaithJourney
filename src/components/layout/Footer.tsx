@@ -71,10 +71,11 @@ export function Footer() {
             <div className="flex flex-col gap-4">
               <input 
                 type="email" 
+                suppressHydrationWarning
                 placeholder="Email Address" 
                 className="bg-white/50 border border-primary/20 rounded-full px-6 py-4 text-sm w-full outline-none focus:ring-2 focus:ring-primary/10 transition-all shadow-inner"
               />
-              <button className="button-rose w-full py-4.5 rounded-full text-[12px] font-bold uppercase tracking-[0.2em] shadow-lg golden-glow-premium">SUBSCRIBE</button>
+              <button suppressHydrationWarning className="button-rose w-full py-4.5 rounded-full text-[12px] font-bold uppercase tracking-[0.2em] shadow-lg golden-glow-premium">SUBSCRIBE</button>
             </div>
           </div>
         </div>
