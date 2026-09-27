@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
@@ -16,7 +16,7 @@ import {
   PieChart, CreditCard, Edit3, Loader2, CheckCircle,
   Phone, MapPin, Globe, Instagram, Tag, Calendar,
   Banknote, FileText, ImageIcon, AlertCircle,
-  ShieldCheck, XCircle, ClipboardCheck, Upload, Trash2,
+  ShieldCheck, XCircle, ClipboardCheck, Upload, Trash2, Users,
 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import Link from 'next/link';
@@ -189,6 +189,42 @@ export default function DashboardPage() {
     [isAdmin, db]
   );
   const { data: adminPendingApps } = useCollection<any>(adminApplicationsQuery);
+  const adminVendorsQuery = useMemoFirebase(
+    () => (isAdmin && db ? collection(db, 'vendors') : null),
+    [isAdmin, db]
+  );
+  const { data: adminVendors } = useCollection<any>(adminVendorsQuery);
+  const adminVendorApplicationsQuery = useMemoFirebase(
+    () => (isAdmin && db ? collection(db, 'vendorApplications') : null),
+    [isAdmin, db]
+  );
+  const { data: adminVendorApplications } = useCollection<any>(adminVendorApplicationsQuery);
+  const adminVendorRecords = useMemo(() => {
+    if (!adminVendors || !adminVendorApplications) return null;
+    const sortedApplications = [...adminVendorApplications]
+      .sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
+    const applicationById = new Map(sortedApplications.map(item => [item.id, item]));
+    const applicationByUid = new Map<string, any>();
+    sortedApplications.forEach(item => {
+      if (item.submitterUid && !applicationByUid.has(item.submitterUid)) {
+        applicationByUid.set(item.submitterUid, item);
+      }
+    });
+
+    return adminVendors.map(vendor => {
+      const application = applicationById.get(vendor.applicationId)
+        || applicationByUid.get(vendor.submitterUid || vendor.id);
+      return {
+        ...application,
+        ...vendor,
+        id: vendor.id,
+        businessName: vendor.businessName || vendor.name || application?.businessName || 'Unnamed Business',
+        category: vendor.category || application?.category || 'Vendor',
+        location: vendor.location || application?.location || '',
+        logoUrl: vendor.logoUrl || application?.logoUrl || '',
+      };
+    });
+  }, [adminVendorApplications, adminVendors]);
 
   // Vendors can edit their own approved profile directly.
   const [isEditing, setIsEditing] = useState(false);
@@ -1290,6 +1326,72 @@ export default function DashboardPage() {
                                     {reviewingId === app.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <><CheckCircle className="w-4 h-4 mr-1.5" /> Approve</>}
                                   </Button>
                                 </div>
+                              </div>
+                            ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Approved vendor directory */}
+                  <Card className="rounded-[24px] md:rounded-[32px] border border-primary/10 shadow-soft">
+                    <CardContent className="p-6 md:p-8 space-y-6">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-primary/10 pb-4">
+                        <div className="flex items-center gap-3">
+                          <Users className="w-5 h-5 text-primary" />
+                          <div>
+                            <h2 className="font-headline text-[22px] md:text-[26px]">Approved Vendors</h2>
+                            <p className="text-xs text-muted-foreground mt-1">View active, awaiting-payment, and cancelled vendor memberships.</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Badge variant="secondary" className="text-[10px] font-bold uppercase tracking-widest bg-primary/5 text-primary border-primary/10">
+                            {adminVendorRecords?.length ?? 0}
+                          </Badge>
+                          <Button asChild variant="outline" size="sm" className="rounded-full">
+                            <Link href="/admin">Full Vendor Management</Link>
+                          </Button>
+                        </div>
+                      </div>
+                      {!adminVendorRecords ? (
+                        <div className="py-8 flex justify-center"><Loader2 className="w-6 h-6 text-primary animate-spin" /></div>
+                      ) : adminVendorRecords.length === 0 ? (
+                        <p className="py-6 text-center text-muted-foreground italic font-medium">No approved vendors yet.</p>
+                      ) : (
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                          {[...adminVendorRecords]
+                            .sort((a, b) => String(a.businessName || a.name || '').localeCompare(String(b.businessName || b.name || '')))
+                            .map(vendor => (
+                              <div key={vendor.id} className="flex items-center gap-4 p-4 rounded-2xl border border-primary/10 bg-card/60">
+                                {vendor.logoUrl ? (
+                                  <img src={vendor.logoUrl} alt="" className="w-12 h-12 rounded-xl object-cover border shrink-0" />
+                                ) : (
+                                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-headline text-lg shrink-0">
+                                    {(vendor.businessName || vendor.name || '?').charAt(0).toUpperCase()}
+                                  </div>
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="font-bold text-sm truncate">{vendor.businessName || vendor.name || 'Unnamed Business'}</h3>
+                                  <p className="text-xs text-muted-foreground truncate">{vendor.category || 'Vendor'}{vendor.location ? ` · ${vendor.location}` : ''}</p>
+                                  <div className="flex flex-wrap gap-2 mt-2">
+                                    <Badge variant="outline" className={cn(
+                                      'text-[9px] uppercase tracking-widest',
+                                      vendor.membershipStatus === 'active'
+                                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                                        : vendor.membershipStatus === 'inactive'
+                                          ? 'border-rose-200 bg-rose-50 text-rose-700'
+                                          : 'border-amber-200 bg-amber-50 text-amber-700'
+                                    )}>
+                                      {String(vendor.membershipStatus || 'awaiting_payment').replaceAll('_', ' ')}
+                                    </Badge>
+                                    <Badge variant="outline" className="text-[9px] uppercase tracking-widest">{vendor.membershipTier || 'free'}</Badge>
+                                  </div>
+                                </div>
+                                {vendor.membershipStatus === 'active' && (
+                                  <Button asChild variant="ghost" size="sm" className="rounded-full shrink-0">
+                                    <Link href={`/vendor/${vendor.id}`}>View</Link>
+                                  </Button>
+                                )}
                               </div>
                             ))}
                         </div>
