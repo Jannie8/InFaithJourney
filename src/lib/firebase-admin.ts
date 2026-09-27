@@ -5,7 +5,7 @@
 // Locally you would set GOOGLE_APPLICATION_CREDENTIALS to a service-account key,
 // but the webhook only runs in production, so ADC is the expected path.
 
-import { getApps, initializeApp, applicationDefault, App } from 'firebase-admin/app';
+import { getApps, initializeApp, applicationDefault, cert, App, type ServiceAccount } from 'firebase-admin/app';
 import { getFirestore, Firestore } from 'firebase-admin/firestore';
 import { getAuth, Auth } from 'firebase-admin/auth';
 
@@ -20,6 +20,22 @@ const projectId =
   process.env.FIREBASE_PROJECT_ID ||
   'infaithjourney-90d96';
 
+function getAdminCredential() {
+  const encodedServiceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_BASE64;
+  if (!encodedServiceAccount) return applicationDefault();
+
+  try {
+    const serviceAccount = JSON.parse(
+      Buffer.from(encodedServiceAccount, 'base64').toString('utf8')
+    ) as ServiceAccount;
+    return cert(serviceAccount);
+  } catch {
+    throw new Error(
+      'FIREBASE_SERVICE_ACCOUNT_BASE64 is invalid. Base64-encode the complete Firebase service-account JSON file.'
+    );
+  }
+}
+
 function getAdminApp(): App {
   if (cachedApp) return cachedApp;
 
@@ -30,7 +46,7 @@ function getAdminApp(): App {
   }
 
   cachedApp = initializeApp({
-    credential: applicationDefault(),
+    credential: getAdminCredential(),
     projectId,
   });
   return cachedApp;

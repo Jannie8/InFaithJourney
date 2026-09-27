@@ -35,11 +35,12 @@ export async function POST(req: NextRequest) {
     const db = getAdminDb();
     const existing = await db.collection('vendorApplications')
       .where('submitterUid', '==', user.uid)
-      .where('applicationStatus', '==', 'pending')
-      .limit(1)
       .get();
-    if (!existing.empty) {
-      return NextResponse.json({ error: 'You already have an application pending review.' }, { status: 409 });
+    const hasCurrentApplication = existing.docs.some(doc =>
+      ['pending', 'approved'].includes(doc.data().applicationStatus)
+    );
+    if (hasCurrentApplication) {
+      return NextResponse.json({ error: 'You already have a current vendor application.' }, { status: 409 });
     }
 
     const applicationData: Record<string, unknown> = {};

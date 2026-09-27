@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useUser, useFirestore, useFirebaseApp } from '@/firebase';
-import { collection, query, where, getDocs, limit } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -107,18 +107,16 @@ function ApplyForm() {
   });
   const selectedPlan = PLAN_OPTIONS.find(plan => plan.id === formData.selectedPlan) ?? PLAN_OPTIONS[1];
 
-  // Check for existing pending applications
+  // Check for an application that is still pending or already approved.
   useEffect(() => {
     async function checkExisting() {
       if (!user || !db) return;
       const q = query(
         collection(db, 'vendorApplications'),
-        where('submitterUid', '==', user.uid),
-        where('applicationStatus', '==', 'pending'),
-        limit(1)
+        where('submitterUid', '==', user.uid)
       );
       const snapshot = await getDocs(q);
-      if (!snapshot.empty) {
+      if (snapshot.docs.some(doc => ['pending', 'approved'].includes(doc.data().applicationStatus))) {
         setHasExistingApp(true);
       }
     }

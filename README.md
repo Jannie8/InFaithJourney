@@ -11,6 +11,36 @@ a build. A missing secret or a secret that the backend cannot access therefore
 blocks the deployment, even when the feature using that secret is best-effort at
 runtime.
 
+### Local Firebase Admin credentials
+
+Server routes that review applications or activate PayStack subscriptions use the
+Firebase Admin SDK. App Hosting supplies credentials automatically, but `next dev`
+does not. To test these routes locally, download a service-account JSON file from
+**Firebase Console → Project settings → Service accounts → Generate new private
+key** and store it outside the repository.
+
+Set its absolute path in `.env.local`:
+
+```bash
+GOOGLE_APPLICATION_CREDENTIALS=/absolute/path/to/infaithjourney-service-account.json
+```
+
+Alternatively, encode the JSON as a single line and put the result in `.env.local`:
+
+```bash
+FIREBASE_SERVICE_ACCOUNT_BASE64=<base64-encoded-service-account-json>
+```
+
+For example, on macOS or Linux:
+
+```bash
+base64 < /absolute/path/to/infaithjourney-service-account.json | tr -d '\n'
+```
+
+Restart `npm run dev` after changing `.env.local`. Never commit the service-account
+file or either credential value. Production should continue using App Hosting's
+Application Default Credentials rather than a downloaded key.
+
 ### Configure the Resend secret
 
 Run these commands from the project directory while signed into the Firebase CLI:

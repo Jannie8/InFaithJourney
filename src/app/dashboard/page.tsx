@@ -42,7 +42,11 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState('Overview');
   const [isPaying, setIsPaying] = useState<null | 'standard' | 'featured'>(null);
   const [isOpeningPortal, setIsOpeningPortal] = useState(false);
+  const [isCancellingMembership, setIsCancellingMembership] = useState(false);
+  const [isUploadingProfilePicture, setIsUploadingProfilePicture] = useState(false);
+  const [analyticsRange, setAnalyticsRange] = useState<7 | 30 | 90>(30);
   const reconciliationAttempted = useRef(false);
+  const listingSyncAttempted = useRef(false);
 
   // Open PayStack's hosted billing portal where the customer can update their card,
   // view past invoices, or cancel their subscription. We mint a fresh link on each
@@ -108,10 +112,30 @@ export default function DashboardPage() {
   );
   const { data: vendorDoc } = useDoc<any>(vendorDocRef);
 
+  const inquiriesQuery = useMemoFirebase(
+    () => user && db ? query(collection(db, 'inquiries'), where('vendorId', '==', user.uid)) : null,
+    [user, db]
+  );
+  const { data: vendorInquiries } = useCollection<any>(inquiriesQuery);
+
   const isMembershipActive = vendorDoc?.membershipStatus === 'active';
   const appStatus: string | null = application?.applicationStatus ?? null;
   const approvedTier: 'standard' | 'featured' =
     application?.selectedPlan === 'featured' ? 'featured' : 'standard';
+  const profileViews = Number(vendorDoc?.analytics?.profileViews ?? 0);
+  const inquiryCount = vendorInquiries?.length ?? 0;
+  const conversionRate = profileViews > 0 ? (inquiryCount / profileViews) * 100 : 0;
+  const profileFields = application ? [application.businessName, application.description, application.location, application.phoneNumber, application.logoUrl, application.coverImageUrl, application.portfolioImageUrls?.length] : [];
+  const profileCompleteness = profileFields.length > 0
+    ? Math.round((profileFields.filter(Boolean).length / profileFields.length) * 100)
+    : 0;
+  const dailyViewData = Array.from({ length: analyticsRange }, (_, index) => {
+    const date = new Date();
+    date.setUTCDate(date.getUTCDate() - (analyticsRange - index - 1));
+    const key = date.toISOString().slice(0, 10);
+    return { key, label: `${date.getUTCDate()}/${date.getUTCMonth() + 1}`, value: Number(vendorDoc?.analytics?.dailyViews?.[key] ?? 0) };
+  });
+  const maxDailyViews = Math.max(1, ...dailyViewData.map(day => day.value));
 
   // Recover memberships whose PayStack payment succeeded but whose browser
   // callback was interrupted. PayStack remains the source of truth.
@@ -132,6 +156,19 @@ export default function DashboardPage() {
       })
       .catch(error => console.warn('Subscription reconciliation unavailable:', error));
   }, [appStatus, isMembershipActive, toast, user]);
+
+  // Backfill listings approved before automatic publication was introduced.
+  useEffect(() => {
+    if (!user || !application || appStatus !== 'approved' || vendorDoc?.listingStatus === 'active' || listingSyncAttempted.current) return;
+    listingSyncAttempted.current = true;
+    user.getIdToken()
+      .then(token => fetch('/api/vendor-listing/sync', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ applicationId: application.id }),
+      }))
+      .catch(error => console.warn('Vendor listing sync unavailable:', error));
+  }, [appStatus, application, user, vendorDoc?.listingStatus]);
 
   // Admin role detection — drives the conditional "Admin" tab in the sidebar.
   const adminRoleRef = useMemoFirebase(
@@ -215,6 +252,30 @@ export default function DashboardPage() {
       toast({ title: 'Upload failed', description: error?.message ?? 'Please try again.', variant: 'destructive' });
     } finally {
       setIsUploadingEdit(false);
+      event.target.value = '';
+    }
+  };
+
+  const handleProfilePictureUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user || !db || !application) return;
+    if (!file.type.startsWith('image/') || file.size >= 10 * 1024 * 1024) {
+      toast({ title: 'Invalid image', description: 'Use an image smaller than 10 MB.', variant: 'destructive' });
+      event.target.value = '';
+      return;
+    }
+    try {
+      setIsUploadingProfilePicture(true);
+      const fileRef = ref(storage, `applications/${user.uid}/logo/${Date.now()}-${file.name}`);
+      await uploadBytes(fileRef, file);
+      const logoUrl = await getDownloadURL(fileRef);
+      await updateDoc(doc(db, 'vendorApplications', application.id), { logoUrl, updatedAt: serverTimestamp() });
+      if (vendorDocRef) await setDoc(vendorDocRef, { logoUrl, updatedAt: serverTimestamp() }, { merge: true });
+      toast({ title: 'Profile picture updated', description: 'Your new picture is now visible on your vendor profile.' });
+    } catch (error: any) {
+      toast({ title: 'Upload failed', description: error?.message ?? 'Please try again.', variant: 'destructive' });
+    } finally {
+      setIsUploadingProfilePicture(false);
       event.target.value = '';
     }
   };
@@ -303,6 +364,27 @@ export default function DashboardPage() {
       console.error(err);
       toast({ title: 'Payment Error', description: err.message, variant: 'destructive' });
       setIsPaying(null);
+    }
+  };
+
+  const cancelMembership = async () => {
+    if (!user || !application) return;
+    if (!window.confirm('Cancel this application and remove your vendor listing? Any active PayStack subscription will also be cancelled.')) return;
+    try {
+      setIsCancellingMembership(true);
+      const token = await user.getIdToken();
+      const response = await fetch('/api/paystack/cancel', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ applicationId: application.id }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Could not cancel the membership.');
+      toast({ title: 'Membership Cancelled', description: 'Your application and public vendor listing have been removed.' });
+    } catch (error: any) {
+      toast({ title: 'Cancellation Failed', description: error?.message || 'Please try again.', variant: 'destructive' });
+    } finally {
+      setIsCancellingMembership(false);
     }
   };
 
@@ -495,7 +577,7 @@ export default function DashboardPage() {
             </aside>
 
             {/* Content Area */}
-            <div className="flex-1 space-y-8 md:space-y-10">
+            <div className="flex-1 min-w-0 max-w-full space-y-8 md:space-y-10">
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-border text-center md:text-left">
                 <div className="space-y-2">
                   <h1 className="font-headline text-[32px] md:text-[42px] leading-tight text-foreground">Command Center</h1>
@@ -516,9 +598,9 @@ export default function DashboardPage() {
               {/* Stats Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[
-                  { label: "Profile Views", value: "1,240", change: "+14%", icon: Eye, color: "text-blue-600" },
-                  { label: "Direct Leads", value: "12", change: "+8%", icon: Mail, color: "text-emerald-600" },
-                  { label: "AI Referrals", value: "24", change: "+12%", icon: Sparkles, color: "text-primary" }
+                  { label: "Profile Views", value: profileViews.toLocaleString(), detail: "All time", icon: Eye, color: "text-blue-600" },
+                  { label: "Direct Inquiries", value: inquiryCount.toLocaleString(), detail: "Received", icon: Mail, color: "text-emerald-600" },
+                  { label: "Profile Complete", value: `${profileCompleteness}%`, detail: profileCompleteness === 100 ? "Ready to shine" : "Keep improving", icon: Sparkles, color: "text-primary" }
                 ].map((stat, i) => (
                   <Card key={i} className="bg-card border-border shadow-soft hover:shadow-md transition-all rounded-[24px] overflow-hidden">
                     <CardContent className="p-6">
@@ -526,7 +608,7 @@ export default function DashboardPage() {
                         <div className={cn("p-3 rounded-2xl bg-muted", stat.color)}>
                           <stat.icon className="w-6 h-6" />
                         </div>
-                        <span className="text-[10px] md:text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">{stat.change}</span>
+                        <span className="text-[10px] md:text-[11px] font-bold text-muted-foreground bg-muted px-2 py-1 rounded-full">{stat.detail}</span>
                       </div>
                       <h3 className="text-[11px] md:text-[12px] font-bold uppercase tracking-widest text-muted-foreground mb-1">{stat.label}</h3>
                       <p className="text-[28px] md:text-[32px] font-headline font-bold text-foreground">{stat.value}</p>
@@ -607,6 +689,14 @@ export default function DashboardPage() {
                         <p className="mt-3 text-[11px] uppercase tracking-widest text-muted-foreground">
                           Update card · View invoices · Cancel subscription
                         </p>
+                        <Button
+                          variant="ghost"
+                          onClick={cancelMembership}
+                          disabled={isCancellingMembership}
+                          className="mt-4 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                        >
+                          {isCancellingMembership ? <Loader2 className="w-4 h-4 animate-spin" /> : <><XCircle className="w-4 h-4 mr-2" />Cancel Membership</>}
+                        </Button>
                       </div>
                     </div>
                   ) : !user ? (
@@ -639,12 +729,12 @@ export default function DashboardPage() {
                         Ricardo and the team are reviewing your application. You'll be able to activate your membership here as soon as it's approved.
                       </p>
                     </div>
-                  ) : appStatus === 'rejected' ? (
+                  ) : appStatus === 'rejected' || appStatus === 'cancelled' ? (
                     /* 5. Rejected */
                     <div className="bg-card p-8 rounded-[24px] border border-rose-200 shadow-soft text-center space-y-3">
-                      <h2 className="font-headline text-[22px]">Application Not Approved</h2>
+                      <h2 className="font-headline text-[22px]">{appStatus === 'cancelled' ? 'Application Cancelled' : 'Application Not Approved'}</h2>
                       <p className="text-muted-foreground italic font-medium">
-                        Unfortunately your application wasn't approved at this time. Please contact the team for details.
+                        {appStatus === 'cancelled' ? 'Your vendor listing is no longer active. You may submit a new application whenever you are ready.' : "Unfortunately your application wasn't approved at this time. Please contact the team for details."}
                       </p>
                     </div>
                   ) : (
@@ -676,6 +766,14 @@ export default function DashboardPage() {
                               ) : (
                                 <>Activate Membership</>
                               )}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={cancelMembership}
+                              disabled={isCancellingMembership || isPaying !== null}
+                              className="w-full h-12 border-rose-200 text-rose-600 hover:bg-rose-50"
+                            >
+                              {isCancellingMembership ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Cancel Application'}
                             </Button>
                           </CardContent>
                         </Card>
@@ -717,8 +815,19 @@ export default function DashboardPage() {
                       <Card className="rounded-[24px] md:rounded-[32px] border border-primary/10 shadow-soft overflow-hidden">
                         <CardContent className="p-6 md:p-10 space-y-6">
                           <div className="flex flex-col md:flex-row gap-6 md:items-center">
-                            <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-headline text-3xl md:text-4xl shrink-0 mx-auto md:mx-0">
-                              {(application.businessName || '?').charAt(0).toUpperCase()}
+                            <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-full bg-primary/10 flex items-center justify-center text-primary font-headline text-3xl md:text-4xl shrink-0 mx-auto md:mx-0 overflow-hidden border-4 border-white shadow-md group">
+                              {application.logoUrl
+                                ? <img src={application.logoUrl} alt={`${application.businessName || 'Vendor'} profile`} className="w-full h-full object-cover" />
+                                : (application.businessName || '?').charAt(0).toUpperCase()}
+                              {appStatus === 'approved' && (
+                                <label className="absolute inset-0 cursor-pointer bg-black/20 md:bg-black/0 md:group-hover:bg-black/45 flex items-center justify-center transition-colors">
+                                  {isUploadingProfilePicture
+                                    ? <Loader2 className="w-6 h-6 text-white animate-spin" />
+                                    : <Upload className="w-6 h-6 text-white opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity" />}
+                                  <span className="sr-only">Change profile picture</span>
+                                  <input type="file" accept="image/*" className="sr-only" disabled={isUploadingProfilePicture} onChange={handleProfilePictureUpload} />
+                                </label>
+                              )}
                             </div>
                             <div className="flex-1 space-y-2 text-center md:text-left">
                               <h2 className="font-headline text-[28px] md:text-[36px] leading-tight">
@@ -748,7 +857,9 @@ export default function DashboardPage() {
                                       ? 'Approved · Awaiting Activation'
                                       : appStatus === 'pending'
                                         ? 'Application Pending'
-                                        : 'Application Rejected'}
+                                        : appStatus === 'cancelled'
+                                          ? 'Application Cancelled'
+                                          : 'Application Rejected'}
                                 </Badge>
                                 <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-widest">
                                   {approvedTier === 'featured' ? 'Featured · R1,199' : 'Standard · R499'}
@@ -947,6 +1058,120 @@ export default function DashboardPage() {
                       )}
                     </>
                   )}
+                </div>
+              )}
+
+              {/* Analytics Tab */}
+              {activeTab === 'Analytics' && (
+                <div className="min-w-0 max-w-full space-y-8 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                    <div>
+                      <h2 className="font-headline text-[26px] md:text-[32px]">Performance Analytics</h2>
+                      <p className="text-[13px] md:text-[14px] text-muted-foreground italic mt-1">Understand how couples discover and engage with your listing.</p>
+                    </div>
+                    <div className="grid grid-cols-3 rounded-full border border-primary/10 bg-card p-1 self-start w-full sm:w-auto">
+                      {([7, 30, 90] as const).map(range => (
+                        <button key={range} onClick={() => setAnalyticsRange(range)} className={cn('px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-colors', analyticsRange === range ? 'bg-primary text-white' : 'text-muted-foreground hover:text-primary')}>
+                          {range} days
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+                    {[
+                      { label: 'Profile views', value: profileViews.toLocaleString(), icon: Eye },
+                      { label: 'Inquiries', value: inquiryCount.toLocaleString(), icon: Mail },
+                      { label: 'Inquiry rate', value: `${conversionRate.toFixed(1)}%`, icon: PieChart },
+                      { label: 'Profile strength', value: `${profileCompleteness}%`, icon: Sparkles },
+                    ].map(metric => (
+                      <Card key={metric.label} className="rounded-[20px] border-primary/10 shadow-soft">
+                        <CardContent className="p-5 md:p-6">
+                          <metric.icon className="w-5 h-5 text-primary mb-4" />
+                          <p className="font-headline text-[26px] md:text-[32px] font-bold">{metric.value}</p>
+                          <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mt-1">{metric.label}</p>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+
+                  <Card className="rounded-[24px] border-primary/10 shadow-soft overflow-hidden">
+                    <CardContent className="p-6 md:p-8 space-y-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="font-headline text-[21px] md:text-[24px]">Profile Discovery</h3>
+                          <p className="text-[12px] text-muted-foreground italic">Daily public profile views over the selected period</p>
+                        </div>
+                        <Badge variant="outline">{dailyViewData.reduce((sum, day) => sum + day.value, 0)} views</Badge>
+                      </div>
+                      <div className="w-full min-w-0 overflow-hidden pb-2">
+                        <div
+                          className="h-52 w-full flex items-end border-b border-primary/10 px-1"
+                          style={{ gap: analyticsRange === 90 ? '2px' : analyticsRange === 30 ? '5px' : '12px' }}
+                        >
+                          {dailyViewData.map((day, index) => (
+                            <div key={day.key} className="group flex h-full min-w-0 flex-1 flex-col items-center" title={`${day.key}: ${day.value} views`}>
+                              <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-end gap-2">
+                                <span className="text-[9px] font-bold text-primary opacity-0 group-hover:opacity-100">{day.value}</span>
+                                <div className="w-full rounded-t-md bg-primary/70 min-h-[3px] transition-all group-hover:bg-secondary" style={{ height: `${Math.max(2, (day.value / maxDailyViews) * 82)}%` }} />
+                              </div>
+                              <div className="relative h-7 w-full shrink-0">
+                                {(analyticsRange <= 7 || index % Math.ceil(analyticsRange / 6) === 0) && <span className="absolute left-1/2 top-2 -translate-x-1/2 -rotate-45 origin-center text-[8px] text-muted-foreground whitespace-nowrap">{day.label}</span>}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                    <Card className="rounded-[24px] border-primary/10 shadow-soft">
+                      <CardContent className="p-6 md:p-8 space-y-5">
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-headline text-[21px]">Recent Inquiries</h3>
+                          <Badge variant="secondary">{inquiryCount}</Badge>
+                        </div>
+                        {!vendorInquiries?.length ? (
+                          <div className="py-10 text-center">
+                            <Mail className="w-9 h-9 text-primary/30 mx-auto mb-3" />
+                            <p className="text-[13px] text-muted-foreground italic">No inquiries yet. A complete profile and strong portfolio help couples feel confident reaching out.</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            {[...vendorInquiries].sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0)).slice(0, 5).map(inquiry => (
+                              <div key={inquiry.id} className="p-4 rounded-2xl bg-muted/40 border border-primary/5">
+                                <div className="flex justify-between gap-3">
+                                  <p className="font-bold text-[13px] truncate">{inquiry.name || inquiry.senderName || inquiry.email || 'Wedding inquiry'}</p>
+                                  <span className="text-[9px] uppercase tracking-widest text-muted-foreground">{inquiry.status || 'New'}</span>
+                                </div>
+                                {inquiry.message && <p className="text-[12px] text-muted-foreground mt-2 line-clamp-2">{inquiry.message}</p>}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    <Card className="rounded-[24px] border-primary/10 shadow-soft">
+                      <CardContent className="p-6 md:p-8 space-y-5">
+                        <h3 className="font-headline text-[21px]">Growth Checklist</h3>
+                        {[
+                          { done: !!application?.logoUrl, text: 'Add a recognisable profile picture or logo' },
+                          { done: !!application?.coverImageUrl, text: 'Add a strong cover image' },
+                          { done: (application?.portfolioImageUrls?.length ?? 0) >= 3, text: 'Show at least three portfolio images' },
+                          { done: !!application?.description && !!application?.servicesOffered, text: 'Complete your description and services' },
+                          { done: !!application?.phoneNumber && !!application?.websiteUrl, text: 'Complete your contact details' },
+                        ].map(item => (
+                          <div key={item.text} className="flex items-center gap-3 p-3 rounded-xl bg-muted/30">
+                            {item.done ? <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0" /> : <AlertCircle className="w-5 h-5 text-amber-500 shrink-0" />}
+                            <span className="text-[13px] font-medium">{item.text}</span>
+                          </div>
+                        ))}
+                        <Button variant="outline" onClick={openEditForm} className="w-full rounded-full"><Edit3 className="w-4 h-4 mr-2" />Improve Profile</Button>
+                      </CardContent>
+                    </Card>
+                  </div>
                 </div>
               )}
 
