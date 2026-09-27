@@ -38,6 +38,7 @@ export async function POST(req: NextRequest) {
     const category = String(data.category ?? 'Vendors');
     const vendorRef = db.collection('vendors').doc(user.uid);
     const existing = await vendorRef.get();
+    const membershipStatus = existing.data()?.membershipStatus ?? (data.selectedPlan === 'free' ? 'active' : 'awaiting_payment');
     await vendorRef.set({
       name: data.businessName ?? 'Unnamed Business',
       businessName: data.businessName ?? 'Unnamed Business',
@@ -59,9 +60,9 @@ export async function POST(req: NextRequest) {
       imageHint: `${category} vendor`,
       rating: existing.data()?.rating ?? 5,
       reviews: existing.data()?.reviews ?? 0,
-      listingStatus: 'active',
+      listingStatus: membershipStatus === 'active' ? 'active' : 'inactive',
       membershipTier: data.selectedPlan ?? 'free',
-      membershipStatus: existing.data()?.membershipStatus ?? (data.selectedPlan === 'free' ? 'active' : 'awaiting_payment'),
+      membershipStatus,
       applicationId,
       submitterUid: user.uid,
       updatedAt: FieldValue.serverTimestamp(),

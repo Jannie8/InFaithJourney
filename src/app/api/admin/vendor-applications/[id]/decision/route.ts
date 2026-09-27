@@ -41,6 +41,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
       applicationStatus: decision,
       reviewedAt: FieldValue.serverTimestamp(),
       reviewedBy: decodedToken.uid,
+      ...(decision === 'approved' ? { approvedAt: FieldValue.serverTimestamp() } : {}),
     });
 
     // Approval immediately publishes a canonical vendor document. Paid plans can
@@ -77,7 +78,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
         imageHint: `${data.category ?? 'wedding'} vendor`,
         rating: 5,
         reviews: 0,
-        listingStatus: 'active',
+        listingStatus: data.selectedPlan === 'free' ? 'active' : 'inactive',
         membershipTier: data.selectedPlan ?? 'free',
         membershipStatus: data.selectedPlan === 'free' ? 'active' : 'awaiting_payment',
         applicationId: application.id,

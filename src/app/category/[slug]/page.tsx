@@ -155,7 +155,7 @@ export default function CategoryBrowsePage({ params }: { params: Promise<{ slug:
   const listings = useMemo(() => [
     ...getCuratedByCategorySlug(slug),
     ...(liveVendorDocs ?? [])
-      .filter(vendor => vendor.listingStatus === 'active' && vendor.categorySlug === slug)
+      .filter(vendor => vendor.membershipStatus === 'active' && vendor.categorySlug === slug)
       .map(vendor => vendorFromFirestore(vendor.id, vendor)),
   ], [liveVendorDocs, slug]);
 

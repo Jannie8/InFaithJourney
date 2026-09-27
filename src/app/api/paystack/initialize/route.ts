@@ -54,6 +54,7 @@ export async function POST(req: NextRequest) {
     // now activate it even if the browser callback is interrupted or fails.
     await db.collection('vendors').doc(user.uid).set({
       membershipStatus: 'pending_payment',
+      listingStatus: 'inactive',
       membershipTier: tier,
       paystackReference: result.reference,
       email,

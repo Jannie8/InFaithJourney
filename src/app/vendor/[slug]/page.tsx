@@ -29,7 +29,7 @@ export default function VendorProfilePage({ params }: { params: Promise<{ slug: 
   }, []);
 
   useEffect(() => {
-    if (liveVendor?.listingStatus !== 'active') return;
+    if (liveVendor?.membershipStatus !== 'active') return;
     const key = `vendor-view:${slug}`;
     if (sessionStorage.getItem(key)) return;
     sessionStorage.setItem(key, '1');
@@ -38,12 +38,12 @@ export default function VendorProfilePage({ params }: { params: Promise<{ slug: 
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ vendorId: slug }),
     }).catch(() => sessionStorage.removeItem(key));
-  }, [liveVendor?.listingStatus, slug]);
+  }, [liveVendor?.membershipStatus, slug]);
 
   // Resolve the vendor that was actually clicked. Falls back to a sensible
   // default if the id is unknown so the page never breaks.
   const staticVendor = getVendorById(slug);
-  const vendor = liveVendor?.listingStatus === 'active'
+  const vendor = liveVendor?.membershipStatus === 'active'
     ? { ...liveVendor, ...vendorFromFirestore(slug, liveVendor) }
     : staticVendor ?? {
     name: 'Evergold Photography',
