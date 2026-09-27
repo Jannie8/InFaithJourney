@@ -78,6 +78,7 @@ async function activateVendorFromCharge(data: any): Promise<boolean> {
 
   await db.collection('vendors').doc(uid).set({
     membershipStatus: 'active',
+    listingStatus: 'active',
     membershipTier: tier,
     applicationId,
     email: data?.customer?.email ?? null,
@@ -128,6 +129,7 @@ export async function POST(req: NextRequest) {
         if (!activatedByMetadata) {
           await updateVendorByReference(data?.reference, {
             membershipStatus: 'active',
+            listingStatus: 'active',
             lastPaymentAt: FieldValue.serverTimestamp(),
             lastPaymentReference: data?.reference ?? null,
           });
@@ -139,6 +141,7 @@ export async function POST(req: NextRequest) {
       case 'subscription.create':
         await updateVendorByEmail(email, {
           membershipStatus: 'active',
+          listingStatus: 'active',
           paystackSubscriptionCode: data?.subscription_code ?? null,
           paystackCustomerCode: data?.customer?.customer_code ?? null,
         });

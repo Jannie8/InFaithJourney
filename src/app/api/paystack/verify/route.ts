@@ -53,6 +53,7 @@ export async function POST(req: NextRequest) {
     await db.collection('vendors').doc(user.uid).set(
       {
         membershipStatus: 'active',
+        listingStatus: 'active',
         membershipTier: tier,
         paystackReference: result.reference,
         email: user.email,

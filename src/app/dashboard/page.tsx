@@ -43,6 +43,7 @@ export default function DashboardPage() {
   const [isPaying, setIsPaying] = useState<null | 'standard' | 'featured'>(null);
   const [isOpeningPortal, setIsOpeningPortal] = useState(false);
   const [isCancellingMembership, setIsCancellingMembership] = useState(false);
+  const [renewingTier, setRenewingTier] = useState<null | 'free' | 'standard' | 'featured'>(null);
   const [isUploadingProfilePicture, setIsUploadingProfilePicture] = useState(false);
   const [analyticsRange, setAnalyticsRange] = useState<7 | 30 | 90>(30);
   const reconciliationAttempted = useRef(false);
@@ -388,6 +389,34 @@ export default function DashboardPage() {
     }
   };
 
+  const renewMembership = async (tier: 'free' | 'standard' | 'featured') => {
+    if (!user || !application) return;
+    try {
+      setRenewingTier(tier);
+      const token = await user.getIdToken();
+      const response = await fetch('/api/vendor-membership/renew', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ applicationId: application.id, tier }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Could not renew the membership.');
+
+      if (result.requiresPayment) {
+        await handleActivate(tier as 'standard' | 'featured');
+        return;
+      }
+      toast({
+        title: 'Membership Renewed',
+        description: 'Your free listing is active and visible in the vendor marketplace again.',
+      });
+    } catch (error: any) {
+      toast({ title: 'Renewal Failed', description: error?.message || 'Please try again.', variant: 'destructive' });
+    } finally {
+      setRenewingTier(null);
+    }
+  };
+
   // When PayStack redirects back, confirm the payment with our server.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -729,13 +758,44 @@ export default function DashboardPage() {
                         Ricardo and the team are reviewing your application. You'll be able to activate your membership here as soon as it's approved.
                       </p>
                     </div>
-                  ) : appStatus === 'rejected' || appStatus === 'cancelled' ? (
-                    /* 5. Rejected */
+                  ) : appStatus === 'cancelled' ? (
+                    /* 5. Previously approved vendor renewing or changing plan */
+                    <div className="space-y-6">
+                      <div className="bg-card p-8 rounded-[24px] border border-amber-200 shadow-soft text-center space-y-3">
+                        <h2 className="font-headline text-[22px]">Membership Cancelled</h2>
+                        <p className="text-muted-foreground italic font-medium">
+                          Renew your approved listing or choose a different membership plan. Paid listings return to the marketplace after PayStack confirms payment.
+                        </p>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {([
+                          { tier: 'free' as const, name: 'Free Listing', price: 'R0', detail: 'Publish again without a monthly payment.' },
+                          { tier: 'standard' as const, name: 'Standard Vendor', price: 'R499', detail: 'Renew on the standard monthly plan.' },
+                          { tier: 'featured' as const, name: 'Featured Vendor', price: 'R1,199', detail: 'Upgrade to featured marketplace placement.' },
+                        ]).map(plan => (
+                          <Card key={plan.tier} className="rounded-[24px] border-primary/10 shadow-soft">
+                            <CardContent className="p-6 text-center space-y-4">
+                              <h3 className="font-headline text-[19px]">{plan.name}</h3>
+                              <p className="text-[28px] font-bold">{plan.price}<span className="text-xs font-medium opacity-60">{plan.tier === 'free' ? '' : ' / month'}</span></p>
+                              <p className="text-xs text-muted-foreground min-h-10">{plan.detail}</p>
+                              <Button
+                                onClick={() => renewMembership(plan.tier)}
+                                disabled={renewingTier !== null || isPaying !== null}
+                                className="w-full button-rose"
+                              >
+                                {renewingTier === plan.tier || isPaying === plan.tier
+                                  ? <Loader2 className="w-4 h-4 animate-spin" />
+                                  : plan.tier === application.selectedPlan ? 'Renew Plan' : 'Choose Plan'}
+                              </Button>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  ) : appStatus === 'rejected' ? (
                     <div className="bg-card p-8 rounded-[24px] border border-rose-200 shadow-soft text-center space-y-3">
-                      <h2 className="font-headline text-[22px]">{appStatus === 'cancelled' ? 'Application Cancelled' : 'Application Not Approved'}</h2>
-                      <p className="text-muted-foreground italic font-medium">
-                        {appStatus === 'cancelled' ? 'Your vendor listing is no longer active. You may submit a new application whenever you are ready.' : "Unfortunately your application wasn't approved at this time. Please contact the team for details."}
-                      </p>
+                      <h2 className="font-headline text-[22px]">Application Not Approved</h2>
+                      <p className="text-muted-foreground italic font-medium">Unfortunately your application wasn't approved at this time. Please contact the team for details.</p>
                     </div>
                   ) : (
                     /* 6. Approved — show the single plan they applied for */

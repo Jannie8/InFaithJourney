@@ -41,6 +41,7 @@ export async function POST(req: NextRequest) {
     const batch = db.batch();
     batch.update(applicationRef!, {
       applicationStatus: 'cancelled',
+      previouslyApproved: application.data()?.applicationStatus === 'approved' || application.data()?.previouslyApproved === true,
       cancelledAt: FieldValue.serverTimestamp(),
     });
     batch.set(vendorRef, {

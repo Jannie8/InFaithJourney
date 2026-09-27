@@ -48,7 +48,7 @@ function VendorsPageInner() {
   const liveVendorsQuery = useMemoFirebase(() => db ? collection(db, 'vendors') : null, [db]);
   const { data: liveVendorDocs } = useCollection<any>(liveVendorsQuery);
   const liveVendors = useMemo(() => (liveVendorDocs ?? [])
-    .filter(vendor => vendor.listingStatus === 'active')
+    .filter(vendor => vendor.membershipStatus === 'active')
     .map(vendor => vendorFromFirestore(vendor.id, vendor)), [liveVendorDocs]);
 
   // Seed the filters from whatever was submitted on the homepage search bar
@@ -93,9 +93,10 @@ function VendorsPageInner() {
   // filters (category / location / budget / search) then apply on top of it,
   // and the two collections never mix.
   const displayed = useMemo(() => {
-    const dynamic = liveVendors.filter(vendor =>
-      viewMode === 'elite' ? vendor.membershipTier === 'featured' : vendor.membershipTier !== 'featured'
-    );
+    // Active community vendors remain discoverable in both catalogue views. The
+    // toggle changes the editorial collection, not whether a paying vendor can be
+    // found on the marketplace.
+    const dynamic = liveVendors;
     const source = [...(viewMode === 'curated' ? CURATED_VENDORS : ELITE_VENDORS), ...dynamic];
     const base = source.filter(v => {
       // Category
