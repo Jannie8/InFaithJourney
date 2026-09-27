@@ -23,7 +23,7 @@ import Link from 'next/link';
 import { useUser, useAuth, useFirestore, useFirebaseApp, useMemoFirebase, useCollection, useDoc } from '@/firebase';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import {
-  collection, query, where, doc, setDoc, updateDoc, serverTimestamp,
+  collection, query, where, doc, updateDoc, serverTimestamp,
 } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { cn } from '@/lib/utils';
@@ -136,6 +136,39 @@ export default function DashboardPage() {
     return { key, label: `${date.getUTCDate()}/${date.getUTCMonth() + 1}`, value: Number(vendorDoc?.analytics?.dailyViews?.[key] ?? 0) };
   });
   const maxDailyViews = Math.max(1, ...dailyViewData.map(day => day.value));
+
+  // Recover memberships whose PayStack payment succeeded but whose browser
+  // callback was interrupted. PayStack remains the source of truth.
+  useEffect(() => {
+    if (!user || appStatus !== 'approved' || isMembershipActive || reconciliationAttempted.current) return;
+    reconciliationAttempted.current = true;
+    user.getIdToken()
+      .then(token => fetch('/api/paystack/reconcile', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      }))
+      .then(response => response.ok ? response.json() : null)
+      .then(result => {
+        if (result?.active) {
+          setActiveTab('Subscription & Billing');
+          toast({ title: 'Membership Active', description: 'We found your successful PayStack subscription.' });
+        }
+      })
+      .catch(error => console.warn('Subscription reconciliation unavailable:', error));
+  }, [appStatus, isMembershipActive, toast, user]);
+
+  // Backfill listings approved before automatic publication was introduced.
+  useEffect(() => {
+    if (!user || !application || appStatus !== 'approved' || vendorDoc?.listingStatus === 'active' || listingSyncAttempted.current) return;
+    listingSyncAttempted.current = true;
+    user.getIdToken()
+      .then(token => fetch('/api/vendor-listing/sync', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ applicationId: application.id }),
+      }))
+      .catch(error => console.warn('Vendor listing sync unavailable:', error));
+  }, [appStatus, application, user, vendorDoc?.listingStatus]);
 
   // Recover memberships whose PayStack payment succeeded but whose browser
   // callback was interrupted. PayStack remains the source of truth.
