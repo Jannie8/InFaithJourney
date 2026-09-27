@@ -208,7 +208,16 @@ function tierFromPlanCode(planCode: string | undefined | null): VendorTier | nul
  * Fetch the customer's most-recent subscription (preferring active) and return the
  * detailed shape the in-app billing UI needs. Returns null when nothing exists.
  */
-export async function getCustomerSubscription(email: string): Promise<SubscriptionDetails | null> {
+export async function getCustomerSubscription(email: string, subscriptionCode?: string | null): Promise<SubscriptionDetails | null> {
+  if (subscriptionCode) {
+    try {
+      const detailsBody = await paystackFetch(`/subscription/${encodeURIComponent(subscriptionCode)}`);
+      return subscriptionDetails(detailsBody?.data ?? {});
+    } catch {
+      // Fall back to the customer lookup. This repairs stale webhook data while
+      // still allowing older accounts to find their PayStack records by email.
+    }
+  }
   // 1. Customer lookup.
   let customer: any;
   try {
@@ -238,7 +247,10 @@ export async function getCustomerSubscription(email: string): Promise<Subscripti
   const detailsBody = await paystackFetch(
     `/subscription/${encodeURIComponent(chosen.subscription_code)}`
   );
-  const d = detailsBody?.data ?? {};
+  return subscriptionDetails(detailsBody?.data ?? {});
+}
+
+function subscriptionDetails(d: any): SubscriptionDetails {
   const auth = d.authorization ?? {};
 
   return {
@@ -288,13 +300,17 @@ export interface InvoiceLine {
  * We pull transactions (PayStack's term for charges) rather than "invoices" because
  * a customer who hasn't signed up for a plan still has transactions to show.
  */
-export async function getCustomerInvoices(email: string, limit = 12): Promise<InvoiceLine[]> {
+export async function getCustomerInvoices(email: string, limit = 12, customerCode?: string | null): Promise<InvoiceLine[]> {
   let customer: any;
-  try {
-    const body = await paystackFetch(`/customer/${encodeURIComponent(email)}`);
-    customer = body.data;
-  } catch {
-    return [];
+  if (customerCode) {
+    customer = { customer_code: customerCode };
+  } else {
+    try {
+      const body = await paystackFetch(`/customer/${encodeURIComponent(email)}`);
+      customer = body.data;
+    } catch {
+      return [];
+    }
   }
   if (!customer?.customer_code) return [];
 

@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     }
 
     const user = await getAdminAuth().verifyIdToken(authorization.slice(7));
-    const { tier, applicationId } = await req.json();
+    const { tier, applicationId, changePlan = false } = await req.json();
     const email = user.email;
 
     if (!email) {
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
       !application.exists ||
       applicationData?.submitterUid !== user.uid ||
       applicationData?.applicationStatus !== 'approved' ||
-      applicationData?.selectedPlan !== tier
+      (!changePlan && applicationData?.selectedPlan !== tier)
     ) {
       return NextResponse.json({ error: 'This application is not approved for the selected plan.' }, { status: 403 });
     }
@@ -47,14 +47,20 @@ export async function POST(req: NextRequest) {
       email,
       tier: tier as VendorTier,
       callbackUrl,
-      metadata: { uid: user.uid, applicationId },
+      metadata: {
+        uid: user.uid,
+        applicationId,
+        changePlan: Boolean(changePlan),
+        previousSubscriptionCode: changePlan
+          ? (await db.collection('vendors').doc(user.uid).get()).data()?.paystackSubscriptionCode ?? null
+          : null,
+      },
     });
 
     // Create the email-linked vendor record before payment. PayStack webhooks can
     // now activate it even if the browser callback is interrupted or fails.
     await db.collection('vendors').doc(user.uid).set({
-      membershipStatus: 'pending_payment',
-      listingStatus: 'inactive',
+      ...(!changePlan ? { membershipStatus: 'pending_payment', listingStatus: 'inactive' } : {}),
       membershipTier: tier,
       paystackReference: result.reference,
       email,
