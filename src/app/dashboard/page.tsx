@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
@@ -194,6 +194,37 @@ export default function DashboardPage() {
     [isAdmin, db]
   );
   const { data: adminVendors } = useCollection<any>(adminVendorsQuery);
+  const adminVendorApplicationsQuery = useMemoFirebase(
+    () => (isAdmin && db ? collection(db, 'vendorApplications') : null),
+    [isAdmin, db]
+  );
+  const { data: adminVendorApplications } = useCollection<any>(adminVendorApplicationsQuery);
+  const adminVendorRecords = useMemo(() => {
+    if (!adminVendors || !adminVendorApplications) return null;
+    const sortedApplications = [...adminVendorApplications]
+      .sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
+    const applicationById = new Map(sortedApplications.map(item => [item.id, item]));
+    const applicationByUid = new Map<string, any>();
+    sortedApplications.forEach(item => {
+      if (item.submitterUid && !applicationByUid.has(item.submitterUid)) {
+        applicationByUid.set(item.submitterUid, item);
+      }
+    });
+
+    return adminVendors.map(vendor => {
+      const application = applicationById.get(vendor.applicationId)
+        || applicationByUid.get(vendor.submitterUid || vendor.id);
+      return {
+        ...application,
+        ...vendor,
+        id: vendor.id,
+        businessName: vendor.businessName || vendor.name || application?.businessName || 'Unnamed Business',
+        category: vendor.category || application?.category || 'Vendor',
+        location: vendor.location || application?.location || '',
+        logoUrl: vendor.logoUrl || application?.logoUrl || '',
+      };
+    });
+  }, [adminVendorApplications, adminVendors]);
 
   // Vendors can edit their own approved profile directly.
   const [isEditing, setIsEditing] = useState(false);
@@ -1315,20 +1346,20 @@ export default function DashboardPage() {
                         </div>
                         <div className="flex items-center gap-3">
                           <Badge variant="secondary" className="text-[10px] font-bold uppercase tracking-widest bg-primary/5 text-primary border-primary/10">
-                            {adminVendors?.length ?? 0}
+                            {adminVendorRecords?.length ?? 0}
                           </Badge>
                           <Button asChild variant="outline" size="sm" className="rounded-full">
                             <Link href="/admin">Full Vendor Management</Link>
                           </Button>
                         </div>
                       </div>
-                      {!adminVendors ? (
+                      {!adminVendorRecords ? (
                         <div className="py-8 flex justify-center"><Loader2 className="w-6 h-6 text-primary animate-spin" /></div>
-                      ) : adminVendors.length === 0 ? (
+                      ) : adminVendorRecords.length === 0 ? (
                         <p className="py-6 text-center text-muted-foreground italic font-medium">No approved vendors yet.</p>
                       ) : (
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                          {[...adminVendors]
+                          {[...adminVendorRecords]
                             .sort((a, b) => String(a.businessName || a.name || '').localeCompare(String(b.businessName || b.name || '')))
                             .map(vendor => (
                               <div key={vendor.id} className="flex items-center gap-4 p-4 rounded-2xl border border-primary/10 bg-card/60">
