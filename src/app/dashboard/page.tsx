@@ -16,7 +16,7 @@ import {
   PieChart, CreditCard, Edit3, Loader2, CheckCircle,
   Phone, MapPin, Globe, Instagram, Tag, Calendar,
   Banknote, FileText, ImageIcon, AlertCircle,
-  ShieldCheck, XCircle, ClipboardCheck, Upload, Trash2,
+  ShieldCheck, XCircle, ClipboardCheck, Upload, Trash2, Users,
 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import Link from 'next/link';
