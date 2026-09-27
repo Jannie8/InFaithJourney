@@ -152,13 +152,14 @@ export default function BillingPage() {
   };
 
   const cancelSubscription = async () => {
-    if (!billingEmail) return;
+    if (!billingEmail || !user) return;
     try {
       setIsCancelling(true);
+      const token = await user.getIdToken();
       const res = await fetch('/api/paystack/cancel', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: billingEmail }),
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ applicationId: vendorDoc?.applicationId }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -166,8 +167,7 @@ export default function BillingPage() {
       }
       toast({
         title: 'Subscription cancelled',
-        description:
-          "Your membership will stay active until the end of the paid period. We'll miss you!",
+        description: "Your subscription, application, and public listing have been cancelled.",
       });
       setConfirmingCancel(false);
       // Refresh details — PayStack updates "status" to non-renewing immediately.
