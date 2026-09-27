@@ -8,16 +8,21 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { getVendorById } from '@/lib/vendors';
+import { getVendorById, vendorFromFirestore } from '@/lib/vendors';
 import Image from 'next/image';
 import { Star, MapPin, Share2, Phone, Mail, Instagram, Facebook, CheckCircle2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
+import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
 
 export default function VendorProfilePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
   const [isLoaded, setIsLoaded] = useState(false);
+  const db = useFirestore();
+  const liveVendorRef = useMemoFirebase(() => db ? doc(db, 'vendors', slug) : null, [db, slug]);
+  const { data: liveVendor } = useDoc<any>(liveVendorRef);
 
   useEffect(() => {
     setIsLoaded(true);
@@ -25,7 +30,10 @@ export default function VendorProfilePage({ params }: { params: Promise<{ slug: 
 
   // Resolve the vendor that was actually clicked. Falls back to a sensible
   // default if the id is unknown so the page never breaks.
-  const vendor = getVendorById(slug) ?? {
+  const staticVendor = getVendorById(slug);
+  const vendor = liveVendor?.listingStatus === 'active'
+    ? { ...liveVendor, ...vendorFromFirestore(slug, liveVendor) }
+    : staticVendor ?? {
     name: 'Evergold Photography',
     location: 'Johannesburg',
     category: 'Photography',
@@ -132,7 +140,9 @@ export default function VendorProfilePage({ params }: { params: Promise<{ slug: 
               <h2 className="font-headline text-[28px] md:text-[36px]">About {vendor.name}</h2>
               <div className="w-16 h-1 bg-primary rounded-full"></div>
               <p className="text-foreground/90 leading-[1.8] text-[16px] md:text-[18px] font-medium italic">
-                We believe that every wedding is a unique story waiting to be told. With years of experience in high-end South African weddings, {vendor.name} focuses on capturing the raw emotion, natural beauty, and sophisticated details of your romantic journey.
+                {'description' in vendor && vendor.description
+                  ? vendor.description
+                  : `We believe that every wedding is a unique story waiting to be told. ${vendor.name} focuses on the natural beauty and sophisticated details of your romantic journey.`}
               </p>
             </div>
 

@@ -35,17 +35,63 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
       return NextResponse.json({ error: 'This application has already been reviewed.' }, { status: 409 });
     }
 
-    await applicationRef.update({
+    const data = application.data()!;
+    const decisionBatch = db.batch();
+    decisionBatch.update(applicationRef, {
       applicationStatus: decision,
       reviewedAt: FieldValue.serverTimestamp(),
       reviewedBy: decodedToken.uid,
     });
 
+    // Approval immediately publishes a canonical vendor document. Paid plans can
+    // still be awaiting activation; listing visibility is intentionally separate
+    // from billing state so approved vendors appear in marketplace browsing.
+    if (decision === 'approved') {
+      const categorySlug = String(data.category ?? 'vendors')
+        .toLowerCase()
+        .replace(/&/g, 'and')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '')
+        .replace('photography-and-videography', 'photography-videography')
+        .replace('flowers-and-decor', 'flowers-decor')
+        .replace('music-and-entertainment', 'music-entertainment')
+        .replace('planning-and-coordination', 'planning-coordination');
+      decisionBatch.set(db.collection('vendors').doc(data.submitterUid), {
+        name: data.businessName ?? 'Unnamed Business',
+        businessName: data.businessName ?? 'Unnamed Business',
+        ownerName: data.ownerName ?? '',
+        email: data.email ?? '',
+        phoneNumber: data.phoneNumber ?? '',
+        websiteUrl: data.websiteUrl ?? '',
+        instagramHandle: data.instagramHandle ?? '',
+        location: data.location ?? 'South Africa',
+        category: data.category ?? 'Vendors',
+        categorySlug,
+        description: data.description ?? '',
+        servicesOffered: data.servicesOffered ?? '',
+        pricingRange: data.pricingRange ?? '',
+        imageUrl: data.coverImageUrl || data.logoUrl || '/wedding.png',
+        coverImageUrl: data.coverImageUrl ?? '',
+        logoUrl: data.logoUrl ?? '',
+        portfolioImageUrls: data.portfolioImageUrls ?? [],
+        imageHint: `${data.category ?? 'wedding'} vendor`,
+        rating: 5,
+        reviews: 0,
+        listingStatus: 'active',
+        membershipTier: data.selectedPlan ?? 'free',
+        membershipStatus: data.selectedPlan === 'free' ? 'active' : 'awaiting_payment',
+        applicationId: application.id,
+        submitterUid: data.submitterUid,
+        approvedAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+      }, { merge: true });
+    }
+    await decisionBatch.commit();
+
     if (decision === 'rejected') {
       return NextResponse.json({ decision, emailSent: false });
     }
 
-    const data = application.data()!;
     if (!data.email || typeof data.email !== 'string') {
       return NextResponse.json({ decision, emailSent: false, emailError: 'The application has no email address.' });
     }
