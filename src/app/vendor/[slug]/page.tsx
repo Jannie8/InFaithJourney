@@ -75,7 +75,7 @@ export default function VendorProfilePage({ params }: { params: Promise<{ slug: 
       ];
 
   const services = 'servicesOffered' in vendor && typeof vendor.servicesOffered === 'string'
-    ? vendor.servicesOffered.split(/\r?\n|,|;/).map((service: string) => service.trim()).filter(Boolean)
+    ? vendor.servicesOffered.split(/\r?\n|;/).map((service: string) => service.trim()).filter(Boolean)
     : [];
   const phoneNumber = 'phoneNumber' in vendor && typeof vendor.phoneNumber === 'string' ? vendor.phoneNumber : '';
   const instagramHandle = 'instagramHandle' in vendor && typeof vendor.instagramHandle === 'string' ? vendor.instagramHandle : '';
@@ -228,7 +228,7 @@ export default function VendorProfilePage({ params }: { params: Promise<{ slug: 
             <div className="space-y-6 md:space-y-8">
               <h2 className="font-headline text-[28px] md:text-[36px]">Portfolio Gallery</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-                {gallery.map((img, i) => (
+                {gallery.map((img: { imageUrl?: string } | undefined, i: number) => (
                   <button type="button" key={i} onClick={() => setSelectedPhoto(i)} aria-label={`Open portfolio photo ${i + 1}`} className="relative aspect-[3/4] rounded-xl overflow-hidden group cursor-zoom-in shadow-md">
                     <Image
                       src={img?.imageUrl || ''}
@@ -259,7 +259,7 @@ export default function VendorProfilePage({ params }: { params: Promise<{ slug: 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 relative z-10">
                 {(services.length > 0 ? services : [
                   'Contact this vendor to discuss their wedding services and packages.',
-                ]).map((service, i) => (
+                ]).map((service: string, i: number) => (
                   <div key={i} className="flex items-center gap-3">
                     <CheckCircle2 className="w-4 md:w-5 h-4 md:w-5 text-primary shrink-0" />
                     <span className="font-semibold text-foreground/80 tracking-wide text-[15px] md:text-[16.5px]">{service}</span>

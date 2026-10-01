@@ -60,6 +60,7 @@ export default function DashboardPage() {
   const [selectedInquiryId, setSelectedInquiryId] = useState<string | null>(null);
   const reconciliationAttempted = useRef(false);
   const listingSyncAttempted = useRef(false);
+  const dashboardContentRef = useRef<HTMLDivElement>(null);
 
   // Open PayStack's hosted billing portal where the customer can update their card,
   // view past invoices, or cancel their subscription. We mint a fresh link on each
@@ -552,11 +553,17 @@ export default function DashboardPage() {
     signOut(auth);
   };
 
+  const selectDashboardTab = (tab: string) => {
+    setActiveTab(tab);
+    requestAnimationFrame(() => {
+      dashboardContentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  };
+
   const sidebarItems = [
     { name: 'Overview', icon: LayoutDashboard },
     { name: 'My Profile', icon: User },
     { name: 'Inquiries', icon: Mail },
-    { name: 'AI Referrals', icon: Sparkles },
     { name: 'Subscription & Billing', icon: CreditCard },
     { name: 'Analytics', icon: PieChart },
     // Admin tab is only inserted for users with a /roles_admin/{uid} doc so
@@ -659,7 +666,7 @@ export default function DashboardPage() {
                     {sidebarItems.map((item) => (
                       <button
                         key={item.name}
-                        onClick={() => setActiveTab(item.name)}
+                        onClick={() => selectDashboardTab(item.name)}
                         className={cn(
                           "flex items-center gap-3 md:gap-4 px-3 md:px-4 py-2.5 md:py-3.5 rounded-xl text-[11px] md:text-[13px] font-bold uppercase tracking-widest transition-all duration-300",
                           activeTab === item.name 
@@ -688,7 +695,7 @@ export default function DashboardPage() {
             </aside>
 
             {/* Content Area */}
-            <div className="flex-1 min-w-0 max-w-full space-y-8 md:space-y-10">
+            <div ref={dashboardContentRef} className="flex-1 min-w-0 max-w-full space-y-8 md:space-y-10 scroll-mt-28">
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-border text-center md:text-left">
                 <div className="space-y-2">
                   <h1 className="font-headline text-[32px] md:text-[42px] leading-tight text-foreground">Command Center</h1>
@@ -706,8 +713,8 @@ export default function DashboardPage() {
                 )}
               </div>
 
-              {/* Stats Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Analytics summary */}
+              {activeTab === 'Analytics' && <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[
                   { label: "Profile Views", value: profileViews.toLocaleString(), detail: "All time", icon: Eye, color: "text-blue-600" },
                   { label: "Direct Inquiries", value: inquiryCount.toLocaleString(), detail: "Received", icon: Mail, color: "text-emerald-600" },
@@ -726,7 +733,7 @@ export default function DashboardPage() {
                     </CardContent>
                   </Card>
                 ))}
-              </div>
+              </div>}
 
               {/* Overview Tab Content */}
               {activeTab === 'Overview' && (
