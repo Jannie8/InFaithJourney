@@ -13,6 +13,10 @@ import {
   Music, CalendarCheck, Shirt, PenTool, Cake, Gem, Search
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { collection, query, where } from 'firebase/firestore';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { vendorFromFirestore } from '@/lib/vendors';
+import { VendorCard } from '@/components/vendors/VendorCard';
 
 export const CORE_VENDORS = [
   { name: 'Venues', icon: HomeIcon, href: '/category/venues', imageId: 'cat-venues' },
@@ -33,6 +37,17 @@ export default function Home() {
   const heroImage = PlaceHolderImages.find(img => img.id === 'hero-home');
   const [isLoaded, setIsLoaded] = useState(false);
   const router = useRouter();
+  const db = useFirestore();
+  const featuredVendorsQuery = useMemoFirebase(
+    () => db ? query(
+      collection(db, 'vendors'),
+      where('membershipTier', '==', 'featured'),
+      where('membershipStatus', '==', 'active')
+    ) : null,
+    [db]
+  );
+  const { data: featuredVendorDocs } = useCollection<any>(featuredVendorsQuery);
+  const featuredVendors = (featuredVendorDocs ?? []).map(vendor => vendorFromFirestore(vendor.id, vendor));
 
   // Selected values for the "I'm looking for" / "In destination" dropdowns.
   // Stored as the lowercased option value the Select uses internally.
@@ -178,6 +193,24 @@ export default function Home() {
             })}
           </div>
         </section>
+
+        {featuredVendors.length > 0 && (
+          <section className="mb-24 md:mb-32" aria-labelledby="featured-vendors-heading">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-5 mb-10 md:mb-14">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#C4956A] mb-3">Featured collective</p>
+                <h2 id="featured-vendors-heading" className="font-headline text-[32px] md:text-[48px] italic text-[#2C1A0E]">Meet Our Featured Vendors</h2>
+                <p className="mt-3 text-[15px] md:text-[17px] text-[#5C3D2E]/80 italic">Discover professionals with our highest level of marketplace visibility.</p>
+              </div>
+              <Button asChild variant="outline" className="rounded-full self-start md:self-auto">
+                <Link href="/vendors">View all vendors</Link>
+              </Button>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {featuredVendors.map(vendor => <VendorCard key={vendor.id} {...vendor} />)}
+            </div>
+          </section>
+        )}
 
         <section className="mb-24 md:mb-32">
            <div className="flex flex-col md:flex-row items-center justify-between gap-10 md:gap-12 p-8 md:p-16 rounded-[24px] md:rounded-[40px] border border-border shadow-soft bg-white/50 backdrop-blur-sm">
