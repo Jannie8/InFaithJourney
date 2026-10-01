@@ -57,8 +57,10 @@ export default function DashboardPage() {
   const [renewingTier, setRenewingTier] = useState<null | 'free' | 'standard' | 'featured'>(null);
   const [isUploadingProfilePicture, setIsUploadingProfilePicture] = useState(false);
   const [analyticsRange, setAnalyticsRange] = useState<7 | 30 | 90>(30);
+  const [selectedInquiryId, setSelectedInquiryId] = useState<string | null>(null);
   const reconciliationAttempted = useRef(false);
   const listingSyncAttempted = useRef(false);
+  const dashboardContentRef = useRef<HTMLDivElement>(null);
 
   // Open PayStack's hosted billing portal where the customer can update their card,
   // view past invoices, or cancel their subscription. We mint a fresh link on each
@@ -75,10 +77,11 @@ export default function DashboardPage() {
     }
     try {
       setIsOpeningPortal(true);
+      const token = await user?.getIdToken();
+      if (!token) throw new Error('Please sign in again.');
       const res = await fetch('/api/paystack/manage', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: userEmail }),
+        headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
       if (!res.ok || !data?.link) {
@@ -136,6 +139,7 @@ export default function DashboardPage() {
     application?.selectedPlan === 'featured' ? 'featured' : 'standard';
   const profileViews = Number(vendorDoc?.analytics?.profileViews ?? 0);
   const inquiryCount = vendorInquiries?.length ?? 0;
+  const unreadInquiries = (vendorInquiries ?? []).filter(inquiry => inquiry.status !== 'viewed' && !inquiry.viewedAt);
   const conversionRate = profileViews > 0 ? (inquiryCount / profileViews) * 100 : 0;
   const profileFields = application ? [application.businessName, application.description, application.location, application.phoneNumber, application.logoUrl, application.coverImageUrl, application.portfolioImageUrls?.length] : [];
   const profileCompleteness = profileFields.length > 0
@@ -148,6 +152,17 @@ export default function DashboardPage() {
     return { key, label: `${date.getUTCDate()}/${date.getUTCMonth() + 1}`, value: Number(vendorDoc?.analytics?.dailyViews?.[key] ?? 0) };
   });
   const maxDailyViews = Math.max(1, ...dailyViewData.map(day => day.value));
+
+  const openInquiry = async (inquiry: any) => {
+    setSelectedInquiryId(inquiry.id);
+    setActiveTab('Inquiries');
+    if (db && inquiry.status !== 'viewed' && !inquiry.viewedAt) {
+      await updateDoc(doc(db, 'inquiries', inquiry.id), {
+        status: 'viewed',
+        viewedAt: serverTimestamp(),
+      });
+    }
+  };
 
   // Recover memberships whose PayStack payment succeeded but whose browser
   // callback was interrupted. PayStack remains the source of truth.
@@ -538,11 +553,17 @@ export default function DashboardPage() {
     signOut(auth);
   };
 
+  const selectDashboardTab = (tab: string) => {
+    setActiveTab(tab);
+    requestAnimationFrame(() => {
+      dashboardContentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  };
+
   const sidebarItems = [
     { name: 'Overview', icon: LayoutDashboard },
     { name: 'My Profile', icon: User },
     { name: 'Inquiries', icon: Mail },
-    { name: 'AI Referrals', icon: Sparkles },
     { name: 'Subscription & Billing', icon: CreditCard },
     { name: 'Analytics', icon: PieChart },
     // Admin tab is only inserted for users with a /roles_admin/{uid} doc so
@@ -645,7 +666,7 @@ export default function DashboardPage() {
                     {sidebarItems.map((item) => (
                       <button
                         key={item.name}
-                        onClick={() => setActiveTab(item.name)}
+                        onClick={() => selectDashboardTab(item.name)}
                         className={cn(
                           "flex items-center gap-3 md:gap-4 px-3 md:px-4 py-2.5 md:py-3.5 rounded-xl text-[11px] md:text-[13px] font-bold uppercase tracking-widest transition-all duration-300",
                           activeTab === item.name 
@@ -674,7 +695,7 @@ export default function DashboardPage() {
             </aside>
 
             {/* Content Area */}
-            <div className="flex-1 min-w-0 max-w-full space-y-8 md:space-y-10">
+            <div ref={dashboardContentRef} className="flex-1 min-w-0 max-w-full space-y-8 md:space-y-10 scroll-mt-28">
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-border text-center md:text-left">
                 <div className="space-y-2">
                   <h1 className="font-headline text-[32px] md:text-[42px] leading-tight text-foreground">Command Center</h1>
@@ -692,8 +713,8 @@ export default function DashboardPage() {
                 )}
               </div>
 
-              {/* Stats Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Analytics summary */}
+              {activeTab === 'Analytics' && <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[
                   { label: "Profile Views", value: profileViews.toLocaleString(), detail: "All time", icon: Eye, color: "text-blue-600" },
                   { label: "Direct Inquiries", value: inquiryCount.toLocaleString(), detail: "Received", icon: Mail, color: "text-emerald-600" },
@@ -712,7 +733,7 @@ export default function DashboardPage() {
                     </CardContent>
                   </Card>
                 ))}
-              </div>
+              </div>}
 
               {/* Overview Tab Content */}
               {activeTab === 'Overview' && (
@@ -757,6 +778,50 @@ export default function DashboardPage() {
                       </table>
                     </div>
                   </div>
+                </div>
+              )}
+
+              {activeTab === 'Inquiries' && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div>
+                    <h2 className="font-headline text-[26px] md:text-[32px]">Your Inquiries</h2>
+                    <p className="text-[13px] text-muted-foreground italic mt-1">Open a message to see the couple's complete inquiry.</p>
+                  </div>
+                  {!vendorInquiries?.length ? (
+                    <Card className="rounded-[24px] border-primary/10"><CardContent className="p-10 text-center text-muted-foreground italic">No inquiries yet.</CardContent></Card>
+                  ) : (
+                    <div className="grid gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+                      <Card className="rounded-[24px] border-primary/10 shadow-soft overflow-hidden">
+                        <CardContent className="p-3 space-y-2">
+                          {[...vendorInquiries].sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0)).map(inquiry => (
+                            <button key={inquiry.id} onClick={() => openInquiry(inquiry)} className={cn('w-full text-left p-4 rounded-2xl border transition-colors', selectedInquiryId === inquiry.id ? 'border-primary bg-primary/5' : 'border-transparent hover:bg-muted/60')}>
+                              <div className="flex items-center justify-between gap-3">
+                                <p className="font-bold text-[14px] truncate">{inquiry.name || inquiry.senderName || inquiry.email || 'Wedding inquiry'}</p>
+                                {!inquiry.viewedAt && inquiry.status !== 'viewed' && <Badge className="bg-rose-500 text-[9px]">New</Badge>}
+                              </div>
+                              <p className="text-[12px] text-muted-foreground truncate mt-1">{inquiry.message}</p>
+                            </button>
+                          ))}
+                        </CardContent>
+                      </Card>
+                      {(() => {
+                        const selected = vendorInquiries.find(inquiry => inquiry.id === selectedInquiryId);
+                        return selected ? (
+                          <Card className="rounded-[24px] border-primary/10 shadow-soft"><CardContent className="p-6 md:p-8 space-y-5">
+                            <div className="border-b border-primary/10 pb-5">
+                              <h3 className="font-headline text-[24px]">{selected.name || selected.senderName || 'Wedding inquiry'}</h3>
+                              <a href={`mailto:${selected.email}`} className="text-[13px] text-primary hover:underline">{selected.email}</a>
+                            </div>
+                            <div><p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Wedding date</p><p className="mt-1">{selected.weddingDate || 'Not specified'}</p></div>
+                            <div><p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Message</p><p className="mt-2 whitespace-pre-wrap leading-relaxed">{selected.message}</p></div>
+                            <Button asChild className="button-rose rounded-full"><a href={`mailto:${selected.email}?subject=${encodeURIComponent(`Re: Your inquiry to ${application?.businessName || 'us'}`)}`}><Mail className="w-4 h-4 mr-2" />Reply by email</a></Button>
+                          </CardContent></Card>
+                        ) : (
+                          <Card className="rounded-[24px] border-primary/10 border-dashed"><CardContent className="p-10 text-center text-muted-foreground italic">Select an inquiry to read it.</CardContent></Card>
+                        );
+                      })()}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -1258,23 +1323,23 @@ export default function DashboardPage() {
                       <CardContent className="p-6 md:p-8 space-y-5">
                         <div className="flex items-center justify-between">
                           <h3 className="font-headline text-[21px]">Recent Inquiries</h3>
-                          <Badge variant="secondary">{inquiryCount}</Badge>
+                          <Badge variant="secondary">{unreadInquiries.length}</Badge>
                         </div>
-                        {!vendorInquiries?.length ? (
+                        {!unreadInquiries.length ? (
                           <div className="py-10 text-center">
                             <Mail className="w-9 h-9 text-primary/30 mx-auto mb-3" />
-                            <p className="text-[13px] text-muted-foreground italic">No inquiries yet. A complete profile and strong portfolio help couples feel confident reaching out.</p>
+                            <p className="text-[13px] text-muted-foreground italic">You're all caught up. New inquiries will appear here until you view them.</p>
                           </div>
                         ) : (
                           <div className="space-y-3">
-                            {[...vendorInquiries].sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0)).slice(0, 5).map(inquiry => (
-                              <div key={inquiry.id} className="p-4 rounded-2xl bg-muted/40 border border-primary/5">
+                            {[...unreadInquiries].sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0)).slice(0, 5).map(inquiry => (
+                              <button key={inquiry.id} onClick={() => openInquiry(inquiry)} className="block w-full text-left p-4 rounded-2xl bg-muted/40 border border-primary/5 hover:border-primary/30 hover:bg-muted/70 transition-colors">
                                 <div className="flex justify-between gap-3">
                                   <p className="font-bold text-[13px] truncate">{inquiry.name || inquiry.senderName || inquiry.email || 'Wedding inquiry'}</p>
-                                  <span className="text-[9px] uppercase tracking-widest text-muted-foreground">{inquiry.status || 'New'}</span>
+                                  <span className="text-[9px] uppercase tracking-widest text-primary">View</span>
                                 </div>
                                 {inquiry.message && <p className="text-[12px] text-muted-foreground mt-2 line-clamp-2">{inquiry.message}</p>}
-                              </div>
+                              </button>
                             ))}
                           </div>
                         )}
