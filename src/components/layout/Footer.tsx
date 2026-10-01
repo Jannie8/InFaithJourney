@@ -83,8 +83,8 @@ export function Footer() {
         <div className="border-t border-primary/10 pt-10 flex flex-col md:flex-row items-center justify-between text-[11px] text-muted-foreground uppercase tracking-[0.3em] font-bold gap-6 text-center md:text-left">
           <p>© 2026 InFaith Journey – Curated Luxury Weddings. Owned by Ricardo. South Africa.</p>
           <div className="flex gap-8 md:gap-12">
-            <Link href="#" className="hover:text-primary transition-colors">Privacy Policy</Link>
-            <Link href="#" className="hover:text-primary transition-colors">Terms & Conditions</Link>
+            <Link href="/privacy-policy" className="hover:text-primary transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-primary transition-colors">Terms & Conditions</Link>
           </div>
         </div>
       </div>
