@@ -50,16 +50,25 @@ export async function POST(req: NextRequest) {
     const previousSubscriptionCode = result.metadata?.previousSubscriptionCode;
     if (result.metadata?.changePlan && typeof previousSubscriptionCode === 'string') {
       const previous = await getCustomerSubscription(user.email!, previousSubscriptionCode);
-      if (previous?.emailToken && previous.subscriptionCode !== result.reference) {
+      if (previous?.emailToken && !['non-renewing', 'cancelled', 'completed'].includes(previous.status)) {
         await disableSubscription(previous.subscriptionCode, previous.emailToken);
       }
-      await application.ref.update({ selectedPlan: tier, updatedAt: FieldValue.serverTimestamp() });
     }
 
     // Finalize on the server so the return is not lost while Firebase restores the
     // browser session, and so webhooks have an email-linked vendor record to update.
-    await db.collection('vendors').doc(user.uid).set(
-      {
+    await db.runTransaction(async transaction => {
+      const currentApplication = await transaction.get(application.ref);
+      const vendorRef = db.collection('vendors').doc(user.uid);
+      const currentVendor = await transaction.get(vendorRef);
+      if (currentApplication.data()?.applicationStatus !== 'approved'
+        || currentVendor.data()?.paystackReference !== reference) {
+        throw new Error('This checkout is no longer current or the application was cancelled.');
+      }
+      if (result.metadata?.changePlan) {
+        transaction.update(application.ref, { selectedPlan: tier, updatedAt: FieldValue.serverTimestamp() });
+      }
+      transaction.set(vendorRef, {
         membershipStatus: 'active',
         listingStatus: 'active',
         membershipTier: tier,
@@ -69,9 +78,8 @@ export async function POST(req: NextRequest) {
         applicationId,
         lastPaymentAt: result.paidAt ? new Date(result.paidAt) : FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
-      },
-      { merge: true }
-    );
+      }, { merge: true });
+    });
 
     return NextResponse.json(result);
   } catch (err: any) {

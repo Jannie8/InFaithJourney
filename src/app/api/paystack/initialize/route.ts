@@ -43,6 +43,16 @@ export async function POST(req: NextRequest) {
     const origin = req.nextUrl.origin;
     const callbackUrl = `${origin}/dashboard?paystack=return`;
 
+    // Establish the vendor association before Paystack can send any webhooks.
+    await db.collection('vendors').doc(user.uid).set({
+      ...(!changePlan ? { membershipStatus: 'pending_payment', listingStatus: 'inactive' } : {}),
+      membershipTier: tier,
+      email,
+      submitterUid: user.uid,
+      applicationId,
+      updatedAt: FieldValue.serverTimestamp(),
+    }, { merge: true });
+
     const result = await initializeSubscription({
       email,
       tier: tier as VendorTier,
@@ -57,15 +67,8 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Create the email-linked vendor record before payment. PayStack webhooks can
-    // now activate it even if the browser callback is interrupted or fails.
     await db.collection('vendors').doc(user.uid).set({
-      ...(!changePlan ? { membershipStatus: 'pending_payment', listingStatus: 'inactive' } : {}),
-      membershipTier: tier,
       paystackReference: result.reference,
-      email,
-      submitterUid: user.uid,
-      applicationId,
       updatedAt: FieldValue.serverTimestamp(),
     }, { merge: true });
 

@@ -1,0 +1,1 @@
+{"extends":"../tsconfig.json","include":["../src/lib/paystack.ts","../src/lib/membership-sync.ts","../src/app/api/paystack/**/*.ts"],"exclude":["../node_modules"],"compilerOptions":{"incremental":false}}
