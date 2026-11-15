@@ -85,3 +85,69 @@ firebase apphosting:secrets:grantaccess gemini-api-key --backend infaithjourney
 
 The AI concierge cannot contact Gemini until this secret is configured. Keep the
 key server-side; never expose it through a `NEXT_PUBLIC_*` environment variable.
+
+## Paystack subscription sync and cancellation
+
+Paystack is the source of truth for recurring billing. Editing
+`vendors/{uid}.membershipStatus` in Firestore does **not** cancel charges.
+The cancellation API now checks Paystack independently of that field, disables
+all renewable InFaith Journey subscriptions for the authenticated customer, and
+reads each subscription back before marking the application cancelled. A failed
+lookup, missing cancellation token, or unconfirmed disable returns an error;
+the application must not claim billing has stopped.
+
+### Production rollout
+
+1. Deploy the billing fix to the Firebase App Hosting backend serving
+   `https://infaithjourney.com`. Merging code alone is not evidence that the rollout
+   completed; check the App Hosting rollout status and deployed commit.
+2. In **Paystack Dashboard → Settings → API Keys & Webhooks**, select **Live** mode
+   and set the webhook URL to
+   `https://infaithjourney.com/api/paystack/webhook`. The callback URL used to return
+   a browser from checkout is separate and does not replace this webhook.
+3. Confirm the production `PAYSTACK_SECRET_KEY` and both `PAYSTACK_PLAN_*` values
+   belong to the same Paystack account and mode. Never share or log the secret key.
+4. In a test-mode environment with test plans and credentials, exercise initial
+   checkout without returning to the website, renewal, failed renewal, and
+   cancellation while Firestore says `pending_payment` or `awaiting_payment`.
+   Confirm the webhook deliveries succeed, Firebase matches Paystack, and Paystack
+   shows `non-renewing` or `cancelled` after website cancellation. Do not use the
+   live production backend with test-mode credentials.
+5. Check failed webhook deliveries and App Hosting logs. A `401` means the signature
+   did not validate; `500` asks Paystack to retry a failed update. Do not work around
+   signature failures by disabling signature verification.
+
+Dashboard reconciliation and the billing details API also refresh Firebase from
+Paystack. Recurring events match stable subscription/customer identifiers or the
+billing email rather than the original checkout reference. Event handling reads
+current Paystack state so a delayed disable for an old subscription cannot cancel
+an active replacement. Cancelled applications cannot be reactivated by late charges.
+
+### Repair existing cancelled accounts
+
+For customers who cancelled on the website but were charged again, open their
+customer record in the **Live Paystack Dashboard** and inspect **all** subscriptions,
+including duplicate subscriptions. Disable each renewable membership subscription
+and verify its status. The code deployment does not retroactively cancel existing
+Paystack subscriptions, and manual Firestore edits cannot stop recurring billing.
+After deployment, the authenticated customer can retry website cancellation even
+if the application already says cancelled. The API is safe to retry after a partial
+failure and skips subscriptions Paystack already reports as non-renewing/cancelled.
+
+Review the unwanted transaction separately with the business owner and process
+any approved refund through Paystack. No automatic refunds are performed by this fix.
+
+### Billing regression checks
+
+```bash
+npm run test:billing
+npm run typecheck:billing
+npm run build
+```
+
+The regression suite uses mocked Paystack/Firebase responses and makes no real
+charges. It covers initial activation without a browser callback, pending-payment
+cancellation, duplicate subscriptions, API errors, confirmation failures, renewed
+transaction references, delayed events, signature validation, and cancelled accounts.
+The billing type check isolates these server files from existing unrelated project
+syntax errors; the production config currently skips project-wide TypeScript errors.

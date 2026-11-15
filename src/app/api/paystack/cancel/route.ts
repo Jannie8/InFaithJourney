@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCustomerSubscription, disableSubscription } from '@/lib/paystack';
+import { cancelCustomerSubscriptions } from '@/lib/paystack';
 import { FieldValue } from 'firebase-admin/firestore';
 import { getAdminAuth, getAdminDb } from '@/lib/firebase-admin';
 
@@ -24,19 +24,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Application not found.' }, { status: 404 });
     }
 
-    let subscriptionCode: string | null = null;
     const vendorRef = db.collection('vendors').doc(user.uid);
     const vendor = await vendorRef.get();
-    if (vendor.data()?.membershipStatus === 'active' && user.email) {
-      const sub = await getCustomerSubscription(user.email);
-      if (sub?.status === 'active') {
-        if (!sub.emailToken) {
-          return NextResponse.json({ error: 'Please contact support to cancel this subscription.' }, { status: 409 });
-        }
-        await disableSubscription(sub.subscriptionCode, sub.emailToken);
-        subscriptionCode = sub.subscriptionCode;
-      }
+    if (!user.email) {
+      return NextResponse.json({ error: 'An account email is required to confirm billing cancellation.' }, { status: 409 });
     }
+    // Never trust Firebase membershipStatus as evidence that Paystack stopped billing.
+    const cancelledSubscriptionCodes = await cancelCustomerSubscriptions(
+      user.email, vendor.data()?.paystackSubscriptionCode
+    );
 
     const batch = db.batch();
     batch.update(applicationRef!, {
@@ -45,13 +41,14 @@ export async function POST(req: NextRequest) {
       cancelledAt: FieldValue.serverTimestamp(),
     });
     batch.set(vendorRef, {
+      subscriptionRenews: false,
       listingStatus: 'inactive',
       membershipStatus: 'inactive',
       cancelledAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     }, { merge: true });
     await batch.commit();
-    return NextResponse.json({ cancelled: true, subscriptionCode });
+    return NextResponse.json({ cancelled: true, cancelledSubscriptionCodes });
   } catch (err: any) {
     console.error('PayStack cancel error:', err);
     return NextResponse.json(

@@ -167,7 +167,7 @@ export default function DashboardPage() {
   // Recover memberships whose PayStack payment succeeded but whose browser
   // callback was interrupted. PayStack remains the source of truth.
   useEffect(() => {
-    if (!user || appStatus !== 'approved' || isMembershipActive || reconciliationAttempted.current) return;
+    if (!user || appStatus !== 'approved' || reconciliationAttempted.current) return;
     reconciliationAttempted.current = true;
     user.getIdToken()
       .then(token => fetch('/api/paystack/reconcile', {
@@ -176,7 +176,7 @@ export default function DashboardPage() {
       }))
       .then(response => response.ok ? response.json() : null)
       .then(result => {
-        if (result?.active) {
+        if (result?.active && !isMembershipActive) {
           setActiveTab('Subscription & Billing');
           toast({ title: 'Membership Active', description: 'We found your successful PayStack subscription.' });
         }

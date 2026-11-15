@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { TIER_AMOUNTS, verifyWebhookSignature, type VendorTier } from '@/lib/paystack';
+import { TIER_AMOUNTS, verifyWebhookSignature, getCustomerSubscription, disableSubscription, type VendorTier } from '@/lib/paystack';
+import { syncVendorSubscription } from '@/lib/membership-sync';
 import { getAdminDb } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 
@@ -9,49 +10,27 @@ export const runtime = 'nodejs';
 // Never cache or pre-render: every call is a unique signed event.
 export const dynamic = 'force-dynamic';
 
-/**
- * Find the vendor document(s) tied to a PayStack customer email and apply an update.
- * Vendor docs are keyed by the user's UID and store a denormalized `email` field
- * (written during activation), so we match on that. Returns how many docs changed.
- */
-async function updateVendorByEmail(
-  email: string | undefined,
-  data: Record<string, unknown>
-): Promise<number> {
-  if (!email) return 0;
+/** Match recurring events by stable IDs; renewal references change every month. */
+async function refreshVendor(data: any): Promise<number> {
   const db = getAdminDb();
-  const snap = await db.collection('vendors').where('email', '==', email).get();
-  if (snap.empty) return 0;
-
-  const batch = db.batch();
-  snap.forEach((docSnap) => {
-    batch.set(
-      docSnap.ref,
-      { ...data, updatedAt: FieldValue.serverTimestamp() },
-      { merge: true }
-    );
-  });
-  await batch.commit();
-  return snap.size;
-}
-
-async function updateVendorByReference(
-  reference: string | undefined,
-  data: Record<string, unknown>
-): Promise<number> {
-  if (!reference) return 0;
-  const db = getAdminDb();
-  const snap = await db.collection('vendors').where('paystackReference', '==', reference).get();
-  if (snap.empty) return 0;
-
-  const batch = db.batch();
-  snap.forEach(docSnap => batch.set(
-    docSnap.ref,
-    { ...data, updatedAt: FieldValue.serverTimestamp() },
-    { merge: true }
-  ));
-  await batch.commit();
-  return snap.size;
+  const subscriptionCode = data?.subscription_code ?? data?.subscription?.subscription_code;
+  const customerCode = data?.customer?.customer_code;
+  const email = data?.customer?.email;
+  let vendors = subscriptionCode
+    ? await db.collection('vendors').where('paystackSubscriptionCode', '==', subscriptionCode).get() : null;
+  if ((!vendors || vendors.empty) && customerCode) {
+    vendors = await db.collection('vendors').where('paystackCustomerCode', '==', customerCode).get();
+  }
+  if ((!vendors || vendors.empty) && email) {
+    vendors = await db.collection('vendors').where('email', '==', email).get();
+  }
+  if (!vendors || vendors.empty) return 0;
+  for (const vendor of vendors.docs) {
+    const customerEmail = vendor.data().email || email;
+    if (!customerEmail) throw new Error('Missing vendor billing email.');
+    await syncVendorSubscription(vendor.id, customerEmail);
+  }
+  return vendors.size;
 }
 
 async function activateVendorFromCharge(data: any): Promise<boolean> {
@@ -67,28 +46,45 @@ async function activateVendorFromCharge(data: any): Promise<boolean> {
   ) return false;
 
   const db = getAdminDb();
-  const application = await db.collection('vendorApplications').doc(applicationId).get();
-  const applicationData = application.data();
-  if (
-    !application.exists ||
-    applicationData?.submitterUid !== uid ||
-    applicationData?.applicationStatus !== 'approved' ||
-    applicationData?.selectedPlan !== tier
-  ) return false;
-
-  await db.collection('vendors').doc(uid).set({
-    membershipStatus: 'active',
-    listingStatus: 'active',
-    membershipTier: tier,
-    applicationId,
-    email: data?.customer?.email ?? null,
-    submitterUid: uid,
-    paystackReference: data?.reference ?? null,
-    lastPaymentReference: data?.reference ?? null,
-    lastPaymentAt: FieldValue.serverTimestamp(),
-    updatedAt: FieldValue.serverTimestamp(),
-  }, { merge: true });
-  return true;
+  const applicationRef = db.collection('vendorApplications').doc(applicationId);
+  const vendorRef = db.collection('vendors').doc(uid);
+  const vendor = await vendorRef.get();
+  if (vendor.data()?.paystackReference !== data?.reference) return false;
+  const changePlan = data?.metadata?.changePlan === true;
+  const previousCode = data?.metadata?.previousSubscriptionCode;
+  if (changePlan && typeof previousCode === 'string') {
+    const application = await applicationRef.get();
+    if (application.data()?.applicationStatus !== 'approved' || application.data()?.submitterUid !== uid) return false;
+    const previous = await getCustomerSubscription(vendor.data()!.email, previousCode);
+    if (previous && !['non-renewing', 'cancelled', 'completed'].includes(previous.status)) {
+      if (!previous.emailToken) throw new Error('Previous subscription cannot be cancelled.');
+      await disableSubscription(previous.subscriptionCode, previous.emailToken);
+    }
+  }
+  return db.runTransaction(async transaction => {
+    const application = await transaction.get(applicationRef);
+    const currentVendor = await transaction.get(vendorRef);
+    const applicationData = application.data();
+    if (!application.exists || applicationData?.submitterUid !== uid
+      || applicationData?.applicationStatus !== 'approved'
+      || currentVendor.data()?.paystackReference !== data?.reference
+      || (!changePlan && applicationData?.selectedPlan !== tier)) return false;
+    if (changePlan) transaction.update(applicationRef, { selectedPlan: tier, updatedAt: FieldValue.serverTimestamp() });
+    transaction.set(db.collection('vendors').doc(uid), {
+      membershipStatus: 'active',
+      listingStatus: 'active',
+      membershipTier: tier,
+      applicationId,
+      email: data?.customer?.email ?? null,
+      submitterUid: uid,
+      paystackReference: data?.reference ?? null,
+      paystackCustomerCode: data?.customer?.customer_code ?? null,
+      lastPaymentReference: data?.reference ?? null,
+      lastPaymentAt: data?.paid_at ? new Date(data.paid_at) : FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+    }, { merge: true });
+    return true;
+  });
 }
 
 export async function POST(req: NextRequest) {
@@ -119,45 +115,32 @@ export async function POST(req: NextRequest) {
 
   const type = event?.event as string | undefined;
   const data = event?.data ?? {};
-  const email: string | undefined = data?.customer?.email;
 
   try {
     switch (type) {
       // A payment succeeded — initial charge OR a monthly renewal. Keep membership active.
       case 'charge.success': {
-        const activatedByMetadata = await activateVendorFromCharge(data);
-        if (!activatedByMetadata) {
-          await updateVendorByReference(data?.reference, {
-            membershipStatus: 'active',
-            listingStatus: 'active',
-            lastPaymentAt: FieldValue.serverTimestamp(),
-            lastPaymentReference: data?.reference ?? null,
-          });
+        const activated = await activateVendorFromCharge(data);
+        const refreshed = await refreshVendor(data);
+        if (!activated && !refreshed && data?.metadata?.uid) {
+          throw new Error('Membership payment could not be matched; retry required.');
         }
         break;
       }
-
-      // A subscription was created — record its codes so it can be managed later.
       case 'subscription.create':
-        await updateVendorByEmail(email, {
-          membershipStatus: 'active',
-          listingStatus: 'active',
-          paystackSubscriptionCode: data?.subscription_code ?? null,
-          paystackCustomerCode: data?.customer?.customer_code ?? null,
-        });
-        break;
-
-      // A renewal payment failed — flag the account but don't immediately revoke;
-      // PayStack will retry, and the operator can follow up.
       case 'invoice.payment_failed':
-        await updateVendorByEmail(email, { membershipStatus: 'past_due' });
-        break;
-
-      // Subscription cancelled or will not renew — membership lapses.
+      case 'invoice.update':
       case 'subscription.disable':
-      case 'subscription.not_renew':
-        await updateVendorByEmail(email, { membershipStatus: 'inactive', listingStatus: 'inactive' });
+      case 'subscription.not_renew': {
+        const matched = await refreshVendor(data);
+        // Initial subscription events can arrive before the checkout record write.
+        // Do not acknowledge a relevant event that we have silently dropped.
+        const plan = data?.plan?.plan_code ?? data?.subscription?.plan?.plan_code;
+        if (!matched && (plan === process.env.PAYSTACK_PLAN_STANDARD || plan === process.env.PAYSTACK_PLAN_FEATURED)) {
+          throw new Error('Subscription could not be matched; retry required.');
+        }
         break;
+      }
 
       default:
         // Unhandled event types are acknowledged so PayStack stops retrying.

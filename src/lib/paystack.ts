@@ -33,6 +33,10 @@ export function getPlanCode(tier: VendorTier): string {
   return code;
 }
 
+class PaystackError extends Error {
+  constructor(message: string, readonly status: number) { super(message); }
+}
+
 async function paystackFetch(path: string, init?: RequestInit) {
   const res = await fetch(`${PAYSTACK_BASE}${path}`, {
     ...init,
@@ -52,7 +56,7 @@ async function paystackFetch(path: string, init?: RequestInit) {
   const body = await res.json().catch(() => ({}));
   if (!res.ok || body?.status === false) {
     const message = body?.message || `PayStack request failed (${res.status})`;
-    throw new Error(message);
+    throw new PaystackError(message, res.status);
   }
   return body;
 }
@@ -134,38 +138,12 @@ export function verifyWebhookSignature(rawBody: string, signature: string | null
  *   3) Ask PayStack for a one-time manage link for that subscription.
  */
 export async function getManageSubscriptionLink(email: string): Promise<string | null> {
-  // 1. Customer lookup.
-  let customer: any;
-  try {
-    const body = await paystackFetch(`/customer/${encodeURIComponent(email)}`);
-    customer = body.data;
-  } catch {
-    // Either email not registered with PayStack yet, or no permission — treat as
-    // "no subscription" rather than a hard error, so the UI can show a clean message.
-    return null;
-  }
-  if (!customer?.customer_code) return null;
-
-  // 2. Pull subscriptions for this customer and pick the newest one.
-  const subsBody = await paystackFetch(
-    `/subscription?customer=${encodeURIComponent(customer.customer_code)}&perPage=50`
-  );
-  const subs: any[] = subsBody?.data ?? [];
-  if (subs.length === 0) return null;
-
-  // Prefer "active" subs first; otherwise fall back to the most recently created one
-  // so even a paused/expired subscription still gets a manage link (so they can re-up).
-  const sorted = [...subs].sort((a, b) => {
-    const ta = new Date(a.createdAt ?? a.created_at ?? 0).getTime();
-    const tb = new Date(b.createdAt ?? b.created_at ?? 0).getTime();
-    return tb - ta;
-  });
-  const chosen = sorted.find((s) => s.status === 'active') ?? sorted[0];
-  if (!chosen?.subscription_code) return null;
+  const chosen = await getCustomerSubscription(email);
+  if (!chosen) return null;
 
   // 3. Generate the hosted manage link.
   const linkBody = await paystackFetch(
-    `/subscription/${encodeURIComponent(chosen.subscription_code)}/manage/link`
+    `/subscription/${encodeURIComponent(chosen.subscriptionCode)}/manage/link`
   );
   return (linkBody?.data?.link as string) ?? null;
 }
@@ -210,44 +188,64 @@ function tierFromPlanCode(planCode: string | undefined | null): VendorTier | nul
  */
 export async function getCustomerSubscription(email: string, subscriptionCode?: string | null): Promise<SubscriptionDetails | null> {
   if (subscriptionCode) {
-    try {
-      const detailsBody = await paystackFetch(`/subscription/${encodeURIComponent(subscriptionCode)}`);
-      return subscriptionDetails(detailsBody?.data ?? {});
-    } catch {
-      // Fall back to the customer lookup. This repairs stale webhook data while
-      // still allowing older accounts to find their PayStack records by email.
+    // A stored link is authoritative. An API outage must never become "not found".
+    const body = await paystackFetch(`/subscription/${encodeURIComponent(subscriptionCode)}`);
+    if (body.data?.customer?.email?.toLowerCase() !== email.toLowerCase()) {
+      throw new Error('Subscription customer does not match this account.');
     }
+    return subscriptionDetails(body.data);
   }
-  // 1. Customer lookup.
+  const subscriptions = await getCustomerSubscriptions(email);
+  const chosen = subscriptions.find(s => s.status === 'active') ?? subscriptions[0];
+  if (!chosen) return null;
+  return getCustomerSubscription(email, chosen.subscriptionCode);
+}
+
+/** List every membership subscription, including duplicates from earlier checkouts. */
+export async function getCustomerSubscriptions(email: string): Promise<SubscriptionDetails[]> {
+  // Missing configuration must not silently filter out billable subscriptions.
+  getPlanCode('standard');
+  getPlanCode('featured');
   let customer: any;
   try {
-    const body = await paystackFetch(`/customer/${encodeURIComponent(email)}`);
-    customer = body.data;
-  } catch {
-    return null;
+    customer = (await paystackFetch(`/customer/${encodeURIComponent(email)}`)).data;
+  } catch (error) {
+    if (error instanceof PaystackError && error.status === 404) return [];
+    throw error;
   }
-  if (!customer?.customer_code) return null;
+  if (!customer?.id) throw new Error('Paystack customer ID is missing.');
+  const subscriptions: SubscriptionDetails[] = [];
+  for (let page = 1; ; page++) {
+    // Paystack requires the numeric customer ID, not CUS_... customer_code.
+    const body = await paystackFetch(`/subscription?customer=${customer.id}&perPage=100&page=${page}`);
+    const rows: any[] = body.data ?? [];
+    subscriptions.push(...rows.map(subscriptionDetails));
+    if (rows.length < 100) break;
+  }
+  // List API returns newest first; only this website's plans belong to memberships.
+  return subscriptions.filter(s => s.tier !== null);
+}
 
-  // 2. List their subscriptions.
-  const subsBody = await paystackFetch(
-    `/subscription?customer=${encodeURIComponent(customer.customer_code)}&perPage=50`
-  );
-  const subs: any[] = subsBody?.data ?? [];
-  if (subs.length === 0) return null;
-
-  const sorted = [...subs].sort((a, b) => {
-    const ta = new Date(a.createdAt ?? a.created_at ?? 0).getTime();
-    const tb = new Date(b.createdAt ?? b.created_at ?? 0).getTime();
-    return tb - ta;
-  });
-  const chosen = sorted.find((s) => s.status === 'active') ?? sorted[0];
-  if (!chosen?.subscription_code) return null;
-
-  // 3. Fetch full subscription details — only this call includes email_token + card auth.
-  const detailsBody = await paystackFetch(
-    `/subscription/${encodeURIComponent(chosen.subscription_code)}`
-  );
-  return subscriptionDetails(detailsBody?.data ?? {});
+/** Stop all renewable memberships; fail without claiming cancellation on any API error. */
+export async function cancelCustomerSubscriptions(email: string, storedCode?: string | null) {
+  const subscriptions = await getCustomerSubscriptions(email);
+  if (storedCode && !subscriptions.some(s => s.subscriptionCode === storedCode)) {
+    const stored = await getCustomerSubscription(email, storedCode);
+    if (stored) subscriptions.push(stored);
+  }
+  const cancelledCodes: string[] = [];
+  for (const subscription of subscriptions) {
+    if (['non-renewing', 'cancelled', 'completed'].includes(subscription.status)) continue;
+    const details = await getCustomerSubscription(email, subscription.subscriptionCode);
+    if (!details?.emailToken) throw new Error('Cannot confirm cancellation: Paystack subscription token is missing. Please contact support.');
+    await disableSubscription(details.subscriptionCode, details.emailToken);
+    const confirmed = await getCustomerSubscription(email, details.subscriptionCode);
+    if (!confirmed || !['non-renewing', 'cancelled', 'completed'].includes(confirmed.status)) {
+      throw new Error('Paystack has not confirmed cancellation. Please retry or contact support.');
+    }
+    cancelledCodes.push(details.subscriptionCode);
+  }
+  return cancelledCodes;
 }
 
 function subscriptionDetails(d: any): SubscriptionDetails {
@@ -302,20 +300,16 @@ export interface InvoiceLine {
  */
 export async function getCustomerInvoices(email: string, limit = 12, customerCode?: string | null): Promise<InvoiceLine[]> {
   let customer: any;
-  if (customerCode) {
-    customer = { customer_code: customerCode };
-  } else {
-    try {
-      const body = await paystackFetch(`/customer/${encodeURIComponent(email)}`);
-      customer = body.data;
-    } catch {
-      return [];
-    }
+  try {
+    customer = (await paystackFetch(`/customer/${encodeURIComponent(customerCode || email)}`)).data;
+  } catch (error) {
+    if (error instanceof PaystackError && error.status === 404) return [];
+    throw error;
   }
-  if (!customer?.customer_code) return [];
+  if (!customer?.id) throw new Error('Paystack customer ID is missing.');
 
   const txBody = await paystackFetch(
-    `/transaction?customer=${encodeURIComponent(customer.customer_code)}&perPage=${limit}`
+    `/transaction?customer=${encodeURIComponent(customer.id)}&perPage=${limit}`
   );
   const txs: any[] = txBody?.data ?? [];
   return txs.map((t) => ({
