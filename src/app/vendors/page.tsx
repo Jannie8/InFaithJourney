@@ -1,6 +1,8 @@
 
 "use client";
 
+import { matchesVendorBudget } from '@/lib/vendor-pricing';
+
 import { Suspense } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
@@ -46,7 +48,7 @@ function VendorsPageInner() {
   const [viewMode, setViewMode] = useState<'elite' | 'curated'>('elite');
   const db = useFirestore();
   const liveVendorsQuery = useMemoFirebase(() => db ? collection(db, 'vendors') : null, [db]);
-  const { data: liveVendorDocs } = useCollection<any>(liveVendorsQuery);
+  const { data: liveVendorDocs, isLoading: liveLoading, error: liveError } = useCollection<any>(liveVendorsQuery);
   const liveVendors = useMemo(() => (liveVendorDocs ?? [])
     .filter(vendor => vendor.membershipStatus === 'active')
     .map(vendor => vendorFromFirestore(vendor.id, vendor)), [liveVendorDocs]);
@@ -104,7 +106,7 @@ function VendorsPageInner() {
       // Location (any selected match)
       if (selectedLocations.length > 0 && !selectedLocations.includes(v.location)) return false;
       // Budget range (price stored in thousands)
-      if (v.price < budget[0] || v.price > budget[1]) return false;
+      if (!matchesVendorBudget(v, budget, 200)) return false;
       // Free-text search across name / category / location
       if (searchText.trim()) {
         const q = searchText.trim().toLowerCase();
@@ -257,7 +259,7 @@ function VendorsPageInner() {
                     <div className="mb-4 flex flex-col gap-1">
                       <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Estimated Range</p>
                       <p className="text-[14px] font-headline font-bold text-primary italic">
-                        R{(budget[0] * 1000).toLocaleString()} — R{(budget[1] * 1000).toLocaleString()}
+                        R{(budget[0] * 1000).toLocaleString()} — R{(budget[1] * 1000).toLocaleString()}{budget[1] === 200 ? '+' : ''}
                       </p>
                     </div>
                     <Slider
@@ -327,13 +329,15 @@ function VendorsPageInner() {
               </div>
             )}
 
+            {liveError && <p role="alert" className="mb-6 text-center">We couldn’t load community vendors. Please reload the page to try again.</p>}
+            {liveLoading && <p role="status" className="mb-6 text-center">Loading community vendors…</p>}
             {displayed.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-10">
                 {displayed.map(vendor => (
                   <VendorCard key={vendor.id} {...vendor} />
                 ))}
               </div>
-            ) : (
+            ) : liveLoading || liveError ? null : (
               <div className="text-center py-20 border border-primary/10 rounded-[24px] bg-white/40">
                 <p className="font-headline text-[22px] md:text-[26px] text-primary mb-3 italic">No vendors match your filters</p>
                 <p className="text-[14px] md:text-[15px] text-muted-foreground mb-8 max-w-md mx-auto">

@@ -14,7 +14,9 @@
     "typecheck:billing": "tsc --project tests/tsconfig.billing.json",
     "test:vendor": "node --test tests/vendor-approval.test.cjs",
     "typecheck:vendor": "tsc --project tests/tsconfig.vendor.json",
-    "test:vendor-rules": "node --test tests/vendor-rules.test.cjs"
+    "test:vendor-rules": "node --test tests/vendor-rules.test.cjs",
+    "test:directory": "node --test tests/vendor-directory.test.cjs",
+    "typecheck:directory": "tsc --project tests/tsconfig.directory.json"
   },
   "dependencies": {
     "@genkit-ai/google-genai": "^1.28.0",

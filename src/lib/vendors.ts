@@ -1,3 +1,4 @@
+import { parseVendorPriceRange } from '@/lib/vendor-pricing';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export interface Vendor {
@@ -5,6 +6,8 @@ export interface Vendor {
   name: string;
   location: string;
   price: number; // in thousands of Rand, used by the budget slider
+  priceMax?: number;
+  priceKnown?: boolean;
   rating: number;
   reviews: number;
   category: string;
@@ -31,12 +34,14 @@ const CATEGORY_NAMES_BY_SLUG: Record<string, string> = {
 /** Convert a public Firestore vendor document into the shared card shape. */
 export function vendorFromFirestore(id: string, data: Record<string, any>): Vendor & { membershipTier?: string } {
   const categorySlug = data.categorySlug || 'vendors';
-  const parsedPrice = Number(String(data.pricingRange ?? '').replace(/[^0-9.]/g, ''));
+  const range = parseVendorPriceRange(data.pricingRange);
   return {
     id,
     name: data.name || data.businessName || 'Unnamed Business',
     location: data.location || 'South Africa',
-    price: Number.isFinite(parsedPrice) && parsedPrice > 0 ? parsedPrice / (parsedPrice > 1_000 ? 1_000 : 1) : 100,
+    price: range ? range.min / 1_000 : 0,
+    priceMax: range ? range.max / 1_000 : undefined,
+    priceKnown: range !== null,
     rating: typeof data.rating === 'number' ? data.rating : 5,
     reviews: typeof data.reviews === 'number' ? data.reviews : 0,
     category: CATEGORY_NAMES_BY_SLUG[categorySlug] || data.category || 'Vendors',

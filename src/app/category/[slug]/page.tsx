@@ -1,6 +1,8 @@
 
 "use client";
 
+import { matchesVendorBudget } from '@/lib/vendor-pricing';
+
 import { use } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
@@ -125,7 +127,7 @@ export default function CategoryBrowsePage({ params }: { params: Promise<{ slug:
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
   const db = useFirestore();
   const liveVendorsQuery = useMemoFirebase(() => db ? collection(db, 'vendors') : null, [db]);
-  const { data: liveVendorDocs } = useCollection<any>(liveVendorsQuery);
+  const { data: liveVendorDocs, isLoading: liveLoading, error: liveError } = useCollection<any>(liveVendorsQuery);
 
   // Seed the location filter from the homepage search (?location=cape-town).
   useEffect(() => {
@@ -162,7 +164,7 @@ export default function CategoryBrowsePage({ params }: { params: Promise<{ slug:
   const filtered = useMemo(() => {
     return listings.filter(v => {
       if (selectedLocations.length > 0 && !selectedLocations.includes(v.location)) return false;
-      if (v.price < budget[0] || v.price > budget[1]) return false;
+      if (!matchesVendorBudget(v, budget, 300)) return false;
       return true;
     });
   }, [listings, selectedLocations, budget]);
@@ -286,7 +288,7 @@ export default function CategoryBrowsePage({ params }: { params: Promise<{ slug:
                     <div className="mb-4 flex flex-col gap-1">
                       <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Budget Filter</p>
                       <p className="text-[14px] font-headline font-bold text-primary italic">
-                        R{(budget[0] * 1000).toLocaleString()} — R{(budget[1] * 1000).toLocaleString()}
+                        R{(budget[0] * 1000).toLocaleString()} — R{(budget[1] * 1000).toLocaleString()}{budget[1] === 300 ? '+' : ''}
                       </p>
                     </div>
                     <Slider 
@@ -338,6 +340,8 @@ export default function CategoryBrowsePage({ params }: { params: Promise<{ slug:
               </div>
             </div>
 
+            {liveError && <p role="alert" className="mb-6 text-center">We couldn’t load community vendors. Please reload the page to try again.</p>}
+            {liveLoading && <p role="status" className="mb-6 text-center">Loading community vendors…</p>}
             {filtered.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 md:gap-10">
@@ -352,7 +356,7 @@ export default function CategoryBrowsePage({ params }: { params: Promise<{ slug:
                   </Button>
                 </div>
               </>
-            ) : (
+            ) : liveLoading || liveError ? null : (
               <div className="text-center py-20 border border-primary/10 rounded-[24px] bg-white/40">
                 <p className="font-headline text-[22px] md:text-[26px] text-primary mb-3 italic">No {category.name.toLowerCase()} match your filters</p>
                 <p className="text-[14px] md:text-[15px] text-muted-foreground mb-8 max-w-md mx-auto">Try widening your budget or removing a location to see more of our curated experts.</p>
