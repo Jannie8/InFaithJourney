@@ -26,6 +26,11 @@ export async function sendVendorApprovalEmail(input: ApprovalEmail) {
   const businessName = escapeHtml(input.businessName?.trim() || 'your business');
   const planName = escapeHtml(PLAN_NAMES[input.selectedPlan || ''] || 'selected membership');
   const activationUrl = escapeHtml(input.activationUrl);
+  const isFree = input.selectedPlan === 'free';
+  const action = isFree ? 'View your vendor profile' : 'Activate your plan';
+  const nextStep = isFree
+    ? 'Your free listing is already active. There is no payment or subscription activation required.'
+    : 'The final step is to activate it from your vendor dashboard.';
   const subject = `Your ${input.businessName?.trim() || 'business'} vendor application is approved`;
 
   await sendEmail({
@@ -37,13 +42,13 @@ export async function sendVendorApprovalEmail(input: ApprovalEmail) {
             <p style="margin:0 0 24px;color:#9b6b65;font-size:13px;letter-spacing:2px;text-transform:uppercase">InFaith Journey</p>
             <h1 style="font-family:Georgia,serif;font-size:30px;line-height:1.25;margin:0 0 20px">Congratulations, ${ownerName}!</h1>
             <p style="font-size:16px;line-height:1.7">We are delighted to let you know that the vendor application for <strong>${businessName}</strong> has been approved.</p>
-            <p style="font-size:16px;line-height:1.7">Your chosen plan is <strong>${planName}</strong>. The final step is to activate it from your vendor dashboard.</p>
+            <p style="font-size:16px;line-height:1.7">Your chosen plan is <strong>${planName}</strong>. ${nextStep}</p>
             <div style="margin:32px 0;text-align:center">
-              <a href="${activationUrl}" style="display:inline-block;background:#a85f65;color:#fff;text-decoration:none;border-radius:999px;padding:15px 28px;font-weight:bold">Activate your plan</a>
+              <a href="${activationUrl}" style="display:inline-block;background:#a85f65;color:#fff;text-decoration:none;border-radius:999px;padding:15px 28px;font-weight:bold">${action}</a>
             </div>
             <p style="font-size:13px;line-height:1.6;color:#746767">If the button does not work, copy and paste this link into your browser:<br><a href="${activationUrl}" style="color:#a85f65;word-break:break-all">${activationUrl}</a></p>
           </div>
         </div>`,
-    text: `Congratulations, ${input.ownerName?.trim() || 'there'}! Your vendor application for ${input.businessName?.trim() || 'your business'} has been approved. Activate your ${PLAN_NAMES[input.selectedPlan || ''] || 'selected membership'} plan here: ${input.activationUrl}`,
+    text: `Congratulations, ${input.ownerName?.trim() || 'there'}! Your vendor application for ${input.businessName?.trim() || 'your business'} has been approved. ${isFree ? 'Your free listing is already active. View your vendor profile' : `Activate your ${PLAN_NAMES[input.selectedPlan || ''] || 'selected membership'} plan`} here: ${input.activationUrl}`,
   });
 }

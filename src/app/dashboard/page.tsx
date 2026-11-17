@@ -27,6 +27,7 @@ import {
 } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { cn } from '@/lib/utils';
+import { vendorApplicationsQuery, selectVendorApplication, membershipDescription } from '@/lib/vendor-dashboard';
 import { useToast } from '@/hooks/use-toast';
 
 function categorySlugFor(category: string) {
@@ -100,32 +101,28 @@ export default function DashboardPage() {
     }
   };
 
-  // This vendor's most recent application (drives the approval gate).
+  // Load the private application independently from the public membership record.
   const applicationQuery = useMemoFirebase(
-    () =>
-      user && db
-        ? query(
-            collection(db, 'vendorApplications'),
-            where('submitterUid', '==', user.uid)
-          )
-        : null,
+    () => user && db ? vendorApplicationsQuery(db, user.uid) : null,
     [user, db]
   );
-  const { data: applications } = useCollection<any>(applicationQuery);
-  // Pick the most recent application (sorted in code to avoid a composite index).
-  const application =
-    applications && applications.length > 0
-      ? [...applications].sort(
-          (a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0)
-        )[0]
-      : null;
-
-  // This vendor's live membership record (set after a successful payment).
+  const { data: applications, isLoading: applicationsLoading, error: applicationsError } = useCollection<any>(applicationQuery);
   const vendorDocRef = useMemoFirebase(
-    () => (user && db ? doc(db, 'vendors', user.uid) : null),
+    () => user && db ? doc(db, 'vendors', user.uid) : null,
     [user, db]
   );
-  const { data: vendorDoc } = useDoc<any>(vendorDocRef);
+  const { data: vendorDoc, isLoading: vendorLoading, error: vendorError } = useDoc<any>(vendorDocRef);
+  const linkedApplicationRef = useMemoFirebase(
+    () => user && db && vendorDoc?.id === user.uid && typeof vendorDoc?.applicationId === 'string'
+      ? doc(db, 'vendorApplications', vendorDoc.applicationId) : null,
+    [user, db, vendorDoc]
+  );
+  const { data: linkedApplication, isLoading: linkedLoading, error: linkedError } = useDoc<any>(linkedApplicationRef);
+  const application = selectVendorApplication<any>(applications, linkedApplication, user?.uid);
+  const applicationLoading = !application && (applicationsLoading || vendorLoading || linkedLoading
+    || (applicationQuery && applications === null && !applicationsError));
+  const applicationError = !application && (applicationsError || vendorError || linkedError
+    || (vendorDoc?.applicationId && !applicationLoading ? new Error('Linked application unavailable') : null));
 
   const inquiriesQuery = useMemoFirebase(
     () => user && db ? query(collection(db, 'inquiries'), where('vendorId', '==', user.uid)) : null,
@@ -535,6 +532,16 @@ export default function DashboardPage() {
     })();
   }, [toast, user, isUserLoading]);
 
+  useEffect(() => {
+    const openEmailDestination = () => {
+      if (window.location.hash === '#activate-membership') setActiveTab('Subscription & Billing');
+      if (window.location.hash === '#vendor-profile') setActiveTab('My Profile');
+    };
+    openEmailDestination();
+    window.addEventListener('hashchange', openEmailDestination);
+    return () => window.removeEventListener('hashchange', openEmailDestination);
+  }, []);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -829,15 +836,19 @@ export default function DashboardPage() {
               {activeTab === 'Subscription & Billing' && (
                 <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                   {/* 1. Already paying — active member */}
-                  {isMembershipActive ? (
+                  {applicationLoading ? (
+                    <p role="status" className="p-8 text-center">Loading your membership and profile…</p>
+                  ) : applicationError ? (
+                    <p role="alert" className="p-8 text-center">We couldn’t load your vendor application. Please reload the page or contact support. You do not need to apply again.</p>
+                  ) : isMembershipActive ? (
                     <div className="bg-card p-8 rounded-[24px] md:rounded-[32px] border border-emerald-200 shadow-soft text-center space-y-5">
                       <CheckCircle className="w-12 h-12 text-emerald-500 mx-auto" />
                       <h2 className="font-headline text-[24px] md:text-[28px]">Membership Active</h2>
                       <p className="text-muted-foreground italic font-medium">
-                        Your {vendorDoc?.membershipTier === 'featured' ? 'Featured' : 'Standard'} Vendor subscription is confirmed and billing monthly. Thank you for joining InFaith Journey.
+                        {membershipDescription(vendorDoc?.membershipTier, vendorDoc?.subscriptionRenews)}
                       </p>
                       <div className="pt-2">
-                        <Button
+                        {vendorDoc?.membershipTier !== 'free' && <><Button
                           asChild
                           variant="outline"
                           size="lg"
@@ -850,7 +861,7 @@ export default function DashboardPage() {
                         </Button>
                         <p className="mt-3 text-[11px] uppercase tracking-widest text-muted-foreground">
                           Update card · View invoices · Cancel subscription
-                        </p>
+                        </p></>}
                         <Button
                           variant="ghost"
                           onClick={cancelMembership}
@@ -930,8 +941,14 @@ export default function DashboardPage() {
                       <h2 className="font-headline text-[22px]">Application Not Approved</h2>
                       <p className="text-muted-foreground italic font-medium">Unfortunately your application wasn't approved at this time. Please contact the team for details.</p>
                     </div>
+                  ) : appStatus === 'approved' && application.selectedPlan === 'free' ? (
+                    <div className="bg-card p-8 rounded-[24px] border border-border text-center space-y-4">
+                      <h2 className="font-headline text-[24px]">Free Listing Approved</h2>
+                      <p>Your free listing does not require payment. Your profile is being prepared; please reload if it does not appear.</p>
+                      <Button onClick={() => selectDashboardTab('My Profile')}>View My Profile</Button>
+                    </div>
                   ) : (
-                    /* 6. Approved — show the single plan they applied for */
+                    /* 6. Approved paid plan — show the single plan they applied for */
                     <>
                       <div id="activate-membership" className="space-y-2 scroll-mt-40">
                         <h2 className="font-headline text-[24px] md:text-[28px]">Activate Your Membership</h2>
@@ -978,8 +995,12 @@ export default function DashboardPage() {
 
               {/* My Profile Tab — pulls everything from the vendor's latest application */}
               {activeTab === 'My Profile' && (
-                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  {!user ? (
+                <div id="vendor-profile" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  {applicationLoading ? (
+                    <p role="status" className="p-8 text-center">Loading your vendor profile…</p>
+                  ) : applicationError ? (
+                    <p role="alert" className="p-8 text-center">We couldn’t load your vendor profile. Please reload the page or contact support. You do not need to apply again.</p>
+                  ) : !user ? (
                     <Card className="rounded-[24px] border-border shadow-soft">
                       <CardContent className="p-8 text-center space-y-3">
                         <User className="w-10 h-10 text-primary mx-auto" />

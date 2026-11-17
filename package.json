@@ -11,7 +11,10 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test:billing": "node --test tests/paystack.test.cjs",
-    "typecheck:billing": "tsc --project tests/tsconfig.billing.json"
+    "typecheck:billing": "tsc --project tests/tsconfig.billing.json",
+    "test:vendor": "node --test tests/vendor-approval.test.cjs",
+    "typecheck:vendor": "tsc --project tests/tsconfig.vendor.json",
+    "test:vendor-rules": "node --test tests/vendor-rules.test.cjs"
   },
   "dependencies": {
     "@genkit-ai/google-genai": "^1.28.0",

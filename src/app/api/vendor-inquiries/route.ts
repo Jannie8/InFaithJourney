@@ -1,3 +1,4 @@
+import { publicSiteUrl } from '@/lib/site-url';
 import { NextRequest, NextResponse } from 'next/server';
 import { FieldValue } from 'firebase-admin/firestore';
 import { getAdminDb } from '@/lib/firebase-admin';
@@ -47,7 +48,7 @@ export async function POST(req: NextRequest) {
           senderEmail: email,
           weddingDate,
           message,
-          profileUrl: `${req.nextUrl.origin}/vendor/${encodeURIComponent(vendorId)}`,
+          profileUrl: publicSiteUrl(`/vendor/${encodeURIComponent(vendorId)}`),
         });
         emailSent = true;
         await inquiry.update({ emailSentAt: FieldValue.serverTimestamp() });

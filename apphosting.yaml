@@ -12,6 +12,10 @@ runConfig:
 #   appears in this file or in source control). Create it once with:
 #     firebase apphosting:secrets:set paystack-secret-key
 env:
+  - variable: SITE_URL
+    value: https://infaithjourney.com
+    availability:
+      - RUNTIME
   # # PayStack public key — safe to expose to the browser. Needed at build & runtime.
   - variable: NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY
     value: pk_live_c9ad98c008920e7169264dd665b485381bab4ee3
