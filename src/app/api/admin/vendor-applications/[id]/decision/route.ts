@@ -1,3 +1,4 @@
+import { publicSiteUrl } from '@/lib/site-url';
 import { NextRequest, NextResponse } from 'next/server';
 import { FieldValue } from 'firebase-admin/firestore';
 import { getAdminAuth, getAdminDb } from '@/lib/firebase-admin';
@@ -103,7 +104,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
         ownerName: data.ownerName,
         businessName: data.businessName,
         selectedPlan: data.selectedPlan,
-        activationUrl: `${req.nextUrl.origin}/dashboard#activate-membership`,
+        activationUrl: publicSiteUrl(data.selectedPlan === 'free' ? '/dashboard#vendor-profile' : '/dashboard#activate-membership'),
       });
       await applicationRef.update({ approvalEmailSentAt: FieldValue.serverTimestamp() });
       return NextResponse.json({ decision, emailSent: true });

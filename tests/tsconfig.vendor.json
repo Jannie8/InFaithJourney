@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.json",
+  "include": [
+    "../src/lib/site-url.ts",
+    "../src/lib/vendor-dashboard.ts",
+    "../src/lib/vendor-approval-email.ts",
+    "../src/app/api/admin/vendor-applications/[id]/decision/route.ts",
+    "../src/app/api/vendor-applications/route.ts",
+    "../src/app/api/vendor-inquiries/route.ts",
+    "../src/app/dashboard/page.tsx"
+  ],
+  "exclude": ["../node_modules"],
+  "compilerOptions": {"incremental": false}
+}

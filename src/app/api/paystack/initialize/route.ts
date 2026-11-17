@@ -1,3 +1,4 @@
+import { publicSiteUrl } from '@/lib/site-url';
 import { NextRequest, NextResponse } from 'next/server';
 import { initializeSubscription, type VendorTier } from '@/lib/paystack';
 import { getAdminAuth, getAdminDb } from '@/lib/firebase-admin';
@@ -40,8 +41,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Where PayStack sends the customer back after paying.
-    const origin = req.nextUrl.origin;
-    const callbackUrl = `${origin}/dashboard?paystack=return`;
+    const callbackUrl = publicSiteUrl('/dashboard?paystack=return');
 
     // Establish the vendor association before Paystack can send any webhooks.
     await db.collection('vendors').doc(user.uid).set({

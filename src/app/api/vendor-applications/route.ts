@@ -1,3 +1,4 @@
+import { publicSiteUrl } from '@/lib/site-url';
 import { NextRequest, NextResponse } from 'next/server';
 import { FieldValue } from 'firebase-admin/firestore';
 import { getAdminAuth, getAdminDb } from '@/lib/firebase-admin';
@@ -91,7 +92,7 @@ export async function POST(req: NextRequest) {
         ownerName: String(body.ownerName),
         category: String(body.category),
         selectedPlan: String(body.selectedPlan),
-        reviewUrl: `${req.nextUrl.origin}/admin`,
+        reviewUrl: publicSiteUrl('/admin'),
       })));
       emailsSent = deliveries.filter(result => result.status === 'fulfilled').length;
       const emailsFailed = deliveries.length - emailsSent;

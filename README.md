@@ -151,3 +151,55 @@ cancellation, duplicate subscriptions, API errors, confirmation failures, renewe
 transaction references, delayed events, signature validation, and cancelled accounts.
 The billing type check isolates these server files from existing unrelated project
 syntax errors; the production config currently skips project-wide TypeScript errors.
+
+## Vendor approval links and profile access
+
+Public emails and Paystack return URLs use `SITE_URL` (default:
+`https://infaithjourney.com`), never the reverse proxy's internal request origin.
+App Hosting sets this runtime variable in `apphosting.yaml`. For a separate test
+or preview deployment, set its own public HTTPS origin. For local development,
+`SITE_URL=http://localhost:9002` is allowed outside production.
+
+Free listings become active when approved. Their approval email opens
+`/dashboard#vendor-profile` and does not request payment. Paid-plan emails open
+`/dashboard#activate-membership`; the dashboard selects the billing tab and still
+requires verified payment before activation. Both destinations retain the normal
+sign-in flow. Already-delivered emails containing `0.0.0.0` cannot be changed;
+those recipients can open the public website's dashboard directly.
+
+The dashboard reads the signed-in user's applications with an ownership filter
+and `limit(100)`, compatible with the previous deployed rules. It can also read
+the application's canonical document via `vendors/{uid}.applicationId`. Loading
+and read failures are shown explicitly rather than claiming the user never applied.
+Free memberships are labelled Free Listing and never described as monthly billing.
+
+The updated Firestore rules restrict application lists to the owning user or an
+administrator. Deploy these rules separately from the App Hosting rollout:
+
+```bash
+firebase deploy --only firestore:rules --project infaithjourney-90d96
+```
+
+The application query fix also works with the previous rules, but deploy the new
+rules to prevent other signed-in users listing applicants' private information.
+
+Checks:
+
+```bash
+npm run test:vendor
+npm run typecheck:vendor
+npm run test:billing
+npm run typecheck:billing
+npm run build
+```
+
+To run the ownership checks, start a local Firestore emulator with this repository's
+`firestore.rules` and project ID `demo-infaithjourney`, then run:
+
+```bash
+FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 npm run test:vendor-rules
+```
+
+The emulator checks allow own application queries/direct reads and deny unfiltered
+lists, another user's applications, and signed-out access. These tests never use
+production Firebase data or send emails or payments.
