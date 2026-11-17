@@ -1,0 +1,6 @@
+{
+  "extends": "../tsconfig.json",
+  "include": ["../src/lib/vendor-pricing.ts", "../src/lib/vendors.ts", "../src/app/vendors/page.tsx", "../src/app/category/[slug]/page.tsx"],
+  "exclude": ["../node_modules"],
+  "compilerOptions": {"incremental": false}
+}

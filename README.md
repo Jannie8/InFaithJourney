@@ -203,3 +203,21 @@ FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 npm run test:vendor-rules
 The emulator checks allow own application queries/direct reads and deny unfiltered
 lists, another user's applications, and signed-out access. These tests never use
 production Firebase data or send emails or payments.
+
+## Directory pricing and discoverability
+
+Public vendor pricing ranges are parsed as separate ZAR amounts. For example,
+`5000 - 10, 000` becomes R5,000–R10,000 rather than the joined number R500,010,000.
+Formatting with currency symbols, thousands separators, cents, and `k`/`m`
+shorthand is supported. Vendor prices are converted to thousands of rand only
+for comparison with the sliders.
+
+Default vendor/category budgets apply no price restriction. The maximum slider
+position means an open upper limit (`+`); selecting a narrower range matches
+vendors whose advertised range overlaps it. Unspecified prices stay visible by
+default but do not claim a match to an explicitly narrowed budget. All active
+membership tiers remain searchable in either catalogue view.
+
+Run `npm run test:directory` and `npm run typecheck:directory` for regression
+checks, including the reported Test vendor and both catalogue/category rendering.
+These checks use local fixtures and do not change live vendor records.
